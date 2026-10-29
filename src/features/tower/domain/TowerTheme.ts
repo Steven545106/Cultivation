@@ -28,10 +28,10 @@ export const towerThemes: readonly TowerTheme[] = [
   { id: "flame", nameZh: "赤焰洞府", background: "/assets/backgrounds/tower-flame.webp", hueDeg: 0, saturate: 0.95, brightness: 0.84, tint: "rgba(255, 110, 30, 0.12)", ambient: "ember", ambientTints: [0xffb347, 0xff7a2f, 0xffe08a] },
   { id: "frost", nameZh: "寒霜冰原", background: "/assets/backgrounds/tower-frost.webp", hueDeg: 0, saturate: 0.95, brightness: 0.84, tint: "rgba(190, 230, 255, 0.12)", ambient: "snow", ambientTints: [0xffffff, 0xd9f1ff] },
   { id: "thunder", nameZh: "雷鳴天海", background: "/assets/backgrounds/tower-thunder.webp", hueDeg: 0, saturate: 0.95, brightness: 0.84, tint: "rgba(120, 90, 255, 0.12)", ambient: "spark", ambientTints: [0xe6f6ff, 0x9fd0ff, 0xc9a8ff] },
-  { id: "star", nameZh: "星河虛空", background: null, hueDeg: 40, saturate: 0.7, brightness: 0.45, tint: "rgba(30, 30, 120, 0.2)", ambient: "star", ambientTints: [0xffffff, 0xfff1b8, 0xbcd4ff] },
-  { id: "blossom", nameZh: "桃花仙境", background: null, hueDeg: 130, saturate: 0.7, brightness: 0.68, tint: "rgba(255, 150, 190, 0.1)", ambient: "petal", ambientTints: [0xffc2dd, 0xff9fc6, 0xffe1ee] },
-  { id: "gold", nameZh: "金輝天宮", background: null, hueDeg: -155, saturate: 0.8, brightness: 0.66, tint: "rgba(255, 205, 90, 0.12)", ambient: "mote", ambientTints: [0xffe9a0, 0xffd15c, 0xfff6d0] },
-  { id: "blood", nameZh: "血月魔域", background: null, hueDeg: -200, saturate: 0.9, brightness: 0.48, tint: "rgba(190, 20, 40, 0.18)", ambient: "ember", ambientTints: [0xff5a5a, 0xc21f3a, 0xff9a9a] },
+  { id: "star", nameZh: "星河虛空", background: "/assets/backgrounds/tower-star.webp", hueDeg: 0, saturate: 0.95, brightness: 0.84, tint: "rgba(30, 30, 120, 0.2)", ambient: "star", ambientTints: [0xffffff, 0xfff1b8, 0xbcd4ff] },
+  { id: "blossom", nameZh: "桃花仙境", background: "/assets/backgrounds/tower-blossom.webp", hueDeg: 0, saturate: 0.95, brightness: 0.78, tint: "rgba(255, 150, 190, 0.1)", ambient: "petal", ambientTints: [0xffc2dd, 0xff9fc6, 0xffe1ee] },
+  { id: "gold", nameZh: "金輝天宮", background: "/assets/backgrounds/tower-gold.webp", hueDeg: 0, saturate: 0.9, brightness: 0.7, tint: "rgba(255, 205, 90, 0.12)", ambient: "mote", ambientTints: [0xffe9a0, 0xffd15c, 0xfff6d0] },
+  { id: "blood", nameZh: "血月魔域", background: "/assets/backgrounds/tower-blood.webp", hueDeg: 0, saturate: 0.95, brightness: 0.84, tint: "rgba(190, 20, 40, 0.18)", ambient: "ember", ambientTints: [0xff5a5a, 0xc21f3a, 0xff9a9a] },
   { id: "chaos", nameZh: "混沌虛無", background: null, hueDeg: 90, saturate: 0.6, brightness: 0.42, tint: "rgba(110, 40, 160, 0.2)", ambient: "mote", ambientTints: [0xd9a8ff, 0x9a6bff, 0xf0d9ff] },
 ];
 
