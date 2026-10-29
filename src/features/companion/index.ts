@@ -1,0 +1,33 @@
+/** Public dao-companion (道侶／雙修) boundary. */
+export {
+  companionCatalog,
+  getCompanionById,
+  isCompanionId,
+  type CompanionConfig,
+  type CompanionDualEffect,
+  type CompanionId,
+} from "./domain/CompanionCatalog";
+export {
+  accrueAffinity,
+  AFFINITY_BONUS_PER_LEVEL,
+  AFFINITY_LEVEL_HOURS,
+  createCompanionProgress,
+  formatCompanionDualEffect,
+  formatCompanionPossession,
+  getAffinityLevel,
+  getAffinityMultiplier,
+  getAffinityProgress,
+  getCompanionAffinityLevel,
+  getCompanionBonuses,
+  getCompanionPossessionBonus,
+  getCompanionUnlockText,
+  getUnlockedCompanions,
+  getSavedCompanionBonuses,
+  isCompanionUnlocked,
+  MAX_AFFINITY_LEVEL,
+  NO_COMPANION_BONUSES,
+  normalizeCompanionProgress,
+  resolveDualPartner,
+  type CompanionBonuses,
+  type CompanionProgress,
+} from "./domain/CompanionRules";

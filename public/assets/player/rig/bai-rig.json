@@ -1,0 +1,324 @@
+{
+  "id": "bai-xiaochun-cutout",
+  "displayScale": 0.255,
+  "parts": [
+    {
+      "id": "body",
+      "texture": "bai-part-body",
+      "file": "/assets/player/rig/parts/body.webp",
+      "pivot": {
+        "x": 150,
+        "y": 160
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depth": 4.9,
+      "back": {
+        "texture": "bai-part-back-body",
+        "file": "/assets/player/rig/parts/back/body.webp",
+        "pivot": {
+          "x": 172,
+          "y": 172
+        }
+      }
+    },
+    {
+      "id": "robe_back",
+      "texture": "bai-part-robe_back",
+      "file": "/assets/player/rig/parts/robe_back.webp",
+      "parent": "body",
+      "pivot": {
+        "x": 150,
+        "y": 55
+      },
+      "anchor": {
+        "x": 150,
+        "y": 80
+      },
+      "depth": 4.0,
+      "secondary": {
+        "stiffness": 10,
+        "damping": 0.45
+      },
+      "back": {
+        "texture": "bai-part-back-robe_back",
+        "file": "/assets/player/rig/parts/back/robe_back.webp",
+        "pivot": {
+          "x": 300,
+          "y": 50
+        },
+        "anchor": {
+          "x": 172,
+          "y": 92
+        }
+      }
+    },
+    {
+      "id": "leg_back",
+      "texture": "bai-part-leg_back",
+      "file": "/assets/player/rig/parts/leg_back.webp",
+      "parent": "body",
+      "pivot": {
+        "x": 75,
+        "y": 40
+      },
+      "anchor": {
+        "x": 95,
+        "y": 190
+      },
+      "depth": 4.3,
+      "back": {
+        "anchor": {
+          "x": 117,
+          "y": 202
+        }
+      }
+    },
+    {
+      "id": "leg_front",
+      "texture": "bai-part-leg_front",
+      "file": "/assets/player/rig/parts/leg_front.webp",
+      "parent": "body",
+      "pivot": {
+        "x": 75,
+        "y": 40
+      },
+      "anchor": {
+        "x": 200,
+        "y": 190
+      },
+      "depth": 4.4,
+      "back": {
+        "anchor": {
+          "x": 222,
+          "y": 202
+        }
+      }
+    },
+    {
+      "id": "robe_front",
+      "texture": "bai-part-robe_front",
+      "file": "/assets/player/rig/parts/robe_front.webp",
+      "parent": "body",
+      "pivot": {
+        "x": 128,
+        "y": 55
+      },
+      "anchor": {
+        "x": 150,
+        "y": 95
+      },
+      "depth": 4.5,
+      "secondary": {
+        "stiffness": 11,
+        "damping": 0.45
+      },
+      "back": {
+        "texture": "bai-part-back-robe_front",
+        "file": "/assets/player/rig/parts/back/robe_front.webp",
+        "pivot": {
+          "x": 310,
+          "y": 50
+        },
+        "anchor": {
+          "x": 172,
+          "y": 107
+        }
+      }
+    },
+    {
+      "id": "torso",
+      "texture": "bai-part-torso",
+      "file": "/assets/player/rig/parts/torso.webp",
+      "parent": "body",
+      "pivot": {
+        "x": 160,
+        "y": 225
+      },
+      "anchor": {
+        "x": 148,
+        "y": 75
+      },
+      "depth": 5.0,
+      "back": {
+        "texture": "bai-part-back-torso",
+        "file": "/assets/player/rig/parts/back/torso.webp",
+        "pivot": {
+          "x": 230,
+          "y": 270
+        },
+        "anchor": {
+          "x": 170,
+          "y": 87
+        }
+      }
+    },
+    {
+      "id": "arm_back",
+      "texture": "bai-part-arm_back",
+      "file": "/assets/player/rig/parts/arm_back.webp",
+      "parent": "torso",
+      "pivot": {
+        "x": 175,
+        "y": 55
+      },
+      "anchor": {
+        "x": 60,
+        "y": 110
+      },
+      "depth": 5.1,
+      "back": {
+        "hidden": true
+      }
+    },
+    {
+      "id": "head",
+      "texture": "bai-part-head",
+      "file": "/assets/player/rig/parts/head.webp",
+      "parent": "torso",
+      "pivot": {
+        "x": 180,
+        "y": 420
+      },
+      "anchor": {
+        "x": 160,
+        "y": 40
+      },
+      "depth": 5.2,
+      "back": {
+        "texture": "bai-part-back-head",
+        "file": "/assets/player/rig/parts/back/head.webp",
+        "pivot": {
+          "x": 222,
+          "y": 455
+        },
+        "anchor": {
+          "x": 230,
+          "y": 45
+        }
+      }
+    },
+    {
+      "id": "hair_back",
+      "texture": "bai-part-hair_back",
+      "file": "/assets/player/rig/parts/hair_back.webp",
+      "parent": "head",
+      "pivot": {
+        "x": 195,
+        "y": 70
+      },
+      "anchor": {
+        "x": 170,
+        "y": 145
+      },
+      "depth": 4.2,
+      "secondary": {
+        "stiffness": 14,
+        "damping": 0.55
+      },
+      "back": {
+        "hidden": true
+      }
+    },
+    {
+      "id": "ponytail",
+      "texture": "bai-part-ponytail",
+      "file": "/assets/player/rig/parts/ponytail.webp",
+      "parent": "head",
+      "pivot": {
+        "x": 183,
+        "y": 28
+      },
+      "anchor": {
+        "x": 45,
+        "y": 175
+      },
+      "depth": 4.1,
+      "secondary": {
+        "stiffness": 7,
+        "damping": 0.5
+      },
+      "back": {
+        "texture": "bai-part-back-ponytail",
+        "file": "/assets/player/rig/parts/back/ponytail.webp",
+        "pivot": {
+          "x": 150,
+          "y": 95
+        },
+        "anchor": {
+          "x": 222,
+          "y": 140
+        },
+        "depth": 5.15
+      }
+    },
+    {
+      "id": "arm_front",
+      "texture": "bai-part-arm_front",
+      "file": "/assets/player/rig/parts/arm_front.webp",
+      "parent": "torso",
+      "pivot": {
+        "x": 100,
+        "y": 60
+      },
+      "anchor": {
+        "x": 262,
+        "y": 110
+      },
+      "depth": 4.7,
+      "back": {
+        "anchor": {
+          "x": 340,
+          "y": 110
+        }
+      }
+    },
+    {
+      "id": "fist_front",
+      "texture": "bai-part-fist_front",
+      "file": "/assets/player/rig/parts/fist_front.webp",
+      "parent": "arm_front",
+      "pivot": {
+        "x": 47,
+        "y": 44
+      },
+      "anchor": {
+        "x": 203,
+        "y": 120
+      },
+      "depth": 8.6
+    }
+  ],
+  "weaponLayering": {
+    "occluder": "head",
+    "zone": { "x": 196, "y": 233, "rx": 188, "ry": 226 },
+    "behind": {
+      "weapon": 5.17,
+      "parts": { "fist_front": 5.18 }
+    }
+  },
+  "weaponArm": "arm_front",
+  "grip": {
+    "part": "arm_front",
+    "x": 203,
+    "y": 120
+  },
+  "armFollow": {
+    "ratio": 0.85,
+    "min": -110,
+    "max": 60
+  },
+  "bladeLock": {
+    "forearmOffset": 90
+  },
+  "footPlant": {
+    "soles": {
+      "leg_front": { "x": 135, "y": 346 },
+      "leg_back": { "x": 66, "y": 349 }
+    },
+    "plantWhenForward": "leg_back",
+    "plantWhenBack": "leg_front"
+  }
+}

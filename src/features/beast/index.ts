@@ -1,0 +1,58 @@
+/** Public spirit-beast boundary. */
+export {
+  beastCatalog,
+  DEFAULT_BEAST_ID,
+  getBeastById,
+  isBeastId,
+  type BeastConfig,
+  type BeastId,
+  type BeastPossessionStat,
+} from "./domain/BeastCatalog";
+export {
+  BEAST_ATTACK_INTERVAL_MS,
+  formatBeastPossession,
+  formatBeastPossessionValue,
+  getBeastAttackDamage,
+  getBeastStartStageIndex,
+  getBeastDamageShare,
+  getBeastPossessionBonuses,
+  getBeastPossessionLabel,
+  getBeastPossessionValue,
+  getBeastUnlockText,
+  getExpectedBeastDamageShare,
+  getUnlockedBeasts,
+  isBeastUnlocked,
+  resolveDeployedBeast,
+  type BeastPossessionBonuses,
+} from "./domain/BeastRules";
+export {
+  BEAST_BREAKTHROUGH_STEPS,
+  BEAST_MAX_STAGE_INDEX,
+  BEAST_PACE,
+  BEAST_STAGES,
+  beastStageCosts,
+  DEMON_CORE_IDLE_MULTIPLIER,
+  demonCorePricingRates,
+  demonCoresPerSecond,
+  getBeastFeedCost,
+  BEAST_POSSESSION_MAX_MULTIPLIER,
+  getBeastRealmDamageMultiplier,
+  getBeastRealmPossessionMultiplier,
+  getBeastRealmStartIndex,
+  getTotalBeastFeedCost,
+  getTowerDemonCoreReward,
+  isBeastBreakthrough,
+  normalizeBeastStageIndex,
+  planBeastFeeding,
+  type BeastFeedingPlan,
+  onCurveBeastStageAt,
+} from "./domain/BeastRealm";
+export { settleDemonCoreIncome, type DemonCoreIncomeState } from "./domain/DemonCoreIncome";
+export {
+  createBeastProgress,
+  getBeastStageIndex,
+  normalizeBeastProgress,
+  settleBeastUnlocks,
+  type BeastProgress,
+  type BeastRealmProgress,
+} from "./domain/BeastProgress";
