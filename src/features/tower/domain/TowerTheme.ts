@@ -32,7 +32,7 @@ export const towerThemes: readonly TowerTheme[] = [
   { id: "blossom", nameZh: "桃花仙境", background: "/assets/backgrounds/tower-blossom.webp", hueDeg: 0, saturate: 0.95, brightness: 0.78, tint: "rgba(255, 150, 190, 0.1)", ambient: "petal", ambientTints: [0xffc2dd, 0xff9fc6, 0xffe1ee] },
   { id: "gold", nameZh: "金輝天宮", background: "/assets/backgrounds/tower-gold.webp", hueDeg: 0, saturate: 0.9, brightness: 0.7, tint: "rgba(255, 205, 90, 0.12)", ambient: "mote", ambientTints: [0xffe9a0, 0xffd15c, 0xfff6d0] },
   { id: "blood", nameZh: "血月魔域", background: "/assets/backgrounds/tower-blood.webp", hueDeg: 0, saturate: 0.95, brightness: 0.84, tint: "rgba(190, 20, 40, 0.18)", ambient: "ember", ambientTints: [0xff5a5a, 0xc21f3a, 0xff9a9a] },
-  { id: "chaos", nameZh: "混沌虛無", background: null, hueDeg: 90, saturate: 0.6, brightness: 0.42, tint: "rgba(110, 40, 160, 0.2)", ambient: "mote", ambientTints: [0xd9a8ff, 0x9a6bff, 0xf0d9ff] },
+  { id: "chaos", nameZh: "混沌虛無", background: "/assets/backgrounds/tower-chaos.webp", hueDeg: 0, saturate: 0.95, brightness: 0.8, tint: "rgba(110, 40, 160, 0.2)", ambient: "mote", ambientTints: [0xd9a8ff, 0x9a6bff, 0xf0d9ff] },
 ];
 
 /** The look of a floor (1-based); out-of-range floors use the nearest theme. */
