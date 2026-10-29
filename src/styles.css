@@ -118,8 +118,8 @@ body,
 .game-shell--tower .phaser-game::before {
   /* Bleed past the edges so the blur never shows a soft border. */
   inset: -16px;
-  background: url("/assets/backgrounds/Background-highres.webp") center / cover no-repeat;
-  filter: hue-rotate(var(--tower-hue, 0deg)) blur(4px) saturate(var(--tower-saturate, 0.62)) brightness(var(--tower-brightness, 0.62));
+  background: var(--tower-bg, url("/assets/backgrounds/Background-highres.webp")) center / cover no-repeat;
+  filter: hue-rotate(var(--tower-hue, 0deg)) blur(var(--tower-blur, 4px)) saturate(var(--tower-saturate, 0.62)) brightness(var(--tower-brightness, 0.62));
   transition: filter 1.2s ease;
 }
 .game-shell--tower .phaser-game::after {

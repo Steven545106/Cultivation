@@ -15,6 +15,13 @@ describe("tower floor themes", () => {
     expect(getTowerTheme(100)).toBe(towerThemes[9]);
   });
 
+  it("does not tint a painted background a second time", () => {
+    towerThemes.filter(theme => theme.background).forEach(theme => {
+      expect(theme.hueDeg, theme.id).toBe(0);
+      expect(theme.background, theme.id).toMatch(/^\/assets\/backgrounds\/tower-\w+\.webp$/);
+    });
+  });
+
   it("keeps odd floor numbers inside the tower", () => {
     expect(getTowerTheme(0)).toBe(towerThemes[0]);
     expect(getTowerTheme(-5)).toBe(towerThemes[0]);

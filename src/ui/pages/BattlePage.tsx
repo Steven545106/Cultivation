@@ -65,7 +65,7 @@ export function BattlePage({ navigation, characterName, background = false, runt
   // The floor's look: the background's hue and wash follow it (the drifting particles are drawn by the scene).
   const theme = getTowerTheme(towerChallenge?.stage.floor ?? (towerRealmLock ? Math.ceil(towerRealmLock.stageNumber / 10) : 1));
   const themeStyle = isTowerMode
-    ? { "--tower-hue": `${theme.hueDeg}deg`, "--tower-saturate": theme.saturate, "--tower-brightness": theme.brightness, "--tower-tint": theme.tint } as CSSProperties
+    ? { "--tower-hue": `${theme.hueDeg}deg`, "--tower-saturate": theme.saturate, "--tower-brightness": theme.brightness, "--tower-tint": theme.tint, ...(theme.background ? { "--tower-bg": `url("${theme.background}")`, "--tower-blur": "1.5px" } : {}) } as CSSProperties
     : undefined;
   return (
     <main
