@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { getMonsterTextureKey, monsterAssetPaths } from "./monsterAssetManifest";
 import { monsterAnimationKey, monsterAnimations, monsterSheetKey } from "./monsterAnimationConfig";
-import { themedMonsterAnimationKey, themedMonsters, themedMonsterSheetKey } from "./themedMonsters";
+import { bossKey, themedMonsterAnimationKey, themedMonsters, themedMonsterSheetKey } from "./themedMonsters";
 
 const MONSTER_SIZE = 300;
 
@@ -67,7 +67,9 @@ export class MonsterView {
   }
 
   /** `themeId`: the floor's theme; a theme with its own creature shows that instead of the shared rotation. */
-  public setTexture(stageNumber: number, themeId?: string): void {
+  public setTexture(stageNumber: number, themeId?: string, isBoss = false): void {
+    // A Boss uses its theme's guardian when one has been drawn, else the theme's normal creature.
+    if (themeId && isBoss && themedMonsters[bossKey(themeId)] && this.scene.textures.exists(themedMonsterSheetKey(bossKey(themeId)))) themeId = bossKey(themeId);
     const themed = themeId ? themedMonsters[themeId] : undefined;
     if (themeId && themed && this.scene.textures.exists(themedMonsterSheetKey(themeId))) {
       const animationKey = themedMonsterAnimationKey(themeId);

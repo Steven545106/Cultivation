@@ -9,9 +9,14 @@ export interface ThemedMonster {
   readonly frameRate: number;
 }
 
+/** The room-10 guardian of a theme is registered under `<themeId>-boss`; floors without one use the normal creature. */
+export const bossKey = (themeId: string): string => `${themeId}-boss`;
+
 export const themedMonsters: Readonly<Record<string, ThemedMonster>> = {
   // 雲霧山門: a crane of cloud and mist.
   mist: { sheetPath: "/assets/monster-theme/mist-sheet.webp", frames: 8, frameRate: 1000 / 130 },
+  // 雲霧山門 Boss: the crane's evolved form, with a halo of cloud and four cloud banners.
+  "mist-boss": { sheetPath: "/assets/monster-theme/mist-boss-sheet.webp", frames: 8, frameRate: 1000 / 140 },
   // 青翠靈林: a spirit stag with living-branch antlers.
   forest: { sheetPath: "/assets/monster-theme/forest-sheet.webp", frames: 8, frameRate: 1000 / 130 },
   // 赤焰洞府: a lava salamander wreathed in flame.

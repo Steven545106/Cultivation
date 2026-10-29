@@ -332,7 +332,7 @@ export function createWeaponPreviewScene(runtime: GameRuntime): typeof Phaser.Sc
       if (!wasTowerChallenge || challenge.startedAt !== previousChallenge?.startedAt || stage.stageNumber !== previousChallenge?.stage.stageNumber) {
         this.monster.reset(stage.isBoss ? 1.18 : 1);
         const theme = getTowerTheme(stage.floor);
-        this.monster.setTexture(stage.stageNumber, theme.id);
+        this.monster.setTexture(stage.stageNumber, theme.id, stage.isBoss);
         this.monster.drawDecoration(stage.isBoss);
         this.ambience.setTheme(theme);
         // Announce a stage once: a retry, or farming the same stage again, stays quiet.
