@@ -21,6 +21,8 @@ export const themedMonsters: Readonly<Record<string, ThemedMonster>> = {
   "forest-boss": { sheetPath: "/assets/monster-theme/forest-boss-sheet.webp", frames: 8, frameRate: 1000 / 140 },
   // 青翠靈林: a spirit stag with living-branch antlers.
   forest: { sheetPath: "/assets/monster-theme/forest-sheet.webp", frames: 8, frameRate: 1000 / 130 },
+  // 赤焰洞府 Boss: a lava dragon lord with a mane of living flame.
+  "flame-boss": { sheetPath: "/assets/monster-theme/flame-boss-sheet.webp", frames: 8, frameRate: 1000 / 140 },
   // 赤焰洞府: a lava salamander wreathed in flame.
   flame: { sheetPath: "/assets/monster-theme/flame-sheet.webp", frames: 8, frameRate: 1000 / 120 },
   // 寒霜冰原: a silver-white frost wolf with ice crystals along its spine.
