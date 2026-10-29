@@ -16,6 +16,8 @@ export const themedMonsters: Readonly<Record<string, ThemedMonster>> = {
   forest: { sheetPath: "/assets/monster-theme/forest-sheet.webp", frames: 8, frameRate: 1000 / 130 },
   // 赤焰洞府: a lava salamander wreathed in flame.
   flame: { sheetPath: "/assets/monster-theme/flame-sheet.webp", frames: 8, frameRate: 1000 / 120 },
+  // 寒霜冰原: a silver-white frost wolf with ice crystals along its spine.
+  frost: { sheetPath: "/assets/monster-theme/frost-sheet.webp", frames: 8, frameRate: 1000 / 120 },
   // 雷鳴天海: a violet storm lynx in gold armour, crackling with lightning.
   thunder: { sheetPath: "/assets/monster-theme/thunder-sheet.webp", frames: 8, frameRate: 1000 / 120 },
   // 星河虛空: a cosmic fox whose tails hold a night sky.
