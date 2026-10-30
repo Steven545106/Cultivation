@@ -39,8 +39,9 @@ interface BattlePageProps {
 export function BattlePage({ navigation, characterName, background = false, runtime, onRuntimeReady, isTowerMode, selection, towerSession, onOpenStageSelect }: BattlePageProps): JSX.Element {
   const { equippedWeapon, combatStats, weaponUnlockContext } = selection;
   const { towerChallenge, towerRewardNotice, towerRealmLock } = towerSession;
-  // The battle engine (Phaser, ~1.5 MB) starts once the page in front has painted and the
-  // browser is idle, or at once when the battle itself is shown.
+  // The battle engine (Phaser, ~1.5 MB, plus every monster, beast and sword picture it preloads)
+  // starts once the pictures of the page in front have loaded and the browser is idle, so it does
+  // not hold them up; at once when the battle itself is shown.
   const [engineWanted, setEngineWanted] = useState(!background);
   useEffect(() => {
     if (engineWanted) return undefined;
@@ -48,13 +49,23 @@ export function BattlePage({ navigation, characterName, background = false, runt
       setEngineWanted(true);
       return undefined;
     }
+    let idleHandle: number | null = null;
+    let timer: number | null = null;
+    const startedAt = Date.now();
     const start = () => setEngineWanted(true);
-    if (typeof window.requestIdleCallback === "function") {
-      const handle = window.requestIdleCallback(start, { timeout: 2_000 });
-      return () => window.cancelIdleCallback(handle);
-    }
-    const timer = window.setTimeout(start, 800);
-    return () => window.clearTimeout(timer);
+    const waitForPictures = () => {
+      const loading = Array.from(document.images).some(image => !image.complete);
+      // Give up waiting after a while so a picture that never loads does not keep the tower from starting.
+      if (loading && Date.now() - startedAt < 8_000) { timer = window.setTimeout(waitForPictures, 250); return; }
+      if (typeof window.requestIdleCallback === "function") idleHandle = window.requestIdleCallback(start, { timeout: 2_000 });
+      else timer = window.setTimeout(start, 300);
+    };
+    // Let the page in front put its pictures in the document first.
+    timer = window.setTimeout(waitForPictures, 300);
+    return () => {
+      if (timer !== null) window.clearTimeout(timer);
+      if (idleHandle !== null) window.cancelIdleCallback(idleHandle);
+    };
   }, [background, engineWanted]);
   const farming = towerRealmLock !== null && towerChallenge?.stage.stageNumber === towerRealmLock.farmStageNumber;
   const towerHeading = farming

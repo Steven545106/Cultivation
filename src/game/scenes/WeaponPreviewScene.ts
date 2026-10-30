@@ -98,7 +98,7 @@ export function createWeaponPreviewScene(runtime: GameRuntime): typeof Phaser.Sc
       weaponCatalog.forEach(weapon => this.load.image(weapon.spriteKey, weapon.assetPath));
       monsterAssetPaths.forEach((assetPath, index) => this.load.image(`tower-monster-${index}`, assetPath));
       Object.keys(monsterAnimations).forEach(name => this.load.spritesheet(
-        monsterSheetKey(name), `/assets/monster-animation/${name}.png`, { frameWidth: 512, frameHeight: 512 },
+        monsterSheetKey(name), `/assets/monster-animation/${name}.webp`, { frameWidth: 512, frameHeight: 512 },
       ));
       Object.entries(themedMonsters).forEach(([themeId, monster]) => this.load.spritesheet(themedMonsterSheetKey(themeId), monster.sheetPath, { frameWidth: 512, frameHeight: 512 }));
       beastCatalog.forEach(beast => this.load.image(beast.textureKey, beast.assetPath));
