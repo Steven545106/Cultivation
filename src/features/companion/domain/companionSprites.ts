@@ -127,8 +127,9 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cols: 6,
     cellWidth: 563,
     cellHeight: 432,
-    steps: range(24).map(cell => ({ cell, holdMs: cell >= 14 && cell <= 17 ? 230 : 200 })),
-    blendMs: 60,
+    // Short holds and a long cross-fade, so the small changes between frames melt into each other instead of ticking.
+    steps: range(24).map(cell => ({ cell, holdMs: cell >= 14 && cell <= 17 ? 170 : 110 })),
+    blendMs: 90,
   },
 };
 

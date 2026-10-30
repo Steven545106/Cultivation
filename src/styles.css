@@ -288,7 +288,14 @@ canvas {
 .cultivating-view-toggle button[aria-pressed="true"] { background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font-weight: 700; }
 .cultivating-view-toggle button:focus-visible { outline: 2px solid #fff3c4; outline-offset: 2px; }
 /* Two people side by side: wider and landscape. */
-.cultivating-character--dual { aspect-ratio: 563 / 432; }
+.cultivating-character--dual { aspect-ratio: 563 / 432; transform-origin: 50% 92%; animation: dual-breathe var(--loop, 5s) ease-in-out infinite; }
+/* The two breathe together: the picture swells with the inhale, and a halo of qi flares at the peak. */
+@keyframes dual-breathe {
+  0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 0 rgba(150, 215, 255, 0)); }
+  50% { transform: scale(1.025) translateY(-1.2%); filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 14px rgba(150, 215, 255, 0.55)); }
+  72% { transform: scale(1.035) translateY(-1.6%); filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 24px rgba(255, 224, 150, 0.8)) brightness(1.08); }
+}
+@media (prefers-reduced-motion: reduce) { .cultivating-character--dual { animation: none; } }
 
 .cultivation-status { padding: 15px; border: 1px solid rgba(183, 225, 251, 0.48); border-radius: 15px; background: rgba(7, 35, 55, 0.77); box-shadow: inset 0 0 28px rgba(110, 212, 255, 0.1); color: #eefaff; text-align: left; }
 .cultivation-status__header { display: flex; justify-content: space-between; gap: 14px; align-items: end; border-bottom: 1px solid rgba(184, 222, 242, 0.26); padding-bottom: 9px; }

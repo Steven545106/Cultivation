@@ -1,4 +1,5 @@
 import { getDualCultivationSprite, heroCultivationSprite, spriteLoopMs } from "../features/companion/domain/companionSprites";
+import type { CSSProperties } from "react";
 import { QI_BLEED, QiBreathEffect, SOLO_QI } from "./QiBreathEffect";
 import { SpriteAnimation } from "./SpriteAnimation";
 
@@ -10,7 +11,7 @@ export function CultivatingCharacter({ characterName, companionId, companionName
   const dual = getDualCultivationSprite(companionId);
   const bleed = `${-QI_BLEED * 100}%`;
   return (
-    <div className={dual ? "cultivating-stage cultivating-stage--dual" : "cultivating-stage"}>
+    <div className={dual ? "cultivating-stage cultivating-stage--dual" : "cultivating-stage"} style={dual ? ({ "--loop": `${spriteLoopMs(dual)}ms` } as CSSProperties) : undefined}>
       {/* The shared scene has its heaven-and-earth qi painted into the frames; only the solo picture gets the drawn effect. */}
       {!dual && (
         <div className="qi-breath-box" style={{ inset: bleed }}>
