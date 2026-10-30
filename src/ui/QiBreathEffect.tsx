@@ -15,7 +15,6 @@ export interface QiBreathLook {
 }
 
 export const SOLO_QI: QiBreathLook = { core: { x: 0.5, y: 0.62 }, halos: [{ x: 0.5, y: 0.1 }], reach: 0.5, qi: "112, 208, 255", accent: "220, 246, 255", gold: "255, 217, 138" };
-export const DUAL_QI: QiBreathLook = { core: { x: 0.5, y: 0.5 }, halos: [{ x: 0.31, y: 0.1 }, { x: 0.69, y: 0.1 }], reach: 0.5, qi: "112, 208, 255", accent: "226, 244, 255", gold: "255, 224, 160" };
 
 /** The canvas reaches this share of the picture's size beyond each edge, so qi can stream in from outside it. */
 export const QI_BLEED = 0.16;

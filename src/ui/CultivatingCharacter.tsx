@@ -1,5 +1,5 @@
 import { getDualCultivationSprite, heroCultivationSprite, spriteLoopMs } from "../features/companion/domain/companionSprites";
-import { DUAL_QI, QI_BLEED, QiBreathEffect, SOLO_QI } from "./QiBreathEffect";
+import { QI_BLEED, QiBreathEffect, SOLO_QI } from "./QiBreathEffect";
 import { SpriteAnimation } from "./SpriteAnimation";
 
 /** One breath of the solo meditation: two passes of the 32-frame loop, slow enough to read. */
@@ -11,9 +11,12 @@ export function CultivatingCharacter({ characterName, companionId, companionName
   const bleed = `${-QI_BLEED * 100}%`;
   return (
     <div className={dual ? "cultivating-stage cultivating-stage--dual" : "cultivating-stage"}>
-      <div className="qi-breath-box" style={{ inset: bleed }}>
-        <QiBreathEffect look={dual ? DUAL_QI : SOLO_QI} periodMs={dual ? spriteLoopMs(dual) : SOLO_BREATH_MS} />
-      </div>
+      {/* The shared scene has its heaven-and-earth qi painted into the frames; only the solo picture gets the drawn effect. */}
+      {!dual && (
+        <div className="qi-breath-box" style={{ inset: bleed }}>
+          <QiBreathEffect look={SOLO_QI} periodMs={SOLO_BREATH_MS} />
+        </div>
+      )}
       {dual
         ? <SpriteAnimation sprite={dual} className="cultivating-character cultivating-character--dual" label={`${characterName}與${companionName ?? "道侶"}雙修，一同吐納靈氣`} />
         : <SpriteAnimation sprite={heroCultivationSprite} className="cultivating-character" label={`${characterName}盤坐修練`} />}
