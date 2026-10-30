@@ -149,6 +149,39 @@ export function QinghuiSnow({ flakeDelays, moonDelay }: { readonly flakeDelays: 
   );
 }
 
+const FEATHER_COUNT = 14;
+
+/**
+ * 踏雪無痕: a streak of icy wind cuts across the target at each of
+ * `streakDelays` ms; the ice feathers it leaves hang still, then all burst
+ * outward at `burstDelay` ms. Remounting it (a new `key`) replays it.
+ */
+export function TaxueFeathers({ streakDelays, burstDelay }: { readonly streakDelays: readonly number[]; readonly burstDelay: number }): JSX.Element {
+  return (
+    <div className="adventure-feathers" aria-hidden="true">
+      {streakDelays.map((delay, index) => (
+        <span key={index} className={index % 2 ? "adventure-feathers__streak adventure-feathers__streak--back" : "adventure-feathers__streak"} style={{ animationDelay: `${delay}ms`, top: `${48 + index * 6}%` }} />
+      ))}
+      <span className="adventure-feathers__flash" style={{ animationDelay: `${burstDelay}ms` }} />
+      {Array.from({ length: FEATHER_COUNT }, (_, index) => {
+        const angle = (index / FEATHER_COUNT) * 360 + hash(index, 21) * 20;
+        return (
+          <i
+            key={index}
+            className="adventure-feathers__feather"
+            style={{
+              animationDelay: `${streakDelays[0] ?? 0}ms, ${burstDelay}ms`,
+              "--angle": `${angle}deg`,
+              "--rest": `${10 + hash(index, 22) * 16}cqw`,
+              "--fly": `${34 + hash(index, 23) * 18}cqw`,
+            } as CSSProperties}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 /**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.

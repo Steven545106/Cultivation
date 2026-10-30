@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow" | "feathers";
   /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
   readonly glowing?: boolean;
 }
@@ -88,6 +88,15 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     hitFrames: [14, 18, 22, 26, 30, 32, 34, 36, 41],
     effectFrame: 13,
     effect: "snow",
+    glowing: true,
+  },
+  // 踏雪無痕 with the 雲羽冰華劍: 48 frames at 90 ms. He dashes off as a streak of wind on 13–24 (passing the enemy on 20), is back on 27, holds still, and the ice feathers burst on 33.
+  taxue: {
+    sprite: { sheet: "/assets/player/snow-trace-sheet.webp", poster: "/assets/player/snow-trace-poster.webp", cols: 8, cellWidth: 488, cellHeight: 368, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 151, left: 37.5, bottom: -11 },
+    hitFrames: [20, 26, 33],
+    effectFrame: 19,
+    effect: "feathers",
     glowing: true,
   },
 };

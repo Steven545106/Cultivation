@@ -84,8 +84,16 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空, 月華流照, 周天星轉, 星落九天 and 清輝點雪", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天", "清輝點雪"]);
+  it("the skill list holds all eight skills in order", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天", "清輝點雪", "踏雪無痕"]);
+  });
+
+  it("踏雪無痕 cuts through twice, then the ice feathers burst", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "taxue" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([40, 40, 180]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("taxue").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("清輝點雪 thrusts eight times, then the moon strikes", () => {

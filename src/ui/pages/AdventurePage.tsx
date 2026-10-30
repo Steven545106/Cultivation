@@ -14,7 +14,7 @@ import type { CompanionSprite } from "../../features/companion/domain/companionS
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { LeiyuLightning, LuoyingPetals, QinghuiSnow, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
+import { LeiyuLightning, LuoyingPetals, QinghuiSnow, TaxueFeathers, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
 import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
@@ -236,6 +236,13 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
                 key={effect.key}
                 flakeDelays={effectCast.hitFrames.slice(0, -1).map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))}
                 moonDelay={castTimeAt(effectCast, effectCast.hitFrames[effectCast.hitFrames.length - 1]) - castTimeAt(effectCast, effectCast.effectFrame)}
+              />
+            )}
+            {effect && effectCast?.effect === "feathers" && (
+              <TaxueFeathers
+                key={effect.key}
+                streakDelays={effectCast.hitFrames.slice(0, -1).map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))}
+                burstDelay={castTimeAt(effectCast, effectCast.hitFrames[effectCast.hitFrames.length - 1]) - castTimeAt(effectCast, effectCast.effectFrame)}
               />
             )}
             {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={`adventure-float${entry.tone === "crit" ? " adventure-float--crit" : entry.tone === "status" ? " adventure-float--status" : ""}`}>{entry.text}</b>)}
