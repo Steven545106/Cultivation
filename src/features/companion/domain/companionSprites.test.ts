@@ -66,7 +66,7 @@ describe("companion sprite playback", () => {
   it("plays the two-person meditation for Lin Tingxue and leaves other companions solo", () => {
     const dual = getDualCultivationSprite("lin-tingxue");
     expect(dual).not.toBeNull();
-    expect(dual?.steps.map(step => step.cell)).toEqual(Array.from({ length: 18 }, (_, index) => index));
+    expect(dual?.steps.map(step => step.cell)).toEqual(Array.from({ length: 32 }, (_, index) => index));
     expect(getDualCultivationSprite("tingxue")).toBe(dual);
     expect(getDualCultivationSprite("su-wanqing")).toBeNull();
     expect(getDualCultivationSprite(null)).toBeNull();

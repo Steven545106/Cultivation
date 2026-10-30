@@ -119,7 +119,7 @@ export const heroCultivationSprite: CompanionSprite = {
   blendMs: 0,
 };
 
-/** The hero's solo loop and the companion's own solo loop (drawn in the same style) side by side with a taiji core between them; 18 frames. */
+/** The hero's solo loop and the companion's own solo loop (drawn in the same style) side by side; 32 frames at 80 ms, exactly the solo's timing (her 18 drawn frames are spread over them). */
 const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
   "lin-tingxue": {
     sheet: "/assets/companions/dual_lin_tingxue-sheet.webp",
@@ -127,8 +127,8 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cols: 6,
     cellWidth: 635,
     cellHeight: 462,
-    steps: range(18).map(cell => ({ cell, holdMs: 120 })),
-    blendMs: 70,
+    steps: range(32).map(cell => ({ cell, holdMs: 80 })),
+    blendMs: 0,
   },
 };
 

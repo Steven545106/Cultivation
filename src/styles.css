@@ -288,13 +288,9 @@ canvas {
 .cultivating-view-toggle button[aria-pressed="true"] { background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font-weight: 700; }
 .cultivating-view-toggle button:focus-visible { outline: 2px solid #fff3c4; outline-offset: 2px; }
 /* Two people side by side: wider and landscape. */
-.cultivating-character--dual { aspect-ratio: 635 / 462; transform-origin: 50% 92%; animation: dual-breathe var(--loop, 5s) ease-in-out infinite; }
-/* The two breathe together: the picture swells a little with the inhale and settles with the exhale. No glow of its own; the qi is in the drawing. */
-@keyframes dual-breathe {
-  0%, 100% { transform: scale(1) translateY(0); }
-  50%, 72% { transform: scale(1.025) translateY(-1.2%); }
-}
-@media (prefers-reduced-motion: reduce) { .cultivating-character--dual { animation: none; } }
+.cultivating-character--dual { aspect-ratio: 635 / 462; }
+/* Each of the two gets the same qi overlay as the solo picture: a square box centred on that person. */
+.qi-breath-box--person { aspect-ratio: 1; height: 132%; top: -16%; transform: translateX(-50%); }
 
 .cultivation-status { padding: 15px; border: 1px solid rgba(183, 225, 251, 0.48); border-radius: 15px; background: rgba(7, 35, 55, 0.77); box-shadow: inset 0 0 28px rgba(110, 212, 255, 0.1); color: #eefaff; text-align: left; }
 .cultivation-status__header { display: flex; justify-content: space-between; gap: 14px; align-items: end; border-bottom: 1px solid rgba(184, 222, 242, 0.26); padding-bottom: 9px; }
