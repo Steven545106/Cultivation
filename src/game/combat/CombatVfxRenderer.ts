@@ -20,7 +20,7 @@ function along(sample: FadedTrailSample, t: number): Point {
 
 /**
  * Draws the windup charge, layered swing ribbon, weapon afterimages, element
- * particles, impact flashes, damage numbers and camera shake. It applies no damage.
+ * particles, impact flashes, and damage numbers. It applies no damage.
  */
 export class CombatVfxRenderer {
   /** Soft outer ribbon, normal blending so it stays readable on the bright sky. */
@@ -37,7 +37,7 @@ export class CombatVfxRenderer {
   private tier: RefinementVfxTier = getRefinementVfxTier(0);
   /** Additive halo copy of the weapon sprite, shown from +11. */
   private glow: Phaser.GameObjects.Image | null = null;
-  /** OS "reduce motion": no camera shake, flicker or afterimages, half the particles. */
+  /** OS "reduce motion": no flicker or afterimages, half the particles. */
   private readonly reducedMotion = typeof window !== "undefined" && (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false);
   private particleScale(): number {
     return this.tier.particleScale * (this.reducedMotion ? 0.5 : 1);
@@ -114,7 +114,7 @@ export class CombatVfxRenderer {
     this.charge = null;
   }
 
-  /** `finisher`: the combo's last move adds a second, larger burst and a heavier shake. */
+  /** `finisher`: the combo's last move adds a second, larger burst. */
   public playImpact(weapon: WeaponConfig, result: AttackResult, position: Phaser.Math.Vector2, finisher = false): void {
     const flash = this.scene.add.graphics().setDepth(20);
     flash.fillStyle(weapon.impactConfig.color, 0.9).fillCircle(position.x, position.y, 44);
@@ -151,7 +151,6 @@ export class CombatVfxRenderer {
     const impactParticles = scaleParticleCount(result.isCritical ? IMPACT_PARTICLES * 2 : IMPACT_PARTICLES, this.particleScale());
     this.getEmitter(getSwingVfxProfile(weapon.element)).emitParticleAt(position.x, position.y, impactParticles);
     if (finisher) this.playFinisherBurst(position, weapon.impactConfig.color);
-    if (!this.reducedMotion) this.scene.cameras.main.shake(finisher ? 180 : 100, weapon.impactConfig.cameraShake * (finisher ? 2.2 : 1));
   }
 
   /** Combo finisher: a wide white-gold ring plus radiating slash lines. */

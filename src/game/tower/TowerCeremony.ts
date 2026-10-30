@@ -30,7 +30,7 @@ export class TowerCeremony {
     this.scene.tweens.add({ targets: card, alpha: 1, y: 132, duration: 420, ease: "Quad.easeOut", hold: 1300, yoyo: true, onComplete: () => card.destroy() });
   }
 
-  /** The room-10 guardian arrives: the scene darkens, a banner slams in, the screen shakes. */
+  /** The room-10 guardian arrives: the scene darkens, a banner slams in, no screen shake. */
   public bossEntrance(name: string): void {
     const dim = this.scene.add.rectangle(CENTRE_X, HEIGHT / 2, WIDTH, HEIGHT, 0x10000a, 0).setDepth(DEPTH - 1);
     const blood = this.scene.add.rectangle(CENTRE_X, HEIGHT / 2, WIDTH, HEIGHT, 0xa01020, 0).setDepth(DEPTH - 1).setBlendMode(Phaser.BlendModes.ADD);
@@ -50,7 +50,6 @@ export class TowerCeremony {
       delay: 1500,
       onComplete: () => { banner.destroy(); title.destroy(); bars.forEach(bar => bar.destroy()); },
     });
-    if (!this.reducedMotion) this.scene.cameras.main.shake(420, 0.012);
   }
 
   /** A smaller announcement for the room-9 elite: no darkening, no shake. */
