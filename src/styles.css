@@ -780,15 +780,15 @@ canvas {
 }
 
 /*
- * Phones: the navigation fills the width as one row of equal buttons, the
- * icon above its name, so every page fits on screen instead of running off
- * both edges. Kept last so it wins over the per-icon sizes above.
+ * Phones: the navigation spans the width and scrolls sideways when its
+ * buttons do not all fit, the icon above its name. Kept last so it wins over
+ * the per-icon sizes above.
  */
 @media (max-width: 640px) {
-  .global-navigation { left: 6px; right: 6px; bottom: 6px; transform: none; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; padding: 4px; border-radius: 16px; }
-  .global-navigation__item { flex-direction: column; justify-content: center; gap: 2px; min-width: 0; padding: 3px 0 2px; border-radius: 10px; font-size: 11px; }
-  .global-navigation__item > span:last-child { max-width: 100%; overflow: hidden; text-overflow: clip; }
-  .global-navigation__medallion { width: 30px; height: 30px; border-width: 1.5px; font-size: 16px !important; }
+  .global-navigation { left: 6px; right: 6px; bottom: 6px; transform: none; display: flex; justify-content: flex-start; gap: 2px; padding: 4px; border-radius: 16px; overflow-x: auto; overscroll-behavior-x: contain; touch-action: pan-x; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .global-navigation::-webkit-scrollbar { display: none; }
+  .global-navigation__item { flex: 0 0 auto; flex-direction: column; justify-content: center; gap: 2px; min-width: 52px; padding: 3px 4px 2px; border-radius: 10px; font-size: 12px; }
+  .global-navigation__medallion { width: 36px; height: 36px; border-width: 1.5px; font-size: 18px !important; }
 
   /* 遊歷: a portrait stage, the status on top, the commands in a row above the log. */
   .adventure-page { padding: 8px 6px 80px; }
