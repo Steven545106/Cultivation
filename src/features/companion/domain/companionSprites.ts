@@ -126,7 +126,7 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     poster: "/assets/companions/dual_lin_tingxue-poster.webp",
     cols: 6,
     cellWidth: 635,
-    cellHeight: 462,
+    cellHeight: 438,
     steps: range(32).map(cell => ({ cell, holdMs: 80 })),
     blendMs: 0,
   },
