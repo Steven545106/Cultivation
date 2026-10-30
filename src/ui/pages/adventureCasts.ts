@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning";
+  readonly effect: "petals" | "lightning" | "crescent";
 }
 
 const sheetSteps = (frames: number, frameMs: number, slow: readonly number[] = []) =>
@@ -31,7 +31,7 @@ const sheetSteps = (frames: number, frameMs: number, slow: readonly number[] = [
 export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
   // 落英繽紛 with the 寒櫻霜華劍: 28 frames at 130 ms; the two settling frames before the last hold twice as long.
   luoying: {
-    sprite: { sheet: "/assets/player/落英繽紛-sheet.webp", poster: "/assets/player/落英繽紛-poster.webp", cols: 6, cellWidth: 280, cellHeight: 260, steps: sheetSteps(28, 130, [25, 26]), blendMs: 0 },
+    sprite: { sheet: "/assets/player/falling-blossoms-sheet.webp", poster: "/assets/player/falling-blossoms-poster.webp", cols: 6, cellWidth: 280, cellHeight: 260, steps: sheetSteps(28, 130, [25, 26]), blendMs: 0 },
     placement: { width: 112, left: 50, bottom: 1 },
     hitFrames: [13, 15, 16, 18, 20],
     effectFrame: 11,
@@ -39,11 +39,19 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
   },
   // 雷獄崩天 with the 九霄雷獄劍 (redrawn with a greatsword-sized blade): 44 frames at 90 ms. He leaps on frame 21, strikes on 25 and lands the bolt on 29.
   leiyu: {
-    sprite: { sheet: "/assets/player/雷獄崩天-sheet.webp", poster: "/assets/player/雷獄崩天-poster.webp", cols: 8, cellWidth: 438, cellHeight: 429, steps: sheetSteps(44, 90), blendMs: 0 },
+    sprite: { sheet: "/assets/player/thunder-prison-sheet.webp", poster: "/assets/player/thunder-prison-poster.webp", cols: 8, cellWidth: 438, cellHeight: 429, steps: sheetSteps(44, 90), blendMs: 0 },
     placement: { width: 147.2, left: 30.6, bottom: -14.3 },
     hitFrames: [22, 24, 26, 27, 29],
     effectFrame: 21,
     effect: "lightning",
+  },
+  // 新月破空 with the 星穹弦月刃: 48 frames at 90 ms. He spins on frames 13–24, looses the crescent on 28, and the star rift bursts on 32 and 34.
+  xinyue: {
+    sprite: { sheet: "/assets/player/crescent-void-sheet.webp", poster: "/assets/player/crescent-void-poster.webp", cols: 8, cellWidth: 619, cellHeight: 474, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 195, left: 35.5, bottom: -20 },
+    hitFrames: [29, 32, 34],
+    effectFrame: 27,
+    effect: "crescent",
   },
 };
 

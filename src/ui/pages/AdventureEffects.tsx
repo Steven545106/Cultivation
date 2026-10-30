@@ -47,6 +47,23 @@ export function LeiyuLightning({ pillarDelays, boltDelay }: { readonly pillarDel
 }
 
 /**
+ * 新月破空: a silver crescent blade sweeps across the target (at `slashDelay`
+ * ms), the cut opens into a dark starry rift, and a star bursts out of it at
+ * each of `starDelays` ms. Remounting it (a new `key`) replays it.
+ */
+export function XinyueCrescent({ slashDelay, starDelays }: { readonly slashDelay: number; readonly starDelays: readonly number[] }): JSX.Element {
+  return (
+    <div className="adventure-crescent" aria-hidden="true">
+      <span className="adventure-crescent__rift" style={{ animationDelay: `${slashDelay}ms` }} />
+      <span className="adventure-crescent__blade" style={{ animationDelay: `${slashDelay}ms` }} />
+      {starDelays.map((delay, index) => (
+        <span key={index} className="adventure-crescent__star" style={{ animationDelay: `${delay}ms`, left: `${42 + index * 16}%`, top: `${44 - index * 10}%` }} />
+      ))}
+    </div>
+  );
+}
+
+/**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.
  */

@@ -84,8 +84,16 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛 and 雷獄崩天", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天"]);
+  it("the skill list holds 落英繽紛, 雷獄崩天 and 新月破空", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空"]);
+  });
+
+  it("新月破空 lands one crescent slash and two star bursts", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "xinyue" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([140, 60, 60]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("xinyue").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("雷獄崩天 lands four lightning pillars and one great bolt", () => {

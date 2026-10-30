@@ -1,4 +1,4 @@
-export type AdventureSkillId = "luoying" | "leiyu";
+export type AdventureSkillId = "luoying" | "leiyu" | "xinyue";
 
 export interface AdventureSkill {
   readonly id: AdventureSkillId;
@@ -28,6 +28,13 @@ export const adventureSkills: readonly AdventureSkill[] = [
     qiCost: 45,
     hitMultipliers: [0.4, 0.4, 0.4, 0.4, 1.2],
     paralyzeChance: 0.3,
+  },
+  {
+    id: "xinyue",
+    nameZh: "新月破空",
+    description: "星穹弦月刃旋身一斬，新月光刃造成 140% 攻擊；劃開的星空裂縫再迸出兩顆星光，各造成 60% 攻擊。",
+    qiCost: 40,
+    hitMultipliers: [1.4, 0.6, 0.6],
   },
 ];
 
