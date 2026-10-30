@@ -84,8 +84,16 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空, 月華流照, 周天星轉 and 星落九天", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天"]);
+  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空, 月華流照, 周天星轉, 星落九天 and 清輝點雪", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天", "清輝點雪"]);
+  });
+
+  it("清輝點雪 thrusts eight times, then the moon strikes", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "qinghui" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([25, 25, 25, 25, 25, 25, 25, 25, 80]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("qinghui").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("星落九天 drops four meteors, then a great star that bursts", () => {

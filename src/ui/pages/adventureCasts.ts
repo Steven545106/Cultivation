@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow";
   /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
   readonly glowing?: boolean;
 }
@@ -79,6 +79,15 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     hitFrames: [22, 24, 26, 28, 31, 33],
     effectFrame: 20,
     effect: "meteors",
+    glowing: true,
+  },
+  // 清輝點雪 with the 霜月清輝劍: 52 frames at 85 ms (GPT drew the second sheet with 16). Eight thrusts land on 14–36, each opening a snowflake, and the moon shows on 41.
+  qinghui: {
+    sprite: { sheet: "/assets/player/frost-moon-sheet.webp", poster: "/assets/player/frost-moon-poster.webp", cols: 8, cellWidth: 500, cellHeight: 456, steps: sheetSteps(52, 85), blendMs: 0 },
+    placement: { width: 172, left: 31.5, bottom: -15 },
+    hitFrames: [14, 18, 22, 26, 30, 32, 34, 36, 41],
+    effectFrame: 13,
+    effect: "snow",
     glowing: true,
   },
 };

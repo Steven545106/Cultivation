@@ -127,6 +127,29 @@ export function XingluoMeteors({ meteorDelays }: { readonly meteorDelays: readon
 }
 
 /**
+ * 清輝點雪: a snowflake blooms on the target at each of `flakeDelays` ms, in a
+ * ring; at `moonDelay` ms a pale moon shows behind them and they shatter.
+ * Remounting it (a new `key`) replays it.
+ */
+export function QinghuiSnow({ flakeDelays, moonDelay }: { readonly flakeDelays: readonly number[]; readonly moonDelay: number }): JSX.Element {
+  return (
+    <div className="adventure-snow" aria-hidden="true" style={{ "--moon-delay": `${moonDelay}ms` } as CSSProperties}>
+      <span className="adventure-snow__moon" />
+      {flakeDelays.map((delay, index) => {
+        const angle = (index / flakeDelays.length) * Math.PI * 2 - Math.PI / 2;
+        return (
+          <span
+            key={index}
+            className="adventure-snow__flake"
+            style={{ animationDelay: `${delay}ms, ${moonDelay}ms`, left: `${50 + Math.cos(angle) * 26}%`, top: `${50 + Math.sin(angle) * 26}%` }}
+          >❄</span>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.
  */

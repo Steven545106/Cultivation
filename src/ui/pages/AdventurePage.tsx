@@ -14,7 +14,7 @@ import type { CompanionSprite } from "../../features/companion/domain/companionS
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { LeiyuLightning, LuoyingPetals, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
+import { LeiyuLightning, LuoyingPetals, QinghuiSnow, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
 import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
@@ -41,7 +41,7 @@ const monsterSprite = (themeId: string): CompanionSprite | null => {
   if (!monster) return null;
   return {
     sheet: monster.sheetPath,
-    poster: monster.sheetPath,
+    poster: monster.posterPath,
     cols: 4,
     cellWidth: 512,
     cellHeight: 512,
@@ -230,6 +230,13 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             )}
             {effect && effectCast?.effect === "meteors" && (
               <XingluoMeteors key={effect.key} meteorDelays={effectCast.hitFrames.map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))} />
+            )}
+            {effect && effectCast?.effect === "snow" && (
+              <QinghuiSnow
+                key={effect.key}
+                flakeDelays={effectCast.hitFrames.slice(0, -1).map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))}
+                moonDelay={castTimeAt(effectCast, effectCast.hitFrames[effectCast.hitFrames.length - 1]) - castTimeAt(effectCast, effectCast.effectFrame)}
+              />
             )}
             {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={`adventure-float${entry.tone === "crit" ? " adventure-float--crit" : entry.tone === "status" ? " adventure-float--status" : ""}`}>{entry.text}</b>)}
           </div>

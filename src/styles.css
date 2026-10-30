@@ -757,6 +757,13 @@ canvas {
 .adventure-meteors__meteor--final::after { inset: -160%; }
 @keyframes adventure-meteor { 0% { opacity: 0; transform: translate(-50%, -50%) translate(260%, -260%); } 12% { opacity: 1; } 47% { opacity: 1; transform: translate(-50%, -50%) translate(0, 0); } 60% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.6); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } }
 @keyframes adventure-meteor-burst { 0%, 44% { opacity: 0; transform: scale(0.3); } 55% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.4); } }
+.adventure-snow { position: absolute; inset: -12%; z-index: 2; pointer-events: none; container-type: size; }
+.adventure-snow__moon { position: absolute; left: 50%; top: 50%; width: 62%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%) scale(0.8); background: radial-gradient(circle at 42% 40%, rgba(240, 248, 255, 0.75), rgba(200, 222, 255, 0.45) 55%, rgba(160, 195, 255, 0.15) 70%, transparent 74%); box-shadow: 0 0 40px rgba(190, 215, 255, 0.6); opacity: 0; animation: adventure-snow-moon 1300ms ease-out var(--moon-delay) forwards; }
+/* Each flake blooms on its thrust, holds in the ring, then shatters outward when the moon shows. */
+.adventure-snow__flake { position: absolute; transform: translate(-50%, -50%) scale(0); color: #e6f2ff; font-size: 16cqw; line-height: 1; text-shadow: 0 0 8px #9cc8ff, 0 0 18px #6fa8ff; opacity: 0; animation: adventure-snow-bloom 360ms cubic-bezier(0.2, 0.9, 0.3, 1.3) forwards, adventure-snow-shatter 700ms ease-in forwards; }
+@keyframes adventure-snow-bloom { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-40deg); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
+@keyframes adventure-snow-shatter { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8) rotate(60deg); filter: blur(3px); } }
+@keyframes adventure-snow-moon { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 75% { opacity: 0.9; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); } }
 @keyframes adventure-crescent-star { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(20deg); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotate(45deg); } }
 .adventure-enemy-fallback { color: #ffe9ac; font-size: 26px; font-weight: 800; }
 .adventure-figure.is-hurt { animation: adventure-hurt 260ms ease-out; }
