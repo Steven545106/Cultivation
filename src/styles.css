@@ -775,7 +775,7 @@ canvas {
 .adventure-menu button.is-open { border-color: #ffe49a; background: linear-gradient(180deg, #6a5a30, #3a3018); }
 .adventure-menu button:hover:not(:disabled), .adventure-skills button:hover:not(:disabled) { filter: brightness(1.2); }
 .adventure-menu button:disabled, .adventure-skills button:disabled { opacity: 0.45; cursor: not-allowed; }
-.adventure-skills { position: absolute; right: 17.5%; top: 26%; z-index: 5; display: grid; gap: 6px; width: 30%; min-width: 190px; padding: 8px; border: 1px solid rgba(246, 220, 150, 0.6); border-radius: 10px; background: rgba(8, 20, 34, 0.9); }
+.adventure-skills { position: absolute; right: 17.5%; top: 26%; z-index: 5; display: grid; gap: 6px; width: 30%; min-width: 190px; padding: 8px; border: 1px solid rgba(246, 220, 150, 0.6); border-radius: 10px; background: rgba(8, 20, 34, 0.9); max-height: 68%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(246, 220, 150, 0.6) transparent; }
 .adventure-skills button { display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px; text-align: left; border-color: #f4a6c6; background: linear-gradient(180deg, #4a3050, #2a2040); }
 .adventure-skills strong { font-size: clamp(14px, 2.2cqw, 20px); }
 .adventure-skills span { font-family: Arial, "Noto Sans TC", sans-serif; font-size: 12px; color: #ffd0e2; font-weight: 700; }
@@ -828,7 +828,7 @@ canvas {
   .adventure-unit--hero { left: 48%; top: 31%; width: 44%; }
   .adventure-menu { top: auto; bottom: 17.5%; left: 3%; right: auto; width: auto; min-width: 0; display: flex; gap: 6px; }
   .adventure-menu button { min-width: 74px; padding: 7px 10px; font-size: 16px; }
-  .adventure-skills { top: auto; bottom: 25%; left: 3%; right: 3%; width: auto; min-width: 0; }
+  .adventure-skills { top: auto; bottom: 25%; left: 3%; right: 3%; width: auto; min-width: 0; max-height: 58%; }
 
   /* 通天塔: the battle on top, the stage panel below it instead of over it. */
   .game-shell--tower .phaser-game { height: 42%; }
