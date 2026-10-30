@@ -714,6 +714,7 @@ canvas {
 /* The hero's stance and his cast share one sheet and one frame box, so the cast starts and ends in place. */
 .adventure-figure .adventure-hero-stance, .adventure-figure .adventure-hero-skill { position: absolute; left: 50%; bottom: 1%; width: 112%; height: auto; transform: translateX(-50%) scaleX(-1); filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.5)); pointer-events: none; }
 .adventure-figure .adventure-hero-stance.is-casting { visibility: hidden; }
+.adventure-figure .adventure-hero-skill.is-glowing { filter: drop-shadow(0 0 8px rgba(200, 225, 255, 0.35)); }
 .adventure-float--status { color: #d9a8ff; -webkit-text-stroke: 2px #2c0a4a; }
 .adventure-lightning { position: absolute; inset: -12% -8% 0; z-index: 2; pointer-events: none; }
 .adventure-lightning svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -733,6 +734,12 @@ canvas {
 /* The hero stands to the right of the enemy, so the crescent flies in from the right and its curve leads to the left. */
 @keyframes adventure-crescent-blade { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(35deg) translateX(70%); } 15% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(35deg) translateX(-45%); } }
 @keyframes adventure-crescent-rift { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-35deg) scaleY(0); } 15% { opacity: 1; transform: translate(-50%, -50%) rotate(-35deg) scaleY(1); } 70% { opacity: 0.9; transform: translate(-50%, -50%) rotate(-35deg) scaleY(0.8); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(-35deg) scaleY(0); } }
+.adventure-moonlight { position: absolute; inset: -12%; z-index: 2; pointer-events: none; }
+.adventure-moonlight__moon { position: absolute; left: 50%; top: 42%; width: 62%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255, 246, 214, 0.55), rgba(255, 232, 170, 0.28) 45%, rgba(190, 215, 255, 0.12) 62%, transparent 72%); opacity: 0; animation: adventure-moon var(--moon-ms, 2400ms) ease-out forwards; }
+/* Each wave is a crescent of pale blue light that rolls in from the hero's side (the right) and spreads over the target. */
+.adventure-moonlight__wave { position: absolute; left: 50%; top: 55%; width: 80%; aspect-ratio: 1.6; border-radius: 50%; border-left: 7px solid rgba(214, 234, 255, 0.95); box-shadow: -10px 0 18px -4px rgba(170, 205, 255, 0.85), inset 12px 0 22px -10px rgba(255, 238, 190, 0.6); transform: translate(-50%, -50%) translateX(55%) scale(calc(var(--wave-scale) * 0.6)); opacity: 0; animation: adventure-moon-wave 620ms cubic-bezier(0.2, 0.6, 0.3, 1) forwards; }
+@keyframes adventure-moon { 0% { opacity: 0; } 12% { opacity: 1; } 85% { opacity: 0.9; } 100% { opacity: 0; } }
+@keyframes adventure-moon-wave { 0% { opacity: 0; transform: translate(-50%, -50%) translateX(55%) scale(calc(var(--wave-scale) * 0.6)); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) translateX(-35%) scale(var(--wave-scale)); } }
 @keyframes adventure-crescent-star { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(20deg); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotate(45deg); } }
 .adventure-enemy-fallback { color: #ffe9ac; font-size: 26px; font-weight: 800; }
 .adventure-figure.is-hurt { animation: adventure-hurt 260ms ease-out; }

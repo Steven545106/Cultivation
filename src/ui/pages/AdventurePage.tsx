@@ -14,7 +14,7 @@ import type { CompanionSprite } from "../../features/companion/domain/companionS
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { LeiyuLightning, LuoyingPetals, XinyueCrescent } from "./AdventureEffects";
+import { LeiyuLightning, LuoyingPetals, XinyueCrescent, YuehuaMoonlight } from "./AdventureEffects";
 import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
@@ -215,6 +215,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
                 starDelays={effectCast.hitFrames.slice(1).map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))}
               />
             )}
+            {effect && effectCast?.effect === "moonlight" && (
+              <YuehuaMoonlight key={effect.key} waveDelays={effectCast.hitFrames.map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))} />
+            )}
             {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={`adventure-float${entry.tone === "crit" ? " adventure-float--crit" : entry.tone === "status" ? " adventure-float--status" : ""}`}>{entry.text}</b>)}
           </div>
         </div>
@@ -226,7 +229,7 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
           </div>
           <div className={`adventure-figure${heroHurt ? " is-hurt" : ""}`} key={`hero-${heroHurt}`}>
             <img className={castNow ? "adventure-hero-stance is-casting" : "adventure-hero-stance"} src={stance.image} style={placementStyle(stance.placement)} alt={`${characterName}持劍應戰`} draggable={false} />
-            {casting && castNow && <SpriteAnimation key={casting.key} sprite={castNow.sprite} className="adventure-hero-skill" style={placementStyle(castNow.placement)} />}
+            {casting && castNow && <SpriteAnimation key={casting.key} sprite={castNow.sprite} className={castNow.glowing ? "adventure-hero-skill is-glowing" : "adventure-hero-skill"} style={placementStyle(castNow.placement)} />}
             {floats.filter(entry => entry.side === "hero").map(entry => <b key={entry.id} className="adventure-float adventure-float--hero">{entry.text}</b>)}
           </div>
         </div>

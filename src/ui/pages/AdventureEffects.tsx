@@ -64,6 +64,23 @@ export function XinyueCrescent({ slashDelay, starDelays }: { readonly slashDelay
 }
 
 /**
+ * 月華流照: a pale moon glows behind the target and five waves of moonlight
+ * wash over it, one at each of `waveDelays` ms, each larger than the last.
+ * Remounting it (a new `key`) replays it.
+ */
+export function YuehuaMoonlight({ waveDelays }: { readonly waveDelays: readonly number[] }): JSX.Element {
+  const last = waveDelays[waveDelays.length - 1] ?? 0;
+  return (
+    <div className="adventure-moonlight" aria-hidden="true" style={{ "--moon-ms": `${last + 900}ms` } as CSSProperties}>
+      <span className="adventure-moonlight__moon" />
+      {waveDelays.map((delay, index) => (
+        <span key={index} className="adventure-moonlight__wave" style={{ animationDelay: `${delay}ms`, "--wave-scale": 0.7 + index * 0.15 } as CSSProperties} />
+      ))}
+    </div>
+  );
+}
+
+/**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.
  */

@@ -22,7 +22,9 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight";
+  /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
+  readonly glowing?: boolean;
 }
 
 const sheetSteps = (frames: number, frameMs: number, slow: readonly number[] = []) =>
@@ -52,6 +54,15 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     hitFrames: [29, 32, 34],
     effectFrame: 27,
     effect: "crescent",
+  },
+  // 月華流照 with the 皓月流光劍: 48 frames at 90 ms. The moon rises behind him on frames 5–12; the five waves of moonlight roll out on 18, 22, 27, 31 and 35.
+  yuehua: {
+    sprite: { sheet: "/assets/player/moonlight-tide-sheet.webp", poster: "/assets/player/moonlight-tide-poster.webp", cols: 8, cellWidth: 503, cellHeight: 360, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 169.5, left: 44.8, bottom: -1.4 },
+    hitFrames: [18, 22, 27, 31, 35],
+    effectFrame: 16,
+    effect: "moonlight",
+    glowing: true,
   },
 };
 

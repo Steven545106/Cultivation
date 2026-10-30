@@ -84,8 +84,16 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛, 雷獄崩天 and 新月破空", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空"]);
+  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空 and 月華流照", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照"]);
+  });
+
+  it("月華流照 rolls out five waves of moonlight, the last the strongest", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "yuehua" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([40, 40, 50, 50, 80]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("yuehua").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("新月破空 lands one crescent slash and two star bursts", () => {
