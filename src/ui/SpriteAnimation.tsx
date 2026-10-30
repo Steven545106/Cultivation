@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { spriteFrameAt, type CompanionSprite } from "../features/companion/domain/companionSprites";
 
 /**
@@ -6,7 +6,7 @@ import { spriteFrameAt, type CompanionSprite } from "../features/companion/domai
  * so `object-fit` and the same classes as an `<img>` size it. Users who prefer
  * reduced motion get the first frame as a still.
  */
-export function SpriteAnimation({ sprite, className, label }: { readonly sprite: CompanionSprite; readonly className?: string; readonly label?: string }): JSX.Element {
+export function SpriteAnimation({ sprite, className, label, style }: { readonly sprite: CompanionSprite; readonly className?: string; readonly label?: string; readonly style?: CSSProperties }): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
   const reducedMotion = typeof window !== "undefined" && (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false);
@@ -45,5 +45,5 @@ export function SpriteAnimation({ sprite, className, label }: { readonly sprite:
     return () => { cancelled = true; cancelAnimationFrame(frameRequest); };
   }, [sprite, reducedMotion]);
 
-  return <canvas ref={canvasRef} className={className} width={sprite.cellWidth} height={sprite.cellHeight} role="img" aria-label={label} aria-hidden={label ? undefined : true} data-ready={ready ? "true" : "false"} />;
+  return <canvas ref={canvasRef} className={className} style={style} width={sprite.cellWidth} height={sprite.cellHeight} role="img" aria-label={label} aria-hidden={label ? undefined : true} data-ready={ready ? "true" : "false"} />;
 }

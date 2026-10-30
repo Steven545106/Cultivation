@@ -58,7 +58,9 @@ export type AdventureAction =
 /** What happened during the last action, in order, so the screen can play it back. */
 export type AdventureEvent =
   | { readonly kind: "hero-hit"; readonly damage: number; readonly critical: boolean; readonly skillId: AdventureSkillId | null; readonly hitIndex: number }
-  | { readonly kind: "enemy-hit"; readonly damage: number };
+  | { readonly kind: "enemy-hit"; readonly damage: number }
+  /** A skill paralysed the enemy: it does not strike back this turn. */
+  | { readonly kind: "enemy-paralyzed" };
 
 export interface AdventureBattle {
   readonly hero: AdventureHero;
@@ -102,6 +104,7 @@ export function performPlayerAction(battle: AdventureBattle, action: AdventureAc
   const log: string[] = [];
   let hero = battle.hero;
   let enemyHp = battle.enemy.hp;
+  let paralyzed = false;
 
   const strike = (multiplier: number, skillId: AdventureSkillId | null, hitIndex: number): void => {
     const critical = roll() < hero.critRate;
@@ -114,9 +117,10 @@ export function performPlayerAction(battle: AdventureBattle, action: AdventureAc
     const skill = getAdventureSkill(action.skillId);
     if (hero.qi < skill.qiCost) return battle;
     hero = { ...hero, qi: hero.qi - skill.qiCost };
-    for (let hit = 0; hit < skill.hits; hit += 1) strike(skill.hitMultiplier, skill.id, hit);
+    skill.hitMultipliers.forEach((multiplier, hit) => strike(multiplier, skill.id, hit));
     const dealt = events.reduce((sum, event) => (event.kind === "hero-hit" ? sum + event.damage : sum), 0);
-    log.push(`你施展「${skill.nameZh}」，連斬 ${skill.hits} 次，共造成 ${dealt.toLocaleString("zh-TW")} 點傷害。`);
+    log.push(`你施展「${skill.nameZh}」，連擊 ${skill.hitMultipliers.length} 次，共造成 ${dealt.toLocaleString("zh-TW")} 點傷害。`);
+    paralyzed = enemyHp > 0 && skill.paralyzeChance !== undefined && roll() < skill.paralyzeChance;
   } else if (action.kind === "timeout") {
     log.push("你遲疑片刻，錯失了出手的時機。");
   } else {
@@ -131,10 +135,16 @@ export function performPlayerAction(battle: AdventureBattle, action: AdventureAc
     return { ...battle, hero, enemy: { ...battle.enemy, hp: 0 }, status: "victory", events, log: [...battle.log, ...log] };
   }
 
-  const enemyDamage = Math.max(1, Math.round(battle.enemy.attack * spread(roll)));
-  const heroHp = Math.max(0, hero.hp - enemyDamage);
-  events.push({ kind: "enemy-hit", damage: enemyDamage });
-  log.push(`${battle.enemy.nameZh}反撲，造成 ${enemyDamage.toLocaleString("zh-TW")} 點傷害。`);
+  let heroHp = hero.hp;
+  if (paralyzed) {
+    events.push({ kind: "enemy-paralyzed" });
+    log.push(`${battle.enemy.nameZh}被雷電麻痺，無法反擊。`);
+  } else {
+    const enemyDamage = Math.max(1, Math.round(battle.enemy.attack * spread(roll)));
+    heroHp = Math.max(0, hero.hp - enemyDamage);
+    events.push({ kind: "enemy-hit", damage: enemyDamage });
+    log.push(`${battle.enemy.nameZh}反撲，造成 ${enemyDamage.toLocaleString("zh-TW")} 點傷害。`);
+  }
   hero = { ...hero, hp: heroHp, qi: Math.min(hero.maxQi, hero.qi + ADVENTURE_BALANCE.turnQiRegen) };
   if (heroHp <= 0) log.push("你力竭倒地，這次遊歷到此為止。");
 

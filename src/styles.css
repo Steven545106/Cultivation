@@ -714,6 +714,18 @@ canvas {
 /* The hero's stance and his cast share one sheet and one frame box, so the cast starts and ends in place. */
 .adventure-figure .adventure-hero-stance, .adventure-figure .adventure-hero-skill { position: absolute; left: 50%; bottom: 1%; width: 112%; height: auto; transform: translateX(-50%) scaleX(-1); filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.5)); pointer-events: none; }
 .adventure-figure .adventure-hero-stance.is-casting { visibility: hidden; }
+.adventure-float--status { color: #d9a8ff; -webkit-text-stroke: 2px #2c0a4a; }
+.adventure-lightning { position: absolute; inset: -12% -8% 0; z-index: 2; pointer-events: none; }
+.adventure-lightning svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.adventure-lightning__pillar, .adventure-lightning__bolt { fill: none; stroke: #c99bff; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 4px #b46bff) drop-shadow(0 0 10px #8a3dff); opacity: 0; animation: adventure-pillar 520ms ease-out forwards; }
+.adventure-lightning__pillar { stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.adventure-lightning__bolt { stroke: #efe0ff; stroke-width: 4; vector-effect: non-scaling-stroke; animation-name: adventure-bolt; animation-duration: 700ms; }
+.adventure-lightning__ring { position: absolute; left: 50%; top: 80%; width: 30%; aspect-ratio: 2.4; border-radius: 50%; border: 3px solid #c99bff; box-shadow: 0 0 18px #9a4dff, inset 0 0 14px #9a4dff; transform: translate(-50%, -50%) scale(0.2); opacity: 0; animation: adventure-ring 700ms ease-out forwards; }
+.adventure-lightning__flash { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 70%, rgba(214, 170, 255, 0.75), rgba(150, 80, 255, 0.25) 45%, transparent 70%); opacity: 0; animation: adventure-flash 420ms ease-out forwards; }
+@keyframes adventure-pillar { 0% { opacity: 0; } 8% { opacity: 1; } 30% { opacity: 0.55; } 45% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes adventure-bolt { 0% { opacity: 0; } 6% { opacity: 1; } 40% { opacity: 0.8; } 100% { opacity: 0; } }
+@keyframes adventure-ring { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.2); } }
+@keyframes adventure-flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 .adventure-enemy-fallback { color: #ffe9ac; font-size: 26px; font-weight: 800; }
 .adventure-figure.is-hurt { animation: adventure-hurt 260ms ease-out; }
 .adventure-figure.is-defeated { opacity: 0.25; filter: grayscale(1); transition: opacity 600ms, filter 600ms; }

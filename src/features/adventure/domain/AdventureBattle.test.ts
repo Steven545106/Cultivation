@@ -30,7 +30,7 @@ describe("adventure battle", () => {
     const skill = getAdventureSkill("luoying");
     const next = performPlayerAction(start(), { kind: "skill", skillId: "luoying" }, fixed(0.5));
     const hits = next.events.filter(event => event.kind === "hero-hit");
-    expect(hits).toHaveLength(skill.hits);
+    expect(hits).toHaveLength(skill.hitMultipliers.length);
     expect(hits.every(event => event.kind === "hero-hit" && event.damage === 50 && event.skillId === "luoying")).toBe(true);
     expect(next.enemy.hp).toBe(next.enemy.maxHp - 250);
     expect(next.hero.qi).toBe(ADVENTURE_BALANCE.startQi - skill.qiCost + ADVENTURE_BALANCE.turnQiRegen);
@@ -84,8 +84,28 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛"]);
+  it("the skill list holds 落英繽紛 and 雷獄崩天", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天"]);
+  });
+
+  it("雷獄崩天 lands four lightning pillars and one great bolt", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    // 0.5 keeps the spread at 1 and, at 0.3 paralysis chance, does not paralyse.
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "leiyu" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([40, 40, 40, 40, 120]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("leiyu").qiCost + ADVENTURE_BALANCE.turnQiRegen);
+    expect(next.events.at(-1)?.kind).toBe("enemy-hit");
+  });
+
+  it("雷獄崩天 can paralyse the enemy so it does not strike back", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const rolls = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.1];
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "leiyu" }, () => rolls.shift() ?? 0.5);
+    expect(next.events.at(-1)?.kind).toBe("enemy-paralyzed");
+    expect(next.hero.hp).toBe(next.hero.maxHp);
+    expect(next.turn).toBe(2);
+    expect(next.status).toBe("playerTurn");
   });
 });
 

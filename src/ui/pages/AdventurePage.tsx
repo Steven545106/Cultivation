@@ -8,52 +8,27 @@ import {
   startAdventureBattle,
   type AdventureAction,
   type AdventureBattle,
+  type AdventureSkillId,
 } from "../../features/adventure";
 import type { CompanionSprite } from "../../features/companion/domain/companionSprites";
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { LuoyingPetals } from "./AdventureEffects";
+import { LeiyuLightning, LuoyingPetals } from "./AdventureEffects";
+import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
   readonly id: number;
   readonly side: "enemy" | "hero";
   readonly text: string;
-  readonly critical: boolean;
+  readonly tone: "normal" | "crit" | "status";
 }
 
-/**
- * The hero casting 落英繽紛 with the 寒櫻霜華劍: 28 frames at 130 ms; the two
- * settling frames before the last hold twice as long, and the last (the ready
- * stance) holds until the turn ends. Its first frame is also the hero's
- * stance between turns, so the cast starts and ends without a jump.
- */
-const LUOYING_FRAME_MS = 130;
-const LUOYING_FRAMES = 28;
-const LUOYING_SETTLING_FRAMES = [25, 26];
-const LUOYING_SPRITE: CompanionSprite = {
-  sheet: "/assets/player/hero_luoying-sheet.webp",
-  poster: "/assets/player/hero_luoying-poster.webp",
-  cols: 6,
-  cellWidth: 280,
-  cellHeight: 260,
-  steps: Array.from({ length: LUOYING_FRAMES }, (_, cell) => ({
-    cell,
-    holdMs: cell === LUOYING_FRAMES - 1 ? 4000 : LUOYING_SETTLING_FRAMES.includes(cell) ? LUOYING_FRAME_MS * 2 : LUOYING_FRAME_MS,
-  })),
-  blendMs: 0,
-};
-const HERO_STANCE = LUOYING_SPRITE.poster;
-/** One pause per step of a turn, so a five-petal skill can be read hit by hit. */
+/** One pause per step of a turn, so a basic strike and the reply can be read apart. */
 const HIT_GAP_MS = 170;
-/** The sword swings out from about frame 13 of the cast; the first petal lands then, and the petal burst on the enemy starts just before. */
-const SKILL_FIRST_HIT_MS = LUOYING_FRAME_MS * 13;
-const SKILL_PETALS_MS = LUOYING_FRAME_MS * 11;
-/** The five petals land a little further apart than basic hits, through the slashing frames. */
-const SKILL_HIT_GAP_MS = 220;
-/** Until the last frame (the ready stance) is on screen. */
-const LUOYING_LENGTH_MS = LUOYING_SPRITE.steps.slice(0, -1).reduce((sum, step) => sum + step.holdMs, 0) + LUOYING_FRAME_MS;
 const ENEMY_REPLY_GAP_MS = 420;
+
+const placementStyle = (placement: HeroPlacement): CSSProperties => ({ width: `${placement.width}%`, left: `${placement.left}%`, bottom: `${placement.bottom}%` });
 
 const monsterSprite = (themeId: string): CompanionSprite | null => {
   const monster = themedMonsters[themeId];
@@ -95,11 +70,16 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
   const [shown, setShown] = useState<AdventureBattle>(battle);
   const [busy, setBusy] = useState(false);
   const [floats, setFloats] = useState<readonly FloatingNumber[]>([]);
-  const [castKey, setCastKey] = useState<number | null>(null);
-  const [petalKey, setPetalKey] = useState<number | null>(null);
+  /** The skill being cast, keyed so a new cast replays its animation from the start. */
+  const [casting, setCasting] = useState<{ readonly key: number; readonly skillId: AdventureSkillId } | null>(null);
+  /** The skill effect playing on the enemy. */
+  const [effect, setEffect] = useState<{ readonly key: number; readonly skillId: AdventureSkillId } | null>(null);
   const [enemyHurt, setEnemyHurt] = useState(0);
   const [heroHurt, setHeroHurt] = useState(0);
   const [menu, setMenu] = useState<"main" | "skills">("main");
+  /** The hero stands in the ready stance of the skill he cast last, so the next cast of it starts in place. */
+  const [stanceSkill, setStanceSkill] = useState<AdventureSkillId>(adventureSkills[0].id);
+  const stanceCast = skillCasts[stanceSkill];
   /** Seconds left to choose this turn; null while a turn plays out or the fight is over. */
   const [secondsLeft, setSecondsLeft] = useState<number | null>(ADVENTURE_BALANCE.turnSeconds);
   const timers = useRef<number[]>([]);
@@ -110,13 +90,13 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
 
   const later = (delay: number, work: () => void): void => { timers.current.push(window.setTimeout(work, delay)); };
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
-  // Warm the cast animation so the hero does not blink out while its sheet loads.
-  useEffect(() => { new Image().src = LUOYING_SPRITE.sheet; }, []);
+  // Warm every cast animation so the hero does not blink out while a sheet loads.
+  useEffect(() => { Object.values(skillCasts).forEach(cast => { new Image().src = cast.sprite.sheet; }); }, []);
   useEffect(() => { logList.current?.scrollTo({ top: logList.current.scrollHeight }); }, [shown.log.length]);
 
-  const float = (side: FloatingNumber["side"], text: string, critical: boolean): void => {
+  const float = (side: FloatingNumber["side"], text: string, tone: FloatingNumber["tone"]): void => {
     const id = nextId.current++;
-    setFloats(current => [...current, { id, side, text, critical }]);
+    setFloats(current => [...current, { id, side, text, tone }]);
     later(1000, () => setFloats(current => current.filter(entry => entry.id !== id)));
   };
 
@@ -128,29 +108,42 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
     setBusy(true);
     const heroHits = next.events.filter(event => event.kind === "hero-hit");
     const enemyHit = next.events.find(event => event.kind === "enemy-hit");
-    const casting = action.kind === "skill" && !reducedMotion;
-    let clock = 0;
-
-    if (action.kind === "skill") {
-      setCastKey(nextId.current++);
-      if (casting) later(SKILL_PETALS_MS, () => setPetalKey(nextId.current++));
-      clock = casting ? SKILL_FIRST_HIT_MS : 0;
-    }
-    heroHits.forEach(event => {
-      if (event.kind !== "hero-hit") return;
-      later(clock, () => { float("enemy", event.damage.toLocaleString("zh-TW"), event.critical); setEnemyHurt(count => count + 1); });
-      clock += casting ? SKILL_HIT_GAP_MS : HIT_GAP_MS;
+    const paralyzed = next.events.some(event => event.kind === "enemy-paralyzed");
+    const cast = action.kind === "skill" && !reducedMotion ? skillCasts[action.skillId] : null;
+    // When each hit lands: on its frame of the cast, or one after another for a basic strike.
+    const hitTimes = heroHits.map((_, index) => {
+      if (!cast) return index * HIT_GAP_MS;
+      const frames = cast.hitFrames;
+      const frame = frames[index] ?? frames[frames.length - 1] + (index - frames.length + 1) * 2;
+      return castTimeAt(cast, frame);
     });
+
+    if (action.kind === "skill" && cast) {
+      const key = nextId.current++;
+      setCasting({ key, skillId: action.skillId });
+      later(castTimeAt(cast, cast.effectFrame), () => setEffect({ key, skillId: action.skillId }));
+    }
+    heroHits.forEach((event, index) => {
+      if (event.kind !== "hero-hit") return;
+      later(hitTimes[index], () => { float("enemy", event.damage.toLocaleString("zh-TW"), event.critical ? "crit" : "normal"); setEnemyHurt(count => count + 1); });
+    });
+    let clock = (hitTimes[hitTimes.length - 1] ?? 0) + HIT_GAP_MS;
     // The enemy's HP and the hero's spirit power settle once the hero's hits have landed.
     later(clock, () => setShown({ ...battle, hero: { ...next.hero, hp: battle.hero.hp }, enemy: next.enemy, log: next.log.slice(0, battle.log.length + 1) }));
     clock += ENEMY_REPLY_GAP_MS;
-    if (enemyHit?.kind === "enemy-hit") {
+    if (paralyzed) {
+      later(clock, () => { float("enemy", "麻痺", "status"); setShown(next); });
+      clock += HIT_GAP_MS * 2;
+    } else if (enemyHit?.kind === "enemy-hit") {
       const damage = enemyHit.damage;
-      later(clock, () => { float("hero", damage.toLocaleString("zh-TW"), false); setHeroHurt(count => count + 1); setShown(next); });
+      later(clock, () => { float("hero", damage.toLocaleString("zh-TW"), "normal"); setHeroHurt(count => count + 1); setShown(next); });
       clock += HIT_GAP_MS * 2;
     }
     // A cast holds the turn until its animation has played out.
-    later(casting ? Math.max(clock, LUOYING_LENGTH_MS) : clock, () => { setShown(next); setBattle(next); setBusy(false); setCastKey(null); setPetalKey(null); });
+    later(cast ? Math.max(clock, castLength(cast)) : clock, () => {
+      setShown(next); setBattle(next); setBusy(false); setCasting(null); setEffect(null);
+      if (action.kind === "skill") setStanceSkill(action.skillId);
+    });
   };
 
   // Each turn the hero has 30 seconds to choose; the clock restarts whenever it is his turn again.
@@ -173,8 +166,8 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
     setShown(fresh);
     setBusy(false);
     setFloats([]);
-    setCastKey(null);
-    setPetalKey(null);
+    setCasting(null);
+    setEffect(null);
     setMenu("main");
   };
 
@@ -182,7 +175,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
   const view = shown;
   const theme = towerThemes.find(entry => entry.id === battle.enemy.themeId) ?? towerThemes[0];
   const canAct = !busy && battle.status === "playerTurn";
-  const heroCasting = castKey !== null && !reducedMotion;
+  const castNow = casting ? skillCasts[casting.skillId] : null;
+  const stance = { image: stanceCast.sprite.poster, placement: stanceCast.placement };
+  const effectCast = effect ? skillCasts[effect.skillId] : null;
   const stageStyle = {
     "--adv-bg": theme.background ? `url("${theme.background}")` : "none",
     "--adv-saturate": theme.saturate,
@@ -207,8 +202,15 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
           </div>
           <div className={`adventure-figure${enemyHurt ? " is-hurt" : ""}${view.status === "victory" ? " is-defeated" : ""}`} key={`enemy-${enemyHurt}`}>
             {enemySprite ? <SpriteAnimation sprite={enemySprite} className="adventure-enemy" label={view.enemy.nameZh} /> : <span className="adventure-enemy-fallback">{view.enemy.nameZh}</span>}
-            {petalKey !== null && !reducedMotion && <LuoyingPetals key={petalKey} />}
-            {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={entry.critical ? "adventure-float adventure-float--crit" : "adventure-float"}>{entry.text}</b>)}
+            {effect && effectCast?.effect === "petals" && <LuoyingPetals key={effect.key} />}
+            {effect && effectCast?.effect === "lightning" && (
+              <LeiyuLightning
+                key={effect.key}
+                pillarDelays={effectCast.hitFrames.slice(0, 4).map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))}
+                boltDelay={castTimeAt(effectCast, effectCast.hitFrames[4] ?? effectCast.effectFrame) - castTimeAt(effectCast, effectCast.effectFrame)}
+              />
+            )}
+            {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={`adventure-float${entry.tone === "crit" ? " adventure-float--crit" : entry.tone === "status" ? " adventure-float--status" : ""}`}>{entry.text}</b>)}
           </div>
         </div>
 
@@ -218,8 +220,8 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             <Bar label="氣血" tone="hp" value={view.hero.hp} max={view.hero.maxHp} compact />
           </div>
           <div className={`adventure-figure${heroHurt ? " is-hurt" : ""}`} key={`hero-${heroHurt}`}>
-            <img className={heroCasting ? "adventure-hero-stance is-casting" : "adventure-hero-stance"} src={HERO_STANCE} alt={`${characterName}持劍應戰`} draggable={false} />
-            {heroCasting && <SpriteAnimation key={castKey} sprite={LUOYING_SPRITE} className="adventure-hero-skill" />}
+            <img className={castNow ? "adventure-hero-stance is-casting" : "adventure-hero-stance"} src={stance.image} style={placementStyle(stance.placement)} alt={`${characterName}持劍應戰`} draggable={false} />
+            {casting && castNow && <SpriteAnimation key={casting.key} sprite={castNow.sprite} className="adventure-hero-skill" style={placementStyle(castNow.placement)} />}
             {floats.filter(entry => entry.side === "hero").map(entry => <b key={entry.id} className="adventure-float adventure-float--hero">{entry.text}</b>)}
           </div>
         </div>
@@ -239,7 +241,7 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             {adventureSkills.map(skill => (
               <button key={skill.id} type="button" role="menuitem" disabled={!canUseSkill(battle, skill.id)} onClick={() => act({ kind: "skill", skillId: skill.id })}>
                 <strong>{skill.nameZh}</strong>
-                <span>靈力 {skill.qiCost}・{skill.hits} 連斬</span>
+                <span>靈力 {skill.qiCost}・{skill.hitMultipliers.length} 連擊</span>
                 <em>{skill.description}</em>
               </button>
             ))}

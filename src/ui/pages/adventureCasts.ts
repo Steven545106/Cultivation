@@ -1,0 +1,58 @@
+import type { AdventureSkillId } from "../../features/adventure";
+import type { CompanionSprite } from "../../features/companion/domain/companionSprites";
+
+/** Where a hero picture sits in his frame box, as percentages of the box: its width, its centre from the left, its bottom edge. */
+export interface HeroPlacement {
+  readonly width: number;
+  readonly left: number;
+  readonly bottom: number;
+}
+
+/**
+ * How a skill plays on screen: the hero's cast animation (its first frame is
+ * also his stance after he has cast it, so the next cast starts and ends in
+ * place), the frames on which each hit lands, and when the effect on the
+ * enemy starts. Placements are tuned so every sheet shows the hero at the
+ * same height, feet and face position.
+ */
+export interface SkillCast {
+  readonly sprite: CompanionSprite;
+  readonly placement: HeroPlacement;
+  /** 1-based frame on which each hit lands, in order; extra hits reuse the last gap. */
+  readonly hitFrames: readonly number[];
+  /** 1-based frame on which the effect on the enemy starts. */
+  readonly effectFrame: number;
+  readonly effect: "petals" | "lightning";
+}
+
+const sheetSteps = (frames: number, frameMs: number, slow: readonly number[] = []) =>
+  Array.from({ length: frames }, (_, cell) => ({ cell, holdMs: cell === frames - 1 ? 4000 : slow.includes(cell) ? frameMs * 2 : frameMs }));
+
+export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
+  // 落英繽紛 with the 寒櫻霜華劍: 28 frames at 130 ms; the two settling frames before the last hold twice as long.
+  luoying: {
+    sprite: { sheet: "/assets/player/hero_luoying-sheet.webp", poster: "/assets/player/hero_luoying-poster.webp", cols: 6, cellWidth: 280, cellHeight: 260, steps: sheetSteps(28, 130, [25, 26]), blendMs: 0 },
+    placement: { width: 112, left: 50, bottom: 1 },
+    hitFrames: [13, 15, 16, 18, 20],
+    effectFrame: 11,
+    effect: "petals",
+  },
+  // 雷獄崩天 with the 九霄雷獄劍: 44 frames at 90 ms. He leaps on frame 21, strikes on 25 and lands the bolt on 29.
+  leiyu: {
+    sprite: { sheet: "/assets/player/hero_leiyu-sheet.webp", poster: "/assets/player/hero_leiyu-poster.webp", cols: 8, cellWidth: 436, cellHeight: 391, steps: sheetSteps(44, 90), blendMs: 0 },
+    placement: { width: 135, left: 37.7, bottom: 1.6 },
+    hitFrames: [22, 24, 26, 27, 29],
+    effectFrame: 21,
+    effect: "lightning",
+  },
+};
+
+/** Milliseconds from the start of the cast until the given 1-based frame is on screen. */
+export function castTimeAt(cast: SkillCast, frame: number): number {
+  return cast.sprite.steps.slice(0, Math.max(0, frame - 1)).reduce((sum, step) => sum + step.holdMs, 0);
+}
+
+/** Until the last frame (the ready stance) is on screen. */
+export function castLength(cast: SkillCast): number {
+  return castTimeAt(cast, cast.sprite.steps.length) + (cast.sprite.steps[0]?.holdMs ?? 0);
+}
