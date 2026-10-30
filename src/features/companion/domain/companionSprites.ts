@@ -137,11 +137,11 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     sheet: "/assets/companions/dual_su_wanqing-sheet.webp",
     poster: "/assets/companions/dual_su_wanqing-poster.webp",
     cols: 6,
-    cellWidth: 715,
-    cellHeight: 425,
+    cellWidth: 712,
+    cellHeight: 424,
     steps: range(32).map(cell => ({ cell, holdMs: 80 })),
     blendMs: 0,
-    peopleX: [27, 69],
+    peopleX: [27, 70],
   },
 };
 
