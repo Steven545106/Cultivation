@@ -119,16 +119,16 @@ export const heroCultivationSprite: CompanionSprite = {
   blendMs: 0,
 };
 
-/** The hero and a dao companion cultivating together on the home page: breathe in, circulate qi, peak (frames 15-18, held), breathe out. */
+/** The hero and a dao companion cultivating together on the home page: breathe in, circulate qi, peak (frames 22-27, held), breathe out; 36 frames. */
 const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
   "lin-tingxue": {
     sheet: "/assets/companions/dual_lin_tingxue-sheet.webp",
     poster: "/assets/companions/dual_lin_tingxue-poster.webp",
     cols: 6,
-    cellWidth: 563,
-    cellHeight: 432,
+    cellWidth: 581,
+    cellHeight: 428,
     // Short holds and a long cross-fade, so the small changes between frames melt into each other instead of ticking.
-    steps: range(24).map(cell => ({ cell, holdMs: cell >= 14 && cell <= 17 ? 170 : 110 })),
+    steps: range(36).map(cell => ({ cell, holdMs: cell >= 21 && cell <= 26 ? 160 : 110 })),
     blendMs: 90,
   },
 };
