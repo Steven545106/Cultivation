@@ -778,3 +778,37 @@ canvas {
   .adventure-countdown.is-urgent { animation: none; }
   .adventure-bar__fill { transition: none; }
 }
+
+/*
+ * Phones: the navigation fills the width as one row of equal buttons, the
+ * icon above its name, so every page fits on screen instead of running off
+ * both edges. Kept last so it wins over the per-icon sizes above.
+ */
+@media (max-width: 640px) {
+  .global-navigation { left: 6px; right: 6px; bottom: 6px; transform: none; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; padding: 4px; border-radius: 16px; }
+  .global-navigation__item { flex-direction: column; justify-content: center; gap: 2px; min-width: 0; padding: 3px 0 2px; border-radius: 10px; font-size: 11px; }
+  .global-navigation__item > span:last-child { max-width: 100%; overflow: hidden; text-overflow: clip; }
+  .global-navigation__medallion { width: 30px; height: 30px; border-width: 1.5px; font-size: 16px !important; }
+
+  /* 遊歷: a portrait stage, the status on top, the commands in a row above the log. */
+  .adventure-page { padding: 8px 6px 80px; }
+  .adventure-stage { width: 100%; aspect-ratio: 3 / 4; }
+  .adventure-place { top: 2%; left: 3%; padding: 3px 9px; }
+  .adventure-countdown { top: 9%; left: 42%; }
+  .adventure-status { top: 2%; right: 3%; width: 42%; padding: 5px 8px; gap: 1px; font-size: 11px; }
+  .adventure-status .adventure-bar { font-size: 11px; }
+  .adventure-status .adventure-bar i { height: 8px; }
+  .adventure-unit--enemy { left: 2%; top: 19%; width: 52%; }
+  .adventure-unit--hero { left: 48%; top: 31%; width: 44%; }
+  .adventure-menu { top: auto; bottom: 17.5%; left: 3%; right: auto; width: auto; min-width: 0; display: flex; gap: 6px; }
+  .adventure-menu button { min-width: 74px; padding: 7px 10px; font-size: 16px; }
+  .adventure-skills { top: auto; bottom: 25%; left: 3%; right: 3%; width: auto; min-width: 0; }
+  .adventure-log { height: 13%; bottom: 2.5%; }
+
+  /* 通天塔: the battle on top, the stage panel below it instead of over it. */
+  .game-shell--tower .phaser-game { height: 42%; }
+  .game-shell--tower .weapon-panel { top: 42%; bottom: 74px; left: 8px; right: 8px; width: auto; max-width: none; overflow-y: auto; padding: 10px 12px; }
+  .game-shell--tower .weapon-panel p { margin-bottom: 6px; font-size: 14px; }
+  /* The sword calibration tool is for desktop tuning; on a phone it only covers the stage buttons. */
+  .calibration-panel { display: none; }
+}
