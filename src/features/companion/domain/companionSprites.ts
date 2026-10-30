@@ -44,6 +44,9 @@ export function spriteFrameAt(sprite: CompanionSprite, timeMs: number): SpriteFr
   return { from: steps[0].cell, to: steps[0].cell, mix: 0 };
 }
 
+/** How long one pass of the loop takes. */
+export const spriteLoopMs = (sprite: CompanionSprite): number => sprite.steps.reduce((sum, step) => sum + step.holdMs + sprite.blendMs, 0);
+
 const range = (count: number): number[] => Array.from({ length: count }, (_, index) => index);
 
 /** Frames 0…n−1 then back down to 1, so a one-way action loops without a jump. */
