@@ -143,6 +143,11 @@ function defaultWeaponProgress(): Record<string, WeaponProgress> {
   return Object.fromEntries(weaponCatalog.map(weapon => [weapon.weaponId, createWeaponProgress()]));
 }
 
+/** Unlocked beasts' possession bonuses at the realm each has been fed to, as the beast page shows them. */
+export function beastIncomeBonuses(save: Pick<GameSaveData, "tower" | "beasts">) {
+  return getBeastPossessionBonuses(save.tower.highestClearedStage, beast => getBeastStageIndex(save.beasts, beast.beastId));
+}
+
 function createDefaultSave(): GameSaveData {
   const cultivation = cultivationService.getSnapshot();
   return withSettledWeaponUnlocks({
@@ -287,7 +292,7 @@ export class GameSaveService {
       const save = this.snapshot.save;
       const active = getActiveCompanion(save.activeCompanionId, save.tower.highestClearedStage, save.cultivation.realmId);
       const intimacy = settleIntimacy(active ? save.companionIntimacy[active.id] : 0, active ? save.companionIntimacyRemainders[active.id] ?? 0 : 0, save.lastIntimacyTimestamp, nextCultivation.lastCultivationTimestamp, Boolean(active));
-      const bonuses = getBeastPossessionBonuses(this.snapshot.save.tower.highestClearedStage);
+      const bonuses = beastIncomeBonuses(save);
       const rewards = settleSpiritStoneRewards(this.getSpiritStoneRewardState(), this.snapshot.save.cultivation, nextCultivation, 1 + bonuses.spiritStoneSpeed + pillBonus(save.alchemy, "stones"));
       const demonCores = settleDemonCoreIncome(this.getDemonCoreIncomeState(), this.snapshot.save.cultivation, nextCultivation, 1 + bonuses.demonCoreYield + pillBonus(save.alchemy, "cores"));
       this.patchSave({ cultivation: nextCultivation, ...rewards, ...demonCores, lastIntimacyTimestamp: intimacy.timestamp, ...(active ? { companionIntimacy: { ...save.companionIntimacy, [active.id]: intimacy.points }, companionIntimacyRemainders: { ...save.companionIntimacyRemainders, [active.id]: intimacy.remainderMs } } : {}) }, !this.suppressCloudSync);
@@ -499,7 +504,7 @@ export class GameSaveService {
     // minor-stage advancement. Its subscription updates this same save before
     // the tower-progress update below is queued for cloud storage.
     if (awardedCultivation > 0) cultivationService.grantCultivation(awardedCultivation);
-    const yieldMultiplier = 1 + getBeastPossessionBonuses(this.snapshot.save.tower.highestClearedStage).demonCoreYield + pillBonus(this.snapshot.save.alchemy, "cores");
+    const yieldMultiplier = 1 + beastIncomeBonuses(this.snapshot.save).demonCoreYield + pillBonus(this.snapshot.save.alchemy, "cores");
     const awardedDemonCores = completion.reward ? Math.round(getTowerDemonCoreReward(stageNumber) * yieldMultiplier) : 0;
     this.patchSave({
       tower: completion.progress,
@@ -604,7 +609,7 @@ export class GameSaveService {
       this.snapshot = { ...this.snapshot, save: withSettledBeastUnlocks(withSettledWeaponUnlocks(cloudSave)) };
       const save = this.snapshot.save;
       const bonus = getCompanionUnlockBonus(save.tower.highestClearedStage, save.cultivation.realmId) + getDualCultivationBonus(save.activeCompanionId, save.tower.highestClearedStage, save.cultivation.realmId, save.activeCompanionId ? save.companionIntimacy[save.activeCompanionId] : 0);
-      const multiplier = 1 + getBeastPossessionBonuses(save.tower.highestClearedStage).cultivationSpeed + bonus + pillBonus(save.alchemy, "cultivation");
+      const multiplier = 1 + beastIncomeBonuses(save).cultivationSpeed + bonus + pillBonus(save.alchemy, "cultivation");
       cultivationService.hydrateFromSave(cloudSave.cultivation, multiplier);
       this.suppressCloudSync = false;
       this.replaceSave({ ...this.snapshot.save, cultivation: cultivationService.getSnapshot() }, false);
@@ -624,7 +629,7 @@ export class GameSaveService {
     const unlockBonus = getCompanionUnlockBonus(save.tower.highestClearedStage, save.cultivation.realmId);
     const dualBonus = getDualCultivationBonus(save.activeCompanionId, save.tower.highestClearedStage, save.cultivation.realmId, save.activeCompanionId ? save.companionIntimacy[save.activeCompanionId] : 0);
     cultivationService.setBreakthroughBonus(getDualSpecialty(save.activeCompanionId, save.tower.highestClearedStage, save.cultivation.realmId, save.activeCompanionId ? save.companionIntimacy[save.activeCompanionId] : 0).breakthroughBonus + pillBonus(save.alchemy, "breakthrough"));
-    cultivationService.setRateMultiplier(1 + getBeastPossessionBonuses(save.tower.highestClearedStage).cultivationSpeed + unlockBonus + dualBonus + pillBonus(save.alchemy, "cultivation"));
+    cultivationService.setRateMultiplier(1 + beastIncomeBonuses(save).cultivationSpeed + unlockBonus + dualBonus + pillBonus(save.alchemy, "cultivation"));
   }
 
   private getDemonCoreIncomeState(): DemonCoreIncomeState {
