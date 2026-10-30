@@ -787,6 +787,10 @@ canvas {
 @media (max-width: 640px) {
   .global-navigation { left: 6px; right: 6px; bottom: 6px; transform: none; display: flex; justify-content: flex-start; gap: 2px; padding: 4px; border-radius: 16px; overflow-x: auto; overscroll-behavior-x: contain; touch-action: pan-x; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .global-navigation::-webkit-scrollbar { display: none; }
+  /* The rules open above the page but below the navigation, which stays usable. */
+  .global-navigation { z-index: 110; }
+  .rules-modal { padding: 12px 8px 84px; }
+  .rules-modal__sheet { max-height: 100%; }
   .global-navigation__item { flex: 0 0 auto; flex-direction: column; justify-content: center; gap: 2px; min-width: 52px; padding: 3px 4px 2px; border-radius: 10px; font-size: 12px; }
   .global-navigation__medallion { width: 36px; height: 36px; border-width: 1.5px; font-size: 18px !important; }
 
