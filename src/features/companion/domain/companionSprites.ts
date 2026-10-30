@@ -125,8 +125,8 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     sheet: "/assets/companions/dual_lin_tingxue-sheet.webp",
     poster: "/assets/companions/dual_lin_tingxue-poster.webp",
     cols: 6,
-    cellWidth: 581,
-    cellHeight: 428,
+    cellWidth: 582,
+    cellHeight: 420,
     // Short holds and a long cross-fade, so the small changes between frames melt into each other instead of ticking.
     steps: range(36).map(cell => ({ cell, holdMs: cell >= 21 && cell <= 26 ? 160 : 110 })),
     blendMs: 90,
