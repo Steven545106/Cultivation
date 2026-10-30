@@ -4,7 +4,8 @@ import { spriteFrameAt, type CompanionSprite } from "../features/companion/domai
 /**
  * Plays a companion's sprite sheet on a canvas. A canvas is a replaced element,
  * so `object-fit` and the same classes as an `<img>` size it. Users who prefer
- * reduced motion get the first frame as a still.
+ * reduced motion get the first frame as a still. The small poster is drawn
+ * first, so the picture shows while the much larger sheet is still loading.
  */
 export function SpriteAnimation({ sprite, className, label, style }: { readonly sprite: CompanionSprite; readonly className?: string; readonly label?: string; readonly style?: CSSProperties }): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,9 +18,20 @@ export function SpriteAnimation({ sprite, className, label, style }: { readonly 
     if (!canvas || !context) return undefined;
     let cancelled = false;
     let frameRequest = 0;
+    let sheetLoaded = false;
     const sheet = new Image();
+    if (sprite.poster !== sprite.sheet) {
+      const poster = new Image();
+      poster.onload = () => {
+        if (cancelled || sheetLoaded) return;
+        context.clearRect(0, 0, sprite.cellWidth, sprite.cellHeight);
+        context.drawImage(poster, 0, 0, sprite.cellWidth, sprite.cellHeight);
+      };
+      poster.src = sprite.poster;
+    }
     sheet.onload = () => {
       if (cancelled) return;
+      sheetLoaded = true;
       setReady(true);
       const { cols, cellWidth, cellHeight } = sprite;
       const drawCell = (cell: number, alpha: number): void => {

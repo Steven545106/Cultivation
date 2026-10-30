@@ -15,6 +15,7 @@ import { CompanionPage } from "./pages/CompanionPage";
 import { SaveAccountPanel } from "./SaveAccountPanel";
 import { AlchemyPage } from "./pages/AlchemyPage";
 import { AdventurePage } from "./pages/AdventurePage";
+import { warmPostersWhenIdle } from "./warmPictures";
 
 type GamePage = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "tower" | "battle";
 
@@ -41,6 +42,9 @@ function ActiveGameShell(): JSX.Element {
   const shutdownStarted = useRef(false);
   const selection = useWeaponSelection(gameSave, runtime);
   const towerSession = useTowerChallengeSession(shutdown === "idle" ? runtime : null, true, gameSave.save.tower, gameSave.save.cultivation.realmId);
+
+  // Fetch the companion and adventure pages' first pictures in the background, so those pages do not open blank.
+  useEffect(() => warmPostersWhenIdle(), []);
 
   useEffect(() => {
     if (shutdown !== "saving" || shutdownStarted.current) return;
