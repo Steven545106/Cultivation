@@ -20,6 +20,8 @@ export interface CompanionSprite {
   readonly steps: readonly SpriteStep[];
   /** Cross-fade into the next step after its hold; 0 cuts straight to it. */
   readonly blendMs: number;
+  /** Two-person scenes: where each person sits across the picture, as a percentage of its width (the qi gathers there). */
+  readonly peopleX?: readonly [number, number];
 }
 
 export interface SpriteFrame {
@@ -129,6 +131,17 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cellHeight: 438,
     steps: range(32).map(cell => ({ cell, holdMs: 80 })),
     blendMs: 0,
+    peopleX: [27, 73],
+  },
+  "su-wanqing": {
+    sheet: "/assets/companions/dual_su_wanqing-sheet.webp",
+    poster: "/assets/companions/dual_su_wanqing-poster.webp",
+    cols: 6,
+    cellWidth: 715,
+    cellHeight: 425,
+    steps: range(32).map(cell => ({ cell, holdMs: 80 })),
+    blendMs: 0,
+    peopleX: [27, 69],
   },
 };
 

@@ -63,12 +63,14 @@ describe("companion sprite playback", () => {
     expect(heroCultivationSprite.steps.length).toBeLessThanOrEqual(heroCultivationSprite.cols * 4);
   });
 
-  it("plays the two-person meditation for Lin Tingxue and leaves other companions solo", () => {
+  it("plays the two-person meditation for Lin Tingxue and Su Wanqing and leaves the others solo", () => {
     const dual = getDualCultivationSprite("lin-tingxue");
     expect(dual).not.toBeNull();
     expect(dual?.steps.map(step => step.cell)).toEqual(Array.from({ length: 32 }, (_, index) => index));
     expect(getDualCultivationSprite("tingxue")).toBe(dual);
-    expect(getDualCultivationSprite("su-wanqing")).toBeNull();
+    expect(getDualCultivationSprite("su-wanqing")).not.toBeNull();
+    expect(getDualCultivationSprite("wanqing")).toBe(getDualCultivationSprite("su-wanqing"));
+    expect(getDualCultivationSprite("gu-xinglan")).toBeNull();
     expect(getDualCultivationSprite(null)).toBeNull();
   });
 

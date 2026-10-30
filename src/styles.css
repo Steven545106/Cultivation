@@ -101,7 +101,7 @@ body,
 
 /*
  * Tower battles: push the busy landscape back so the hero, monster and swing
- * effects read clearly. The artwork moves to a blurred, muted layer, and a
+ * effects read clearly. The artwork moves to a muted layer, and a
  * vignette darkens the edges while leaving the central combat area lit.
  */
 .game-shell--tower .phaser-game {
@@ -116,11 +116,9 @@ body,
   pointer-events: none;
 }
 .game-shell--tower .phaser-game::before {
-  /* Bleed past the edges so the blur never shows a soft border. */
-  inset: -16px;
+  inset: 0;
   background: var(--tower-bg, url("/assets/backgrounds/Background-highres.webp")) center / cover no-repeat;
-  filter: hue-rotate(var(--tower-hue, 0deg)) blur(var(--tower-blur, 4px)) saturate(var(--tower-saturate, 0.62)) brightness(var(--tower-brightness, 0.62));
-  transition: filter 1.2s ease;
+  filter: hue-rotate(var(--tower-hue, 0deg)) saturate(var(--tower-saturate, 0.62)) brightness(var(--tower-brightness, 0.62));
 }
 .game-shell--tower .phaser-game::after {
   inset: 0;
@@ -288,7 +286,8 @@ canvas {
 .cultivating-view-toggle button[aria-pressed="true"] { background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font-weight: 700; }
 .cultivating-view-toggle button:focus-visible { outline: 2px solid #fff3c4; outline-offset: 2px; }
 /* Two people side by side: wider and landscape. */
-.cultivating-character--dual { aspect-ratio: 635 / 438; }
+/* The canvas keeps its own cell ratio, which differs per companion. */
+.cultivating-character--dual { aspect-ratio: auto; }
 /* Each of the two gets the same qi overlay as the solo picture: a square box centred on that person. */
 .qi-breath-box--person { aspect-ratio: 1; height: 132%; top: -16%; transform: translateX(-50%); }
 

@@ -4,8 +4,6 @@ import { SpriteAnimation } from "./SpriteAnimation";
 
 /** One breath of the solo meditation: two passes of the 32-frame loop, slow enough to read. */
 const SOLO_BREATH_MS = spriteLoopMs(heroCultivationSprite) * 2;
-/** Where each person sits across the shared picture, as a share of its width. */
-const PERSON_X = [27, 73] as const;
 
 /**
  * The hero's cross-legged meditation. With a dao companion who has a shared
@@ -18,7 +16,7 @@ export function CultivatingCharacter({ characterName, companionId, companionName
   return (
     <div className={dual ? "cultivating-stage cultivating-stage--dual" : "cultivating-stage"}>
       {dual
-        ? PERSON_X.map(x => (
+        ? (dual.peopleX ?? [27, 73]).map(x => (
           <div key={x} className="qi-breath-box qi-breath-box--person" style={{ left: `${x}%` }}>
             <QiBreathEffect look={SOLO_QI} periodMs={SOLO_BREATH_MS} />
           </div>
