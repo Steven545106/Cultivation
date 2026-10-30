@@ -84,7 +84,6 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
   const [secondsLeft, setSecondsLeft] = useState<number | null>(ADVENTURE_BALANCE.turnSeconds);
   const timers = useRef<number[]>([]);
   const nextId = useRef(0);
-  const logList = useRef<HTMLOListElement>(null);
   const reducedMotion = useMemo(() => typeof window !== "undefined" && (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false), []);
   const enemySprite = useMemo(() => monsterSprite(battle.enemy.themeId), [battle.enemy.themeId]);
 
@@ -92,7 +91,6 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
   // Warm every cast animation so the hero does not blink out while a sheet loads.
   useEffect(() => { Object.values(skillCasts).forEach(cast => { new Image().src = cast.sprite.sheet; }); }, []);
-  useEffect(() => { logList.current?.scrollTo({ top: logList.current.scrollHeight }); }, [shown.log.length]);
 
   const float = (side: FloatingNumber["side"], text: string, tone: FloatingNumber["tone"]): void => {
     const id = nextId.current++;
@@ -261,10 +259,6 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             <button type="button" onClick={restart}>{battle.status === "victory" ? "再遇一隻妖獸" : "重整旗鼓再戰"}</button>
           </div>
         )}
-
-        <ol className="adventure-log" ref={logList} aria-label="戰鬥紀錄">
-          {view.log.map((line, index) => <li key={`${index}-${line}`}>{line}</li>)}
-        </ol>
       </section>
     </main>
   );
