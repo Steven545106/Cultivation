@@ -116,6 +116,25 @@ export const heroCultivationSprite: CompanionSprite = {
   blendMs: 0,
 };
 
+/** The hero and a dao companion cultivating together on the home page: breathe in, circulate qi, peak (frames 15-18, held), breathe out. */
+const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
+  "lin-tingxue": {
+    sheet: "/assets/companions/dual_lin_tingxue-sheet.webp",
+    poster: "/assets/companions/dual_lin_tingxue-poster.webp",
+    cols: 6,
+    cellWidth: 590,
+    cellHeight: 430,
+    steps: range(24).map(cell => ({ cell, holdMs: cell >= 14 && cell <= 17 ? 230 : 200 })),
+    blendMs: 60,
+  },
+};
+
+/** The two-person meditation for a companion (catalog or domain id), or null when she has none drawn yet. */
+export function getDualCultivationSprite(companionId: string | null | undefined): CompanionSprite | null {
+  if (!companionId) return null;
+  return dualCultivationSprites[DOMAIN_ID_TO_SPRITE_ID[companionId] ?? companionId] ?? null;
+}
+
 /** The domain catalog uses shorter ids than the companion page's catalog; both find the same sprite. */
 const DOMAIN_ID_TO_SPRITE_ID: Readonly<Record<string, string>> = { tingxue: "lin-tingxue", wanqing: "su-wanqing", xinglan: "gu-xinglan", wanyue: "murong-wanyue", yunshu: "nangong-yunshu" };
 

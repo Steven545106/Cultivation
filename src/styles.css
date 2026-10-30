@@ -276,6 +276,8 @@ canvas {
 }
 .cultivating-character { width: min(100%, 315px); aspect-ratio: 1; filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)); }
 .cultivating-character { display: block; height: auto; object-fit: contain; }
+/* Two people side by side: wider and landscape. */
+.cultivating-character--dual { width: min(100%, 470px); aspect-ratio: 590 / 430; }
 
 .cultivation-status { padding: 15px; border: 1px solid rgba(183, 225, 251, 0.48); border-radius: 15px; background: rgba(7, 35, 55, 0.77); box-shadow: inset 0 0 28px rgba(110, 212, 255, 0.1); color: #eefaff; text-align: left; }
 .cultivation-status__header { display: flex; justify-content: space-between; gap: 14px; align-items: end; border-bottom: 1px solid rgba(184, 222, 242, 0.26); padding-bottom: 9px; }

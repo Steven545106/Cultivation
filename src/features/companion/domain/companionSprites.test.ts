@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { companionSprites, heroCultivationSprite, getCompanionSprite, spriteFrameAt, type CompanionSprite } from "./companionSprites";
+import { companionSprites, getDualCultivationSprite, heroCultivationSprite, getCompanionSprite, spriteFrameAt, type CompanionSprite } from "./companionSprites";
 
 const sprite = (steps: CompanionSprite["steps"], blendMs: number): CompanionSprite => ({ sheet: "s", poster: "p", cols: 2, cellWidth: 10, cellHeight: 10, steps, blendMs });
 
@@ -61,6 +61,15 @@ describe("companion sprite playback", () => {
   it("plays the hero's original meditation loop frame by frame", () => {
     expect(heroCultivationSprite.steps.map(step => step.cell)).toEqual(Array.from({ length: 32 }, (_, index) => index));
     expect(heroCultivationSprite.steps.length).toBeLessThanOrEqual(heroCultivationSprite.cols * 4);
+  });
+
+  it("plays the two-person meditation for Lin Tingxue and leaves other companions solo", () => {
+    const dual = getDualCultivationSprite("lin-tingxue");
+    expect(dual).not.toBeNull();
+    expect(dual?.steps.map(step => step.cell)).toEqual(Array.from({ length: 24 }, (_, index) => index));
+    expect(getDualCultivationSprite("tingxue")).toBe(dual);
+    expect(getDualCultivationSprite("su-wanqing")).toBeNull();
+    expect(getDualCultivationSprite(null)).toBeNull();
   });
 
   it("finds a sprite by either catalog's id", () => {
