@@ -121,7 +121,7 @@ export const heroCultivationSprite: CompanionSprite = {
   blendMs: 0,
 };
 
-/** The hero's solo loop and the companion's own solo loop (drawn in the same style) side by side; 32 frames at 80 ms, exactly the solo's timing (her 18 drawn frames are spread over them). */
+/** The hero's solo loop and the companion's own solo loop (drawn in the same style) side by side; 32 frames at 156 ms: a five-second breath, slower than the solo loop (her 18 drawn frames are spread over them). */
 const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
   "lin-tingxue": {
     sheet: "/assets/companions/dual_lin_tingxue-sheet.webp",
@@ -129,11 +129,10 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cols: 6,
     cellWidth: 635,
     cellHeight: 438,
-    steps: range(32).map(cell => ({ cell, holdMs: 80 })),
+    steps: range(32).map(cell => ({ cell, holdMs: 156 })),
     blendMs: 0,
     peopleX: [27, 73],
   },
-  // 32 frames at 156 ms: a five-second breath, slower than the solo loop (and than Lin Tingxue's scene).
   "su-wanqing": {
     sheet: "/assets/companions/dual_su_wanqing-sheet.webp",
     poster: "/assets/companions/dual_su_wanqing-poster.webp",
