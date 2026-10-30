@@ -143,6 +143,16 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     blendMs: 0,
     peopleX: [27, 70],
   },
+  "gu-xinglan": {
+    sheet: "/assets/companions/dual_gu_xinglan-sheet.webp",
+    poster: "/assets/companions/dual_gu_xinglan-poster.webp",
+    cols: 6,
+    cellWidth: 680,
+    cellHeight: 431,
+    steps: range(32).map(cell => ({ cell, holdMs: 156 })),
+    blendMs: 0,
+    peopleX: [28, 70],
+  },
 };
 
 /** The two-person meditation for a companion (catalog or domain id), or null when she has none drawn yet. */
