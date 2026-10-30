@@ -14,8 +14,9 @@ import { WeaponLibraryPage } from "./pages/WeaponLibraryPage";
 import { CompanionPage } from "./pages/CompanionPage";
 import { SaveAccountPanel } from "./SaveAccountPanel";
 import { AlchemyPage } from "./pages/AlchemyPage";
+import { AdventurePage } from "./pages/AdventurePage";
 
-type GamePage = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "tower" | "battle";
+type GamePage = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "tower" | "battle";
 
 /**
  * React owns the application shell: page routing only. Weapon selection and
@@ -92,6 +93,8 @@ function ActiveGameShell(): JSX.Element {
         return <CompanionPage navigation={navigation} save={gameSave.save} />;
       case "alchemy":
         return <AlchemyPage navigation={navigation} save={gameSave.save} />;
+      case "adventure":
+        return <AdventurePage navigation={navigation} characterName={gameSave.save.characterName} attack={selection.combatStats.attack} critRate={selection.combatStats.critRate} highestClearedStage={gameSave.save.tower.highestClearedStage} />;
       case "tower":
         return <TowerPage navigation={navigation} tower={gameSave.save.tower} dps={selection.combatStats.dps * (1 + getBeastDamageShare(deployedBeast, deployedBeastStage))} realmId={gameSave.save.cultivation.realmId} onChallenge={challengeSelectedStage} />;
       case "battle":

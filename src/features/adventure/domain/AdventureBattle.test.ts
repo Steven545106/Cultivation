@@ -1,0 +1,105 @@
+import { describe, expect, it } from "vitest";
+import { ADVENTURE_BALANCE, canUseSkill, performPlayerAction, startAdventureBattle, type AdventureBattle, type Roll } from "./AdventureBattle";
+import { getUnlockedThemeCount, pickAdventureEnemy } from "./AdventureEnemies";
+import { adventureSkills, getAdventureSkill } from "./AdventureSkills";
+
+const enemy = { id: "mist", nameZh: "雲霧靈鶴", themeId: "mist" };
+/** A roll that always returns the same number; 0.5 means no damage spread and, with a low crit rate, no crit. */
+const fixed = (value: number): Roll => () => value;
+const start = (critRate = 0): AdventureBattle => startAdventureBattle({ attack: 100, critRate }, enemy);
+
+describe("adventure battle", () => {
+  it("builds both sides' hit points from the hero's attack", () => {
+    const battle = start();
+    expect(battle.hero.maxHp).toBe(100 * ADVENTURE_BALANCE.heroHpPerAttack);
+    expect(battle.enemy.maxHp).toBe(100 * ADVENTURE_BALANCE.enemyHpPerAttack);
+    expect(battle.hero.qi).toBe(ADVENTURE_BALANCE.startQi);
+    expect(battle.status).toBe("playerTurn");
+  });
+
+  it("a basic attack deals the attack value, gathers spirit power, then the enemy strikes back", () => {
+    const next = performPlayerAction(start(), { kind: "attack" }, fixed(0.5));
+    expect(next.enemy.hp).toBe(next.enemy.maxHp - 100);
+    expect(next.hero.qi).toBe(ADVENTURE_BALANCE.startQi + ADVENTURE_BALANCE.basicAttackQiGain + ADVENTURE_BALANCE.turnQiRegen);
+    expect(next.hero.hp).toBe(next.hero.maxHp - next.enemy.attack);
+    expect(next.turn).toBe(2);
+    expect(next.events.map(event => event.kind)).toEqual(["hero-hit", "enemy-hit"]);
+  });
+
+  it("落英繽紛 lands five hits of half the attack and costs spirit power", () => {
+    const skill = getAdventureSkill("luoying");
+    const next = performPlayerAction(start(), { kind: "skill", skillId: "luoying" }, fixed(0.5));
+    const hits = next.events.filter(event => event.kind === "hero-hit");
+    expect(hits).toHaveLength(skill.hits);
+    expect(hits.every(event => event.kind === "hero-hit" && event.damage === 50 && event.skillId === "luoying")).toBe(true);
+    expect(next.enemy.hp).toBe(next.enemy.maxHp - 250);
+    expect(next.hero.qi).toBe(ADVENTURE_BALANCE.startQi - skill.qiCost + ADVENTURE_BALANCE.turnQiRegen);
+  });
+
+  it("every petal rolls its own critical", () => {
+    const next = performPlayerAction(start(1), { kind: "skill", skillId: "luoying" }, fixed(0.5));
+    const hits = next.events.filter(event => event.kind === "hero-hit");
+    expect(hits.every(event => event.kind === "hero-hit" && event.critical && event.damage === Math.round(50 * ADVENTURE_BALANCE.criticalMultiplier))).toBe(true);
+  });
+
+  it("a timed-out turn deals no damage, the enemy still strikes and spirit power still returns", () => {
+    const next = performPlayerAction(start(), { kind: "timeout" }, fixed(0.5));
+    expect(next.enemy.hp).toBe(next.enemy.maxHp);
+    expect(next.events.map(event => event.kind)).toEqual(["enemy-hit"]);
+    expect(next.hero.hp).toBe(next.hero.maxHp - next.enemy.attack);
+    expect(next.hero.qi).toBe(ADVENTURE_BALANCE.startQi + ADVENTURE_BALANCE.turnQiRegen);
+    expect(next.turn).toBe(2);
+  });
+
+  it("refuses a skill without enough spirit power and leaves the battle untouched", () => {
+    const poor = { ...start(), hero: { ...start().hero, qi: 10 } };
+    expect(canUseSkill(poor, "luoying")).toBe(false);
+    expect(performPlayerAction(poor, { kind: "skill", skillId: "luoying" }, fixed(0.5))).toBe(poor);
+  });
+
+  it("ends in victory without a counter-attack when the enemy falls", () => {
+    const nearlyDead = { ...start(), enemy: { ...start().enemy, hp: 30 } };
+    const next = performPlayerAction(nearlyDead, { kind: "attack" }, fixed(0.5));
+    expect(next.status).toBe("victory");
+    expect(next.enemy.hp).toBe(0);
+    expect(next.hero.hp).toBe(next.hero.maxHp);
+    expect(next.events.map(event => event.kind)).toEqual(["hero-hit"]);
+    expect(performPlayerAction(next, { kind: "attack" }, fixed(0.5))).toBe(next);
+  });
+
+  it("ends in defeat when the hero's hit points run out", () => {
+    const dying = { ...start(), hero: { ...start().hero, hp: 1 } };
+    const next = performPlayerAction(dying, { kind: "attack" }, fixed(0.5));
+    expect(next.status).toBe("defeat");
+    expect(next.hero.hp).toBe(0);
+  });
+
+  it("is winnable by mixing the skill and the basic attack", () => {
+    let battle = start(0.1);
+    let guard = 0;
+    while (battle.status === "playerTurn" && guard++ < 100) {
+      battle = performPlayerAction(battle, canUseSkill(battle, "luoying") ? { kind: "skill", skillId: "luoying" } : { kind: "attack" }, fixed(0.5));
+    }
+    expect(battle.status).toBe("victory");
+    expect(battle.hero.hp).toBeGreaterThan(0);
+  });
+
+  it("the skill list holds 落英繽紛", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛"]);
+  });
+});
+
+describe("adventure enemies", () => {
+  it("opens one more theme every ten tower floors", () => {
+    expect(getUnlockedThemeCount(0)).toBe(1);
+    expect(getUnlockedThemeCount(99)).toBe(1);
+    expect(getUnlockedThemeCount(100)).toBe(2);
+    expect(getUnlockedThemeCount(10_000)).toBe(10);
+  });
+
+  it("picks only creatures from the themes already reached", () => {
+    expect(pickAdventureEnemy(0, fixed(0.99)).themeId).toBe("mist");
+    expect(pickAdventureEnemy(100, fixed(0.99)).themeId).toBe("forest");
+    expect(pickAdventureEnemy(100, fixed(0)).themeId).toBe("mist");
+  });
+});

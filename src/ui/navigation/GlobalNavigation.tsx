@@ -3,7 +3,7 @@ import { beastCatalog } from "../../features/beast";
 import { weaponCatalog } from "../../features/weapon";
 import { RulesModal } from "../rules/RulesModal";
 
-export type NavigationTarget = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "tower";
+export type NavigationTarget = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "tower";
 
 interface GlobalNavigationProps {
   readonly activePage: NavigationTarget;
@@ -34,6 +34,10 @@ export function GlobalNavigation({ activePage, onNavigate, onShutdown }: GlobalN
       </button>
       <button type="button" className={activePage === "alchemy" ? "global-navigation__item is-active" : "global-navigation__item"} onClick={() => onNavigate("alchemy")}>
         <span className="global-navigation__medallion global-navigation__medallion--rules">丹</span><span>煉丹</span>
+      </button>
+      <button type="button" className={activePage === "adventure" ? "global-navigation__item is-active" : "global-navigation__item"} onClick={() => onNavigate("adventure")}>
+        <span className="global-navigation__medallion global-navigation__medallion--adventure">遊</span>
+        <span>遊歷</span>
       </button>
       <button type="button" className={activePage === "tower" ? "global-navigation__item is-active" : "global-navigation__item"} onClick={() => onNavigate("tower")}>
         <span className="global-navigation__medallion global-navigation__medallion--tower">塔</span>
