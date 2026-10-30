@@ -31,16 +31,16 @@ const sheetSteps = (frames: number, frameMs: number, slow: readonly number[] = [
 export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
   // 落英繽紛 with the 寒櫻霜華劍: 28 frames at 130 ms; the two settling frames before the last hold twice as long.
   luoying: {
-    sprite: { sheet: "/assets/player/hero_luoying-sheet.webp", poster: "/assets/player/hero_luoying-poster.webp", cols: 6, cellWidth: 280, cellHeight: 260, steps: sheetSteps(28, 130, [25, 26]), blendMs: 0 },
+    sprite: { sheet: "/assets/player/落英繽紛-sheet.webp", poster: "/assets/player/落英繽紛-poster.webp", cols: 6, cellWidth: 280, cellHeight: 260, steps: sheetSteps(28, 130, [25, 26]), blendMs: 0 },
     placement: { width: 112, left: 50, bottom: 1 },
     hitFrames: [13, 15, 16, 18, 20],
     effectFrame: 11,
     effect: "petals",
   },
-  // 雷獄崩天 with the 九霄雷獄劍: 44 frames at 90 ms. He leaps on frame 21, strikes on 25 and lands the bolt on 29.
+  // 雷獄崩天 with the 九霄雷獄劍 (redrawn with a greatsword-sized blade): 44 frames at 90 ms. He leaps on frame 21, strikes on 25 and lands the bolt on 29.
   leiyu: {
-    sprite: { sheet: "/assets/player/hero_leiyu-sheet.webp", poster: "/assets/player/hero_leiyu-poster.webp", cols: 8, cellWidth: 436, cellHeight: 391, steps: sheetSteps(44, 90), blendMs: 0 },
-    placement: { width: 135, left: 37.7, bottom: 1.6 },
+    sprite: { sheet: "/assets/player/雷獄崩天-sheet.webp", poster: "/assets/player/雷獄崩天-poster.webp", cols: 8, cellWidth: 438, cellHeight: 429, steps: sheetSteps(44, 90), blendMs: 0 },
+    placement: { width: 147.2, left: 30.6, bottom: -14.3 },
     hitFrames: [22, 24, 26, 27, 29],
     effectFrame: 21,
     effect: "lightning",
