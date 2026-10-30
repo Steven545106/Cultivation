@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent" | "moonlight";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars";
   /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
   readonly glowing?: boolean;
 }
@@ -63,6 +63,14 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     effectFrame: 16,
     effect: "moonlight",
     glowing: true,
+  },
+  // 周天星轉 with the 宙時星盤劍: 48 frames at 90 ms. The star disc opens behind him on frames 5–12; a star flies off the blade on 18, 21, 24, 27, 30 and 33, and the seventh thrust bursts on 43.
+  zhoutian: {
+    sprite: { sheet: "/assets/player/celestial-orbit-sheet.webp", poster: "/assets/player/celestial-orbit-poster.webp", cols: 8, cellWidth: 462, cellHeight: 365, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 155.7, left: 51, bottom: -1.7 },
+    hitFrames: [18, 21, 24, 27, 30, 33, 43],
+    effectFrame: 17,
+    effect: "stars",
   },
 };
 

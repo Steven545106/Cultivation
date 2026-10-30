@@ -1,4 +1,4 @@
-export type AdventureSkillId = "luoying" | "leiyu" | "xinyue" | "yuehua";
+export type AdventureSkillId = "luoying" | "leiyu" | "xinyue" | "yuehua" | "zhoutian";
 
 export interface AdventureSkill {
   readonly id: AdventureSkillId;
@@ -42,6 +42,13 @@ export const adventureSkills: readonly AdventureSkill[] = [
     description: "皓月流光劍引明月之光，揮出五波月華，一波比一波強：40%、40%、50%、50%、80% 攻擊，各自判定暴擊。",
     qiCost: 40,
     hitMultipliers: [0.4, 0.4, 0.5, 0.5, 0.8],
+  },
+  {
+    id: "zhoutian",
+    nameZh: "周天星轉",
+    description: "宙時星盤劍展開星盤，七顆星辰隨劍飛出：前六顆各造成 30%～40% 攻擊，第七劍突刺造成 80% 攻擊，各自判定暴擊。",
+    qiCost: 45,
+    hitMultipliers: [0.3, 0.3, 0.3, 0.35, 0.35, 0.4, 0.8],
   },
 ];
 

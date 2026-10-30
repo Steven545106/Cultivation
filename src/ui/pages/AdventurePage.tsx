@@ -14,7 +14,7 @@ import type { CompanionSprite } from "../../features/companion/domain/companionS
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { LeiyuLightning, LuoyingPetals, XinyueCrescent, YuehuaMoonlight } from "./AdventureEffects";
+import { LeiyuLightning, LuoyingPetals, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
 import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
@@ -217,6 +217,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             )}
             {effect && effectCast?.effect === "moonlight" && (
               <YuehuaMoonlight key={effect.key} waveDelays={effectCast.hitFrames.map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))} />
+            )}
+            {effect && effectCast?.effect === "stars" && (
+              <ZhoutianStars key={effect.key} starDelays={effectCast.hitFrames.map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))} />
             )}
             {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={`adventure-float${entry.tone === "crit" ? " adventure-float--crit" : entry.tone === "status" ? " adventure-float--status" : ""}`}>{entry.text}</b>)}
           </div>

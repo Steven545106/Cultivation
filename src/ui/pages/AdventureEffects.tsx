@@ -81,6 +81,30 @@ export function YuehuaMoonlight({ waveDelays }: { readonly waveDelays: readonly 
 }
 
 /**
+ * 周天星轉: a faint golden star disc turns behind the target; a star flies in
+ * and bursts at each of `starDelays` ms, the last one a great starburst.
+ * Remounting it (a new `key`) replays it.
+ */
+export function ZhoutianStars({ starDelays }: { readonly starDelays: readonly number[] }): JSX.Element {
+  const last = starDelays[starDelays.length - 1] ?? 0;
+  return (
+    <div className="adventure-stars" aria-hidden="true" style={{ "--disc-ms": `${last + 900}ms` } as CSSProperties}>
+      <span className="adventure-stars__disc" />
+      {starDelays.map((delay, index) => {
+        const final = index === starDelays.length - 1;
+        return (
+          <span
+            key={index}
+            className={final ? "adventure-stars__star adventure-stars__star--final" : "adventure-stars__star"}
+            style={{ animationDelay: `${delay}ms`, "--land-x": final ? "50%" : `${34 + hash(index, 7) * 32}%`, "--land-y": final ? "50%" : `${34 + hash(index, 8) * 32}%` } as CSSProperties}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.
  */

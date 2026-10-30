@@ -84,8 +84,16 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空 and 月華流照", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照"]);
+  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空, 月華流照 and 周天星轉", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉"]);
+  });
+
+  it("周天星轉 flies seven stars, the seventh thrust the strongest", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "zhoutian" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([30, 30, 30, 35, 35, 40, 80]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("zhoutian").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("月華流照 rolls out five waves of moonlight, the last the strongest", () => {
