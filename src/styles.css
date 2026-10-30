@@ -288,7 +288,7 @@ canvas {
 .cultivating-view-toggle button[aria-pressed="true"] { background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font-weight: 700; }
 .cultivating-view-toggle button:focus-visible { outline: 2px solid #fff3c4; outline-offset: 2px; }
 /* Two people side by side: wider and landscape. */
-.cultivating-character--dual { aspect-ratio: 582 / 420; transform-origin: 50% 92%; animation: dual-breathe var(--loop, 5s) ease-in-out infinite; }
+.cultivating-character--dual { aspect-ratio: 635 / 462; transform-origin: 50% 92%; animation: dual-breathe var(--loop, 5s) ease-in-out infinite; }
 /* The two breathe together: the picture swells a little with the inhale and settles with the exhale. No glow of its own; the qi is in the drawing. */
 @keyframes dual-breathe {
   0%, 100% { transform: scale(1) translateY(0); }
