@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors";
   /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
   readonly glowing?: boolean;
 }
@@ -71,6 +71,15 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     hitFrames: [18, 21, 24, 27, 30, 33, 43],
     effectFrame: 17,
     effect: "stars",
+  },
+  // 星落九天 with the 天穹星輝劍: 48 frames at 90 ms. He points the sword at the sky on frames 5–16, points it ahead on 19, the meteors fall on 22–28 and the great star bursts on 33.
+  xingluo: {
+    sprite: { sheet: "/assets/player/starfall-sheet.webp", poster: "/assets/player/starfall-poster.webp", cols: 8, cellWidth: 459, cellHeight: 390, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 158, left: 43, bottom: -2 },
+    hitFrames: [22, 24, 26, 28, 31, 33],
+    effectFrame: 20,
+    effect: "meteors",
+    glowing: true,
   },
 };
 

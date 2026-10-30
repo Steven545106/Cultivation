@@ -105,6 +105,28 @@ export function ZhoutianStars({ starDelays }: { readonly starDelays: readonly nu
 }
 
 /**
+ * 星落九天: meteors streak down from the upper right onto the target, one at
+ * each of `meteorDelays` ms; the last is a great star that bursts on impact.
+ * Remounting it (a new `key`) replays it.
+ */
+export function XingluoMeteors({ meteorDelays }: { readonly meteorDelays: readonly number[] }): JSX.Element {
+  return (
+    <div className="adventure-meteors" aria-hidden="true">
+      {meteorDelays.map((delay, index) => {
+        const final = index === meteorDelays.length - 1;
+        return (
+          <span
+            key={index}
+            className={final ? "adventure-meteors__meteor adventure-meteors__meteor--final" : "adventure-meteors__meteor"}
+            style={{ animationDelay: `${Math.max(0, delay - 300)}ms`, "--land-x": final ? "50%" : `${36 + hash(index, 11) * 28}%`, "--land-y": final ? "52%" : `${40 + hash(index, 12) * 24}%`, "--tint": index % 2 ? "255, 214, 120" : "150, 175, 255" } as CSSProperties}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.
  */

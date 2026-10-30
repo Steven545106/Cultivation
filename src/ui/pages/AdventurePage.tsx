@@ -14,7 +14,7 @@ import type { CompanionSprite } from "../../features/companion/domain/companionS
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { LeiyuLightning, LuoyingPetals, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
+import { LeiyuLightning, LuoyingPetals, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
 import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
@@ -27,6 +27,12 @@ interface FloatingNumber {
 /** One pause per step of a turn, so a basic strike and the reply can be read apart. */
 const HIT_GAP_MS = 170;
 const ENEMY_REPLY_GAP_MS = 420;
+
+/**
+ * The hurt flash for the nth hit. It alternates between two identical animations so each hit restarts it
+ * without remounting the figure, which would restart a cast animation or skill effect playing inside it.
+ */
+const hurtClass = (hits: number): string => (hits === 0 ? "" : hits % 2 ? " is-hurt" : " is-hurt is-hurt--again");
 
 const placementStyle = (placement: HeroPlacement): CSSProperties => ({ width: `${placement.width}%`, left: `${placement.left}%`, bottom: `${placement.bottom}%` });
 
@@ -89,8 +95,8 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
 
   const later = (delay: number, work: () => void): void => { timers.current.push(window.setTimeout(work, delay)); };
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
-  // Warm every cast animation so the hero does not blink out while a sheet loads.
-  useEffect(() => { Object.values(skillCasts).forEach(cast => { new Image().src = cast.sprite.sheet; }); }, []);
+  // Warm every cast animation and ready stance so the hero does not blink out, or show one stance at another's size, while a picture loads.
+  useEffect(() => { Object.values(skillCasts).forEach(cast => { new Image().src = cast.sprite.sheet; new Image().src = cast.sprite.poster; }); }, []);
 
   const float = (side: FloatingNumber["side"], text: string, tone: FloatingNumber["tone"]): void => {
     const id = nextId.current++;
@@ -116,6 +122,8 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
       return castTimeAt(cast, frame);
     });
 
+    // Swap to this skill's ready stance now, while the cast hides it, so it has loaded by the time the cast ends.
+    if (action.kind === "skill") setStanceSkill(action.skillId);
     if (action.kind === "skill" && cast) {
       const key = nextId.current++;
       setCasting({ key, skillId: action.skillId });
@@ -140,7 +148,6 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
     // A cast holds the turn until its animation has played out.
     later(cast ? Math.max(clock, castLength(cast)) : clock, () => {
       setShown(next); setBattle(next); setBusy(false); setCasting(null); setEffect(null);
-      if (action.kind === "skill") setStanceSkill(action.skillId);
     });
   };
 
@@ -198,7 +205,7 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             <span>{view.enemy.nameZh}</span>
             <Bar label="氣血" tone="enemy" value={view.enemy.hp} max={view.enemy.maxHp} compact />
           </div>
-          <div className={`adventure-figure${enemyHurt ? " is-hurt" : ""}${view.status === "victory" ? " is-defeated" : ""}`} key={`enemy-${enemyHurt}`}>
+          <div className={`adventure-figure${hurtClass(enemyHurt)}${view.status === "victory" ? " is-defeated" : ""}`}>
             {enemySprite ? <SpriteAnimation sprite={enemySprite} className="adventure-enemy" label={view.enemy.nameZh} /> : <span className="adventure-enemy-fallback">{view.enemy.nameZh}</span>}
             {effect && effectCast?.effect === "petals" && <LuoyingPetals key={effect.key} />}
             {effect && effectCast?.effect === "lightning" && (
@@ -221,6 +228,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             {effect && effectCast?.effect === "stars" && (
               <ZhoutianStars key={effect.key} starDelays={effectCast.hitFrames.map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))} />
             )}
+            {effect && effectCast?.effect === "meteors" && (
+              <XingluoMeteors key={effect.key} meteorDelays={effectCast.hitFrames.map(frame => castTimeAt(effectCast, frame) - castTimeAt(effectCast, effectCast.effectFrame))} />
+            )}
             {floats.filter(entry => entry.side === "enemy").map(entry => <b key={entry.id} className={`adventure-float${entry.tone === "crit" ? " adventure-float--crit" : entry.tone === "status" ? " adventure-float--status" : ""}`}>{entry.text}</b>)}
           </div>
         </div>
@@ -230,8 +240,8 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
             <span>{characterName}</span>
             <Bar label="氣血" tone="hp" value={view.hero.hp} max={view.hero.maxHp} compact />
           </div>
-          <div className={`adventure-figure${heroHurt ? " is-hurt" : ""}`} key={`hero-${heroHurt}`}>
-            <img className={castNow ? "adventure-hero-stance is-casting" : "adventure-hero-stance"} src={stance.image} style={placementStyle(stance.placement)} alt={`${characterName}持劍應戰`} draggable={false} />
+          <div className={`adventure-figure${hurtClass(heroHurt)}`}>
+            <img key={stanceSkill} className={castNow ? "adventure-hero-stance is-casting" : "adventure-hero-stance"} src={stance.image} style={placementStyle(stance.placement)} alt={`${characterName}持劍應戰`} draggable={false} />
             {casting && castNow && <SpriteAnimation key={casting.key} sprite={castNow.sprite} className={castNow.glowing ? "adventure-hero-skill is-glowing" : "adventure-hero-skill"} style={placementStyle(castNow.placement)} />}
             {floats.filter(entry => entry.side === "hero").map(entry => <b key={entry.id} className="adventure-float adventure-float--hero">{entry.text}</b>)}
           </div>

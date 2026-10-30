@@ -84,8 +84,16 @@ describe("adventure battle", () => {
     expect(battle.hero.hp).toBeGreaterThan(0);
   });
 
-  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空, 月華流照 and 周天星轉", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉"]);
+  it("the skill list holds 落英繽紛, 雷獄崩天, 新月破空, 月華流照, 周天星轉 and 星落九天", () => {
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天"]);
+  });
+
+  it("星落九天 drops four meteors, then a great star that bursts", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "xingluo" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([30, 30, 30, 30, 50, 100]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("xingluo").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("周天星轉 flies seven stars, the seventh thrust the strongest", () => {
