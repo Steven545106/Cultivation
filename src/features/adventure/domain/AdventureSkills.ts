@@ -1,4 +1,4 @@
-export type AdventureSkillId = "luoying" | "leiyu" | "xinyue" | "yuehua" | "zhoutian" | "xingluo" | "qinghui" | "taxue";
+export type AdventureSkillId = "luoying" | "leiyu" | "xinyue" | "yuehua" | "zhoutian" | "xingluo" | "qinghui" | "taxue" | "qianfeng";
 
 export interface AdventureSkill {
   readonly id: AdventureSkillId;
@@ -70,6 +70,13 @@ export const adventureSkills: readonly AdventureSkill[] = [
     description: "雲羽冰華劍化作冰風衝過敵人再一閃而回，兩道風線各造成 40% 攻擊；停頓片刻後，冰羽同時炸開，造成 180% 攻擊，各自判定暴擊。",
     qiCost: 50,
     hitMultipliers: [0.4, 0.4, 1.8],
+  },
+  {
+    id: "qianfeng",
+    nameZh: "千峰凝雪",
+    description: "玄霜雪魄劍插入大地，寒霜蔓延，三座冰峰在敵人腳下破土而出，各造成 40% 攻擊；再一起碎裂，造成 140% 攻擊，各自判定暴擊。",
+    qiCost: 50,
+    hitMultipliers: [0.4, 0.4, 0.4, 1.4],
   },
 ];
 

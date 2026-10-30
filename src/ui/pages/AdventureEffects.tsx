@@ -182,6 +182,39 @@ export function TaxueFeathers({ streakDelays, burstDelay }: { readonly streakDel
   );
 }
 
+const PEAKS = [
+  { left: 30, height: 62, width: 20 },
+  { left: 70, height: 70, width: 22 },
+  { left: 50, height: 92, width: 28 },
+];
+
+/**
+ * 千峰凝雪: frost spreads under the target, an ice peak breaks out of the
+ * ground at each of `peakDelays` ms, and at `shatterDelay` ms all three burst
+ * into shards. Remounting it (a new `key`) replays it.
+ */
+export function QianfengPeaks({ peakDelays, shatterDelay }: { readonly peakDelays: readonly number[]; readonly shatterDelay: number }): JSX.Element {
+  return (
+    <div className="adventure-peaks" aria-hidden="true">
+      <span className="adventure-peaks__frost" style={{ animationDelay: `0ms, ${shatterDelay}ms` }} />
+      {PEAKS.map((peak, index) => (
+        <span
+          key={index}
+          className="adventure-peaks__peak"
+          style={{ left: `${peak.left}%`, height: `${peak.height}%`, width: `${peak.width}%`, animationDelay: `${peakDelays[index] ?? 0}ms, ${shatterDelay}ms` }}
+        />
+      ))}
+      {Array.from({ length: 12 }, (_, index) => (
+        <i
+          key={index}
+          className="adventure-peaks__shard"
+          style={{ animationDelay: `${shatterDelay}ms`, "--dx": `${(hash(index, 31) - 0.5) * 120}%`, "--dy": `${-60 - hash(index, 32) * 140}%`, "--spin": `${(hash(index, 33) - 0.5) * 540}deg`, left: `${30 + hash(index, 34) * 40}%` } as CSSProperties}
+        />
+      ))}
+    </div>
+  );
+}
+
 /**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.

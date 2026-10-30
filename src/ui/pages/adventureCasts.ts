@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow" | "feathers";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow" | "feathers" | "peaks";
   /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
   readonly glowing?: boolean;
 }
@@ -97,6 +97,15 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     hitFrames: [20, 26, 33],
     effectFrame: 19,
     effect: "feathers",
+    glowing: true,
+  },
+  // 千峰凝雪 with the 玄霜雪魄劍: 48 frames at 90 ms. He drives the sword into the ground on 9–12, frost spreads on 13–24, three ice peaks rise on 26, 28 and 30, and they shatter together on 33.
+  qianfeng: {
+    sprite: { sheet: "/assets/player/frost-peaks-sheet.webp", poster: "/assets/player/frost-peaks-poster.webp", cols: 8, cellWidth: 508, cellHeight: 405, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 158, left: 44.5, bottom: -12.5 },
+    hitFrames: [26, 28, 30, 33],
+    effectFrame: 22,
+    effect: "peaks",
     glowing: true,
   },
 };
