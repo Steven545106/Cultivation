@@ -133,13 +133,14 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     blendMs: 0,
     peopleX: [27, 73],
   },
+  // 32 frames at 156 ms: a five-second breath, slower than the solo loop (and than Lin Tingxue's scene).
   "su-wanqing": {
     sheet: "/assets/companions/dual_su_wanqing-sheet.webp",
     poster: "/assets/companions/dual_su_wanqing-poster.webp",
     cols: 6,
     cellWidth: 714,
     cellHeight: 425,
-    steps: range(32).map(cell => ({ cell, holdMs: 80 })),
+    steps: range(32).map(cell => ({ cell, holdMs: 156 })),
     blendMs: 0,
     peopleX: [27, 70],
   },
