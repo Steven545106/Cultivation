@@ -18,13 +18,18 @@ export type ExploreObstacle =
   | { readonly kind: "circle"; readonly x: number; readonly y: number; readonly radius: number }
   | { readonly kind: "ellipse"; readonly x: number; readonly y: number; readonly rx: number; readonly ry: number };
 
+/** The standing scenery pieces of a map, each its own picture. */
+export type ExplorePropKind = "pine-a" | "pine-b" | "pine-c" | "bamboo" | "crag" | "rock" | "lantern" | "pavilion";
+
 /** A scenery piece drawn standing in the world, sorted by its feet so the hero can pass behind it. */
 export interface ExploreProp {
-  readonly kind: "pine" | "rock" | "pavilion" | "lantern" | "bamboo";
+  readonly kind: ExplorePropKind;
   readonly x: number;
   readonly y: number;
   /** Size relative to the prop's usual size. */
   readonly scale: number;
+  /** Drawn mirrored, so the same picture does not repeat exactly. */
+  readonly flip?: boolean;
 }
 
 /** Where a creature lives on the map: the stage it is, its home and how far it wanders from it. */
@@ -38,6 +43,10 @@ export interface ExploreMapSpec {
   readonly regionIndex: number;
   readonly width: number;
   readonly height: number;
+  /** The painted ground, the size of the map. */
+  readonly ground: string;
+  /** The folder holding the map's prop pictures, one `<kind>.webp` each. */
+  readonly propFolder: string;
   readonly start: ExplorePoint;
   readonly obstacles: readonly ExploreObstacle[];
   readonly props: readonly ExploreProp[];
@@ -45,66 +54,91 @@ export interface ExploreMapSpec {
 }
 
 /** Radius of the hero's feet for collisions. */
-export const HERO_FOOT_RADIUS = 16;
+export const HERO_FOOT_RADIUS = 12;
 /** World units per second the hero walks. */
-export const HERO_WALK_SPEED = 260;
+export const HERO_WALK_SPEED = 200;
 /** How close the hero must come to a creature to start the fight. */
-export const ENCOUNTER_RADIUS = 52;
-
-/** The blocking footprint of each prop, from its feet, at scale 1. */
-const PROP_FOOTPRINT: Record<ExploreProp["kind"], (prop: ExploreProp) => ExploreObstacle> = {
-  pine: prop => ({ kind: "circle", x: prop.x, y: prop.y - 6 * prop.scale, radius: 22 * prop.scale }),
-  bamboo: prop => ({ kind: "circle", x: prop.x, y: prop.y - 4 * prop.scale, radius: 18 * prop.scale }),
-  rock: prop => ({ kind: "ellipse", x: prop.x, y: prop.y - 14 * prop.scale, rx: 44 * prop.scale, ry: 22 * prop.scale }),
-  lantern: prop => ({ kind: "circle", x: prop.x, y: prop.y - 6 * prop.scale, radius: 12 * prop.scale }),
-  pavilion: prop => ({ kind: "rect", x: prop.x - 110 * prop.scale, y: prop.y - 70 * prop.scale, width: 220 * prop.scale, height: 70 * prop.scale }),
-};
-
-const pines = (points: readonly (readonly [number, number, number?])[]): ExploreProp[] =>
-  points.map(([x, y, scale = 1]) => ({ kind: "pine", x, y, scale }));
+export const ENCOUNTER_RADIUS = 42;
 
 /**
- * 雲霧山門: a stone path climbs from the foot of the mountain (bottom) to the
- * sect's gate under the cliffs (top), past a misty pond on the left, a pavilion
- * on the right and stands of pine. The cloud cranes roam along the way and
- * their king guards the gate.
+ * Each prop's width in world units at scale 1, and the patch of ground it
+ * stands on (an ellipse, as fractions of that width, centred `lift` above its feet).
+ */
+export const PROP_SIZES: Readonly<Record<ExplorePropKind, { readonly width: number; readonly rx: number; readonly ry: number; readonly lift: number }>> = {
+  "pine-a": { width: 230, rx: 0.26, ry: 0.08, lift: 0.07 },
+  "pine-b": { width: 140, rx: 0.34, ry: 0.12, lift: 0.1 },
+  "pine-c": { width: 190, rx: 0.28, ry: 0.09, lift: 0.08 },
+  bamboo: { width: 120, rx: 0.32, ry: 0.12, lift: 0.1 },
+  crag: { width: 170, rx: 0.4, ry: 0.15, lift: 0.14 },
+  rock: { width: 100, rx: 0.38, ry: 0.15, lift: 0.14 },
+  lantern: { width: 50, rx: 0.3, ry: 0.16, lift: 0.18 },
+  pavilion: { width: 250, rx: 0.4, ry: 0.16, lift: 0.2 },
+};
+
+function propFootprint(prop: ExploreProp): ExploreObstacle {
+  const size = PROP_SIZES[prop.kind];
+  const width = size.width * prop.scale;
+  return { kind: "ellipse", x: prop.x, y: prop.y - size.lift * width, rx: size.rx * width, ry: size.ry * width };
+}
+
+/**
+ * 雲霧山門, on its painted map (1374 × 1145): a stone path winds from the foot
+ * of the mountain (bottom) up white jade steps to the sect gate under the
+ * cliffs (top). A waterfall on the left feeds a lotus pond that spills on down
+ * the left edge; clouds close the right and bottom edges. The cloud cranes roam
+ * the meadow and their king waits at the foot of the steps.
  */
 export const MIST_GATE_MAP: ExploreMapSpec = {
   regionIndex: 0,
-  width: 1800,
-  height: 1500,
-  start: { x: 900, y: 1420 },
+  width: 1374,
+  height: 1145,
+  ground: "/assets/explore/mist/ground.webp",
+  propFolder: "/assets/explore/mist",
+  start: { x: 745, y: 1100 },
   obstacles: [
-    // The cliffs along the top, with the gate in a gap between them.
-    { kind: "rect", x: 0, y: 0, width: 1800, height: 210 },
-    { kind: "rect", x: 0, y: 210, width: 690, height: 60 },
-    { kind: "rect", x: 1110, y: 210, width: 690, height: 60 },
-    // The gate's two pillars stand either side of the path.
-    { kind: "rect", x: 742, y: 250, width: 56, height: 50 },
-    { kind: "rect", x: 1002, y: 250, width: 56, height: 50 },
-    // The misty pond.
-    { kind: "ellipse", x: 390, y: 820, rx: 250, ry: 150 },
-    // The stream that falls from the cliffs into the pond.
-    { kind: "rect", x: 300, y: 260, width: 70, height: 440 },
+    // The cliffs and the gate along the top; only the steps climb into them, up to the gate's threshold.
+    { kind: "rect", x: 0, y: 0, width: 635, height: 305 },
+    { kind: "rect", x: 745, y: 0, width: 629, height: 295 },
+    { kind: "rect", x: 635, y: 0, width: 110, height: 228 },
+    // The waterfall's rocks and the stream down into the pond.
+    { kind: "rect", x: 0, y: 305, width: 292, height: 165 },
+    { kind: "rect", x: 80, y: 470, width: 212, height: 70 },
+    // The lotus pond in its stone rim.
+    { kind: "ellipse", x: 330, y: 630, rx: 275, ry: 145 },
+    // The left edge: the cliff and the stream spilling on from the pond.
+    { kind: "rect", x: 0, y: 470, width: 80, height: 675 },
+    { kind: "rect", x: 80, y: 690, width: 110, height: 310 },
+    { kind: "rect", x: 140, y: 880, width: 110, height: 120 },
+    // The bushes and clouds along the bottom left.
+    { kind: "rect", x: 0, y: 1000, width: 300, height: 145 },
+    { kind: "rect", x: 300, y: 1082, width: 260, height: 63 },
+    // The cliffs and clouds down the right edge.
+    { kind: "rect", x: 1235, y: 295, width: 139, height: 235 },
+    { kind: "rect", x: 1290, y: 530, width: 84, height: 350 },
+    { kind: "rect", x: 1200, y: 870, width: 174, height: 275 },
   ],
   props: [
-    ...pines([
-      [120, 380, 1.2], [210, 470], [560, 380, 1.1], [610, 520], [180, 1060, 1.2], [90, 1220], [300, 1300, 1.1],
-      [610, 1120], [560, 1380, 1.2], [1250, 380, 1.1], [1520, 360, 1.2], [1690, 520], [1180, 940], [1640, 980, 1.2],
-      [1500, 1140], [1700, 1300, 1.1], [1280, 1360, 1.2], [1060, 1240, 0.9], [760, 600, 0.9],
-    ]),
-    { kind: "bamboo", x: 1560, y: 760, scale: 1 }, { kind: "bamboo", x: 1610, y: 800, scale: 1.1 }, { kind: "bamboo", x: 1520, y: 820, scale: 0.9 },
-    { kind: "rock", x: 700, y: 930, scale: 1 }, { kind: "rock", x: 1140, y: 640, scale: 1.2 }, { kind: "rock", x: 420, y: 1210, scale: 0.9 }, { kind: "rock", x: 1400, y: 1260, scale: 0.8 },
-    { kind: "pavilion", x: 1380, y: 700, scale: 1 },
-    { kind: "lantern", x: 820, y: 360, scale: 1 }, { kind: "lantern", x: 980, y: 360, scale: 1 }, { kind: "lantern", x: 820, y: 900, scale: 1 }, { kind: "lantern", x: 980, y: 1160, scale: 1 },
+    { kind: "pine-a", x: 1120, y: 470, scale: 1 },
+    { kind: "pine-b", x: 520, y: 460, scale: 1 },
+    { kind: "pine-c", x: 380, y: 1060, scale: 1, flip: true },
+    { kind: "pine-b", x: 1150, y: 1090, scale: 0.9, flip: true },
+    { kind: "pine-c", x: 960, y: 760, scale: 0.85 },
+    { kind: "bamboo", x: 1215, y: 760, scale: 1 },
+    { kind: "crag", x: 540, y: 960, scale: 0.8 },
+    { kind: "rock", x: 880, y: 570, scale: 1 },
+    { kind: "rock", x: 1060, y: 960, scale: 0.8, flip: true },
+    { kind: "pavilion", x: 1030, y: 640, scale: 0.85 },
+    { kind: "lantern", x: 605, y: 350, scale: 1 },
+    { kind: "lantern", x: 775, y: 350, scale: 1 },
+    { kind: "lantern", x: 830, y: 1010, scale: 1 },
   ],
   spawns: [
-    { stage: 1, home: { x: 760, y: 1250 }, roam: 90 },
-    { stage: 2, home: { x: 1150, y: 1060 }, roam: 110 },
-    { stage: 3, home: { x: 520, y: 1010 }, roam: 70 },
-    { stage: 4, home: { x: 1240, y: 820 }, roam: 90 },
-    { stage: 5, home: { x: 700, y: 640 }, roam: 90 },
-    { stage: 6, home: { x: 900, y: 420 }, roam: 30 },
+    { stage: 1, home: { x: 920, y: 1050 }, roam: 60 },
+    { stage: 2, home: { x: 400, y: 880 }, roam: 60 },
+    { stage: 3, home: { x: 1110, y: 860 }, roam: 50 },
+    { stage: 4, home: { x: 420, y: 380 }, roam: 50 },
+    { stage: 5, home: { x: 960, y: 400 }, roam: 60 },
+    { stage: 6, home: { x: 690, y: 330 }, roam: 8 },
   ],
 };
 
@@ -116,7 +150,7 @@ export function getExploreMap(regionIndex: number): ExploreMapSpec | null {
 
 /** Every obstacle of the map: its own, plus each prop's footprint. */
 export function getMapObstacles(map: ExploreMapSpec): readonly ExploreObstacle[] {
-  return [...map.obstacles, ...map.props.map(prop => PROP_FOOTPRINT[prop.kind](prop))];
+  return [...map.obstacles, ...map.props.map(propFootprint)];
 }
 
 /** Whether a circle of `radius` at `point` overlaps the obstacle. */
@@ -167,5 +201,5 @@ export function walkStep(direction: ExplorePoint, seconds: number, speed = HERO_
 /** The top-left of a `viewWidth` × `viewHeight` camera centred on the hero, kept inside the map. */
 export function cameraOrigin(map: ExploreMapSpec, hero: ExplorePoint, viewWidth: number, viewHeight: number): ExplorePoint {
   const clamp = (value: number, size: number, view: number) => (view >= size ? (size - view) / 2 : Math.max(0, Math.min(size - view, value - view / 2)));
-  return { x: clamp(hero.x, map.width, viewWidth), y: clamp(hero.y - 40, map.height, viewHeight) };
+  return { x: clamp(hero.x, map.width, viewWidth), y: clamp(hero.y - 30, map.height, viewHeight) };
 }

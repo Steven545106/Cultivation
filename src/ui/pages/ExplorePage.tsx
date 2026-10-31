@@ -5,6 +5,7 @@ import {
   adventureRegions,
   cameraOrigin,
   canChallengeStage,
+  exploreMaps,
   getAdventureEnemy,
   getClearedStages,
   getExploreMap,
@@ -21,21 +22,21 @@ import {
   type ExploreMapSpec,
   type ExplorePoint,
   type ExploreProp,
+  PROP_SIZES,
 } from "../../features/adventure";
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { AdventureFight } from "./AdventurePage";
-import { ExploreGround, ExplorePropArt } from "./ExploreArt";
 
 /** How far the camera sees across, in world units: less on a narrow (portrait) screen. */
-const VIEW_WIDTH = 900;
-const VIEW_WIDTH_NARROW = 620;
+const VIEW_WIDTH = 720;
+const VIEW_WIDTH_NARROW = 470;
 /** World units per second a creature walks while it roams. */
-const CREATURE_SPEED = 55;
+const CREATURE_SPEED = 42;
 /** A sealed creature blocks the path like a rock. */
-const SEALED_RADIUS = 30;
+const SEALED_RADIUS = 24;
 /** Height of the hero picture, in world units. */
-const HERO_HEIGHT = 118;
+const HERO_HEIGHT = 92;
 
 type Direction = "up" | "down" | "left" | "right";
 const KEY_DIRECTIONS: Record<string, Direction> = {
@@ -71,6 +72,13 @@ export function ExploreScreen({ navigation, characterName, attack, critRate, wea
   const [regionIndex, setRegionIndex] = useState<number | null>(null);
   const map = regionIndex === null ? null : getExploreMap(regionIndex);
   const skills = resolveEquippedSkills(progress.skills, unlockedWeaponIds);
+  // Fetch the painted maps and their props while the region list is up, so the map opens drawn.
+  useEffect(() => {
+    exploreMaps.forEach(entry => {
+      new Image().src = entry.ground;
+      new Set(entry.props.map(prop => prop.kind)).forEach(kind => { new Image().src = `${entry.propFolder}/${kind}.webp`; });
+    });
+  }, []);
   if (map) {
     return (
       <main className="weapon-library adventure-page" aria-label="探索">
@@ -253,7 +261,7 @@ function ExploreField({ map, hero, grace, progress, defeated, onEncounter, onLea
         if (gap > 2) {
           const move = Math.min(gap, CREATURE_SPEED * Math.min(seconds, 0.05));
           const next = { x: creature.position.x + (dx / gap) * move, y: creature.position.y + (dy / gap) * move };
-          if (!isBlocked(map, obstacles, next, 20)) creature.position = next;
+          if (!isBlocked(map, obstacles, next, 16)) creature.position = next;
           else creature.nextTurnAt = 0;
           if (Math.abs(dx) > 1) creature.facingLeft = dx < 0;
         }
@@ -318,8 +326,8 @@ function ExploreField({ map, hero, grace, progress, defeated, onEncounter, onLea
   return (
     <section ref={stageRef} className="adventure-stage explore-stage" aria-label={`探索・${region.nameZh}`}>
       <div ref={worldRef} className="explore-world" style={{ width: map.width, height: map.height }}>
-        <ExploreGround map={map} />
-        {map.props.map((prop, index) => <PropFigure key={index} prop={prop} />)}
+        <img className="explore-ground" src={map.ground} alt="" draggable={false} />
+        {map.props.map((prop, index) => <PropFigure key={index} prop={prop} folder={map.propFolder} />)}
         {present.map(creature => {
           const enemy = getAdventureEnemy(map.regionIndex, creature.stage);
           const boss = isBossStage(creature.stage);
@@ -360,10 +368,14 @@ function ExploreField({ map, hero, grace, progress, defeated, onEncounter, onLea
   );
 }
 
-function PropFigure({ prop }: { readonly prop: ExploreProp }): JSX.Element {
+function PropFigure({ prop, folder }: { readonly prop: ExploreProp; readonly folder: string }): JSX.Element {
   return (
-    <div className={`explore-prop explore-prop--${prop.kind}`} style={{ left: prop.x, top: prop.y, zIndex: Math.round(prop.y), "--prop-scale": prop.scale } as CSSProperties}>
-      <ExplorePropArt kind={prop.kind} />
-    </div>
+    <img
+      className={prop.flip ? "explore-prop is-flipped" : "explore-prop"}
+      src={`${folder}/${prop.kind}.webp`}
+      alt=""
+      draggable={false}
+      style={{ left: prop.x, top: prop.y, width: PROP_SIZES[prop.kind].width * prop.scale, zIndex: Math.round(prop.y) } as CSSProperties}
+    />
   );
 }

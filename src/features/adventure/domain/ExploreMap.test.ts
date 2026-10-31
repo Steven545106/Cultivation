@@ -34,15 +34,15 @@ describe("雲霧山門 exploration map", () => {
   });
 
   it("stops the hero at a wall but lets him slide along it", () => {
-    const belowCliff = { x: 200, y: 300 };
+    const belowCliff = { x: 400, y: 320 };
     const up = moveWithCollision(map, obstacles, belowCliff, 0, -200);
     expect(up).toEqual(belowCliff);
     const diagonal = moveWithCollision(map, obstacles, belowCliff, 10, -200);
-    expect(diagonal).toEqual({ x: 210, y: 300 });
+    expect(diagonal).toEqual({ x: 410, y: 320 });
   });
 
   it("keeps the hero inside the map", () => {
-    const edge = moveWithCollision(map, obstacles, { x: 900, y: map.height - 20 }, 0, 100);
+    const edge = moveWithCollision(map, obstacles, { x: 745, y: map.height - 20 }, 0, 100);
     expect(edge.y).toBe(map.height - 20);
   });
 
@@ -54,7 +54,7 @@ describe("雲霧山門 exploration map", () => {
   });
 
   it("keeps the camera inside the map", () => {
-    expect(cameraOrigin(map, { x: 0, y: 0 }, 900, 675)).toEqual({ x: 0, y: 0 });
-    expect(cameraOrigin(map, { x: map.width, y: map.height }, 900, 675)).toEqual({ x: map.width - 900, y: map.height - 675 });
+    expect(cameraOrigin(map, { x: 0, y: 0 }, 720, 540)).toEqual({ x: 0, y: 0 });
+    expect(cameraOrigin(map, { x: map.width, y: map.height }, 720, 540)).toEqual({ x: map.width - 720, y: map.height - 540 });
   });
 });

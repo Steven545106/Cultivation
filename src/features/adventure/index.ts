@@ -53,6 +53,7 @@ export {
   HERO_FOOT_RADIUS,
   HERO_WALK_SPEED,
   MIST_GATE_MAP,
+  PROP_SIZES,
   cameraOrigin,
   exploreMaps,
   getExploreMap,
@@ -65,5 +66,6 @@ export {
   type ExploreObstacle,
   type ExplorePoint,
   type ExploreProp,
+  type ExplorePropKind,
   type ExploreSpawn,
 } from "./domain/ExploreMap";
