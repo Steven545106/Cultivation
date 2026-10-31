@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import {
+  ADVENTURE_STAGES_PER_REGION,
   ENCOUNTER_RADIUS,
   adventureRegions,
   cameraOrigin,
   canChallengeStage,
   getAdventureEnemy,
   getClearedStages,
+  getExploreMap,
   getMapObstacles,
   isBlocked,
   isBossStage,
+  isRegionOpen,
   moveWithCollision,
+  resolveEquippedSkills,
   walkStep,
   type AdventureProgress,
   type AdventureSkillId,
@@ -18,6 +22,7 @@ import {
   type ExplorePoint,
   type ExploreProp,
 } from "../../features/adventure";
+import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { AdventureFight } from "./AdventurePage";
 import { ExploreGround, ExplorePropArt } from "./ExploreArt";
@@ -45,6 +50,60 @@ interface Creature {
   /** When it picks somewhere new to wander to. */
   nextTurnAt: number;
   facingLeft: boolean;
+}
+
+interface ExploreScreenProps {
+  readonly navigation: JSX.Element;
+  readonly characterName: string;
+  readonly attack: number;
+  readonly critRate: number;
+  readonly weaponId: string;
+  readonly unlockedWeaponIds: readonly string[];
+  readonly progress: AdventureProgress;
+  readonly onVictory: (regionIndex: number, stage: number) => AdventureVictory;
+}
+
+/**
+ * The 探索 page: pick a region (those open in 遊歷 that have a map yet), then
+ * walk it. The fights take along the skills chosen on the 遊歷 page.
+ */
+export function ExploreScreen({ navigation, characterName, attack, critRate, weaponId, unlockedWeaponIds, progress, onVictory }: ExploreScreenProps): JSX.Element {
+  const [regionIndex, setRegionIndex] = useState<number | null>(null);
+  const map = regionIndex === null ? null : getExploreMap(regionIndex);
+  const skills = resolveEquippedSkills(progress.skills, unlockedWeaponIds);
+  if (map) {
+    return (
+      <main className="weapon-library adventure-page" aria-label="探索">
+        {navigation}
+        <ExplorePage map={map} characterName={characterName} attack={attack} critRate={critRate} weaponId={weaponId} skills={skills} progress={progress} onVictory={onVictory} onLeave={() => setRegionIndex(null)} />
+      </main>
+    );
+  }
+  return (
+    <main className="weapon-library adventure-page adventure-page--map" aria-label="探索">
+      {navigation}
+      <section className="explore-lobby" aria-label="選擇探索地區">
+        <header>
+          <h2>探索</h2>
+          <p>親自走進各地，用方向鍵（手機用畫面上的方向鍵）移動，碰到妖獸就開戰；獎勵與遊歷關卡相同。地區隨遊歷進度開放。</p>
+        </header>
+        <ol className="explore-lobby__regions">
+          {adventureRegions.map(region => {
+            const open = isRegionOpen(progress, region.index);
+            const hasMap = getExploreMap(region.index) !== null;
+            const theme = towerThemes.find(entry => entry.id === region.themeId) ?? towerThemes[0];
+            return (
+              <li key={region.themeId} className={open && hasMap ? "is-ready" : "is-locked"} style={{ backgroundImage: theme.background ? `linear-gradient(rgba(6, 16, 28, 0.35), rgba(6, 16, 28, 0.85)), url("${theme.background}")` : undefined }}>
+                <strong>{region.nameZh}</strong>
+                <small>{!open ? "未開放（先通過上一區首領）" : hasMap ? `已通關 ${getClearedStages(progress, region.index)} / ${ADVENTURE_STAGES_PER_REGION}` : "地圖繪製中"}</small>
+                <button type="button" disabled={!open || !hasMap} onClick={() => setRegionIndex(region.index)}>{open && hasMap ? "進入探索" : "敬請期待"}</button>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    </main>
+  );
 }
 
 interface ExplorePageProps {
@@ -286,8 +345,8 @@ function ExploreField({ map, hero, grace, progress, defeated, onEncounter, onLea
       </div>
       <div className="explore-mist" aria-hidden="true" />
 
-      <div className="adventure-place">{region.nameZh}・探索（試玩）</div>
-      <button type="button" className="adventure-leave" onClick={onLeave}>返回地圖</button>
+      <div className="adventure-place">{region.nameZh}・探索</div>
+      <button type="button" className="adventure-leave" onClick={onLeave}>返回地區</button>
       <p className="explore-hint">方向鍵或 WASD 移動・碰到妖獸即開戰</p>
       {notice && <p className="explore-notice" role="status">{notice}</p>}
 

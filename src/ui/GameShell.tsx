@@ -16,9 +16,10 @@ import { CompanionPage } from "./pages/CompanionPage";
 import { SaveAccountPanel } from "./SaveAccountPanel";
 import { AlchemyPage } from "./pages/AlchemyPage";
 import { AdventurePage } from "./pages/AdventurePage";
+import { ExploreScreen } from "./pages/ExplorePage";
 import { warmPostersWhenIdle } from "./warmPictures";
 
-type GamePage = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "tower" | "battle";
+type GamePage = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "explore" | "tower" | "battle";
 
 /**
  * React owns the application shell: page routing only. Weapon selection and
@@ -85,6 +86,7 @@ function ActiveGameShell(): JSX.Element {
   const activeNavigationPage: NavigationTarget = page === "battle" ? "tower" : page;
   const navigation = <GlobalNavigation activePage={activeNavigationPage} onNavigate={navigateTo} onShutdown={() => { setShutdownError(null); setRuntime(null); setShutdown("saving"); }} />;
   const inBattle = page === "battle";
+  const unlockedWeaponIds = weaponCatalog.filter(weapon => getWeaponUnlockStatus(weapon, selection.weaponUnlockContext).unlocked).map(weapon => weapon.weaponId);
 
   const foreground = (() => {
     switch (page) {
@@ -106,9 +108,22 @@ function ActiveGameShell(): JSX.Element {
             attack={selection.combatStats.attack}
             critRate={selection.combatStats.critRate}
             weaponId={selection.equippedWeapon.weaponId}
-            unlockedWeaponIds={weaponCatalog.filter(weapon => getWeaponUnlockStatus(weapon, selection.weaponUnlockContext).unlocked).map(weapon => weapon.weaponId)}
+            unlockedWeaponIds={unlockedWeaponIds}
             progress={gameSave.save.adventure}
             onSkillsChange={gameSaveCommands.setAdventureSkills}
+            onVictory={gameSaveCommands.completeAdventureStage}
+          />
+        );
+      case "explore":
+        return (
+          <ExploreScreen
+            navigation={navigation}
+            characterName={gameSave.save.characterName}
+            attack={selection.combatStats.attack}
+            critRate={selection.combatStats.critRate}
+            weaponId={selection.equippedWeapon.weaponId}
+            unlockedWeaponIds={unlockedWeaponIds}
+            progress={gameSave.save.adventure}
             onVictory={gameSaveCommands.completeAdventureStage}
           />
         );

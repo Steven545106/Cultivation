@@ -1022,4 +1022,18 @@ canvas {
 @media (prefers-reduced-motion: reduce) {
   .explore-hero.is-walking img, .explore-creature img, .explore-mist, .explore-flow, .explore-ripple { animation: none; }
 }
-.adventure-map__explore { margin-top: 8px; padding: 7px 16px; border: 1px solid rgba(246, 220, 150, 0.7); border-radius: 99px; background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font: inherit; font-weight: 700; cursor: pointer; }
+.global-navigation__medallion--explore { background: radial-gradient(circle at 35% 30%, #d9f7e6, #4f9a78 55%, #1f4a3a); color: #f2fff7; font-family: "Noto Serif TC", serif; font-size: 22px; font-weight: 800; text-shadow: 0 2px 3px #12301f; }
+/* The 探索 page: one card per region, open once 遊歷 opens it and a map has been drawn. */
+.explore-lobby { width: min(980px, 100%); display: grid; gap: 14px; color: #f5fbff; }
+.explore-lobby header { padding: 14px 18px; border: 1px solid rgba(246, 220, 150, 0.5); border-radius: 14px; background: rgba(8, 20, 34, 0.75); }
+.explore-lobby h2 { margin: 0 0 6px; color: #ffe9ac; font-family: "Noto Serif TC", serif; }
+.explore-lobby header p { margin: 0; color: #cfe2ee; font-size: 14px; line-height: 1.6; }
+.explore-lobby__regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.explore-lobby__regions li { display: grid; gap: 6px; align-content: end; min-height: 130px; padding: 12px; border: 1px solid rgba(246, 220, 150, 0.55); border-radius: 12px; background: #10263d center / cover; }
+.explore-lobby__regions li.is-locked { filter: grayscale(0.8) brightness(0.7); }
+.explore-lobby__regions strong { color: #ffe9ac; font-family: "Noto Serif TC", serif; font-size: 18px; text-shadow: 0 2px 4px #000; }
+.explore-lobby__regions small { color: #d8e8f2; font-size: 12px; text-shadow: 0 1px 3px #000; }
+.explore-lobby__regions button { justify-self: start; padding: 6px 14px; border: 1px solid rgba(246, 220, 150, 0.7); border-radius: 99px; background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.explore-lobby__regions button:disabled { background: rgba(8, 20, 34, 0.7); color: #aab8c1; cursor: default; }
+@media (max-width: 640px) { .explore-lobby__regions { grid-template-columns: repeat(2, minmax(0, 1fr)); } .explore-lobby__regions li { min-height: 110px; } }
+@media (max-width: 640px) { .global-navigation__medallion--explore { font-size: 20px; } }
