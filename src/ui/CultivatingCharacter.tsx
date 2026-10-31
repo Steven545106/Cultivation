@@ -20,7 +20,7 @@ export function CultivatingCharacter({ characterName, companionId, companionName
   const lotus = getRealmLotus(realmId);
   const bleed = `${-QI_BLEED * 100}%`;
   return (
-    <div className={dual ? "cultivating-stage cultivating-stage--dual" : "cultivating-stage"}>
+    <div className={dual ? "cultivating-stage cultivating-stage--dual" : lotus ? "cultivating-stage cultivating-stage--lotus" : "cultivating-stage"}>
       {dual
         ? (dual.peopleX ?? [27, 73]).map((x, index) => (
           <div key={x} className="qi-breath-box qi-breath-box--person" style={{ left: `${x}%` }}>
