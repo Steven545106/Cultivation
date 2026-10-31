@@ -221,7 +221,77 @@ export const VERDANT_FOREST_MAP: ExploreMapSpec = {
   ],
 };
 
-export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP];
+const FLAME_PROP_SIZES: Readonly<Record<string, ExplorePropSize>> = {
+  "spire-a": { width: 160, rx: 0.34, ry: 0.12, lift: 0.12 },
+  "spire-b": { width: 170, rx: 0.36, ry: 0.13, lift: 0.13 },
+  crystals: { width: 120, rx: 0.34, ry: 0.13, lift: 0.13 },
+  brazier: { width: 70, rx: 0.34, ry: 0.15, lift: 0.16 },
+  tree: { width: 230, rx: 0.26, ry: 0.08, lift: 0.08 },
+  boulder: { width: 90, rx: 0.4, ry: 0.16, lift: 0.16 },
+  stalagmite: { width: 110, rx: 0.32, ry: 0.12, lift: 0.12 },
+  altar: { width: 170, rx: 0.42, ry: 0.17, lift: 0.2 },
+};
+
+/**
+ * 赤焰洞府, on its painted map (1374 × 1145): a path of glowing flagstones
+ * climbs from the bottom, crosses a river of lava on a chained basalt bridge,
+ * and ends at the steps of an immortal's cave mansion (top). The lava pours
+ * from a fall in the upper left and runs across the cavern to the right edge;
+ * a fire array is carved into the floor on the upper right. The fire spirits
+ * roam the cavern floor and their king waits at the mansion steps.
+ */
+export const CRIMSON_GROTTO_MAP: ExploreMapSpec = {
+  regionIndex: 2,
+  width: 1374,
+  height: 1145,
+  ground: "/assets/explore/flame/ground.webp",
+  propFolder: "/assets/explore/flame",
+  propSizes: FLAME_PROP_SIZES,
+  start: { x: 690, y: 1100 },
+  obstacles: [
+    // The cavern wall and the mansion along the top; only its steps climb into them.
+    { kind: "rect", x: 0, y: 0, width: 1374, height: 200 },
+    { kind: "rect", x: 0, y: 200, width: 615, height: 65 },
+    { kind: "rect", x: 785, y: 200, width: 589, height: 62 },
+    { kind: "rect", x: 615, y: 200, width: 170, height: 25 },
+    // The lava fall's basin and the river west of the bridge.
+    { kind: "polygon", points: [[0, 265], [335, 265], [335, 300], [272, 380], [300, 460], [360, 486], [500, 506], [605, 515], [640, 522], [640, 690], [560, 656], [400, 650], [280, 640], [200, 600], [0, 590]] },
+    // The river east of the bridge, out to the right edge.
+    { kind: "polygon", points: [[780, 522], [820, 540], [1000, 555], [1300, 560], [1374, 560], [1374, 722], [1150, 702], [1000, 692], [860, 682], [780, 690]] },
+    // The rock walls down both sides.
+    { kind: "rect", x: 1310, y: 262, width: 64, height: 300 },
+    { kind: "rect", x: 0, y: 590, width: 280, height: 300 },
+    { kind: "rect", x: 0, y: 890, width: 210, height: 255 },
+    { kind: "rect", x: 1300, y: 700, width: 74, height: 220 },
+    // The rocks along the bottom, either side of the path.
+    { kind: "rect", x: 210, y: 1010, width: 390, height: 135 },
+    { kind: "rect", x: 765, y: 950, width: 240, height: 195 },
+    { kind: "rect", x: 1005, y: 920, width: 369, height: 225 },
+  ],
+  props: [
+    { kind: "tree", x: 410, y: 330, scale: 1 },
+    { kind: "crystals", x: 900, y: 305, scale: 1 },
+    { kind: "spire-a", x: 310, y: 705, scale: 1 },
+    { kind: "stalagmite", x: 300, y: 930, scale: 1, flip: true },
+    { kind: "spire-b", x: 1230, y: 930, scale: 1 },
+    { kind: "crystals", x: 1270, y: 760, scale: 0.8, flip: true },
+    { kind: "altar", x: 1140, y: 885, scale: 1 },
+    { kind: "boulder", x: 830, y: 905, scale: 1 },
+    { kind: "boulder", x: 1255, y: 500, scale: 0.7, flip: true },
+    { kind: "brazier", x: 590, y: 735, scale: 1 },
+    { kind: "brazier", x: 795, y: 735, scale: 1 },
+  ],
+  spawns: [
+    { stage: 1, home: { x: 430, y: 790 }, roam: 50 },
+    { stage: 2, home: { x: 940, y: 770 }, roam: 60 },
+    { stage: 3, home: { x: 500, y: 920 }, roam: 40 },
+    { stage: 4, home: { x: 500, y: 400 }, roam: 50 },
+    { stage: 5, home: { x: 1080, y: 400 }, roam: 50 },
+    { stage: 6, home: { x: 700, y: 322 }, roam: 6 },
+  ],
+};
+
+export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP, CRIMSON_GROTTO_MAP];
 
 export function getExploreMap(regionIndex: number): ExploreMapSpec | null {
   return exploreMaps.find(map => map.regionIndex === regionIndex) ?? null;

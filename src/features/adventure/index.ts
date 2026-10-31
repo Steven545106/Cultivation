@@ -49,6 +49,7 @@ export {
   type AdventureVictory,
 } from "./domain/AdventureStages";
 export {
+  CRIMSON_GROTTO_MAP,
   ENCOUNTER_RADIUS,
   HERO_FOOT_RADIUS,
   HERO_WALK_SPEED,
