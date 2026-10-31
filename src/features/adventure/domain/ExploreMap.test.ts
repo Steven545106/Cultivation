@@ -66,6 +66,13 @@ describe("exploration movement", () => {
     expect(down.x).toBeGreaterThan(beside.x);
   });
 
+  it("lets the hero walk only on a map's islands and bridges", () => {
+    const island = { ...map, obstacles: [], props: [], walkable: [[[100, 100], [300, 100], [300, 300], [100, 300]]] as const };
+    expect(isBlocked(island, [], { x: 200, y: 200 })).toBe(false);
+    expect(isBlocked(island, [], { x: 295, y: 200 })).toBe(true);
+    expect(isBlocked(island, [], { x: 400, y: 200 })).toBe(true);
+  });
+
   it("keeps the hero inside the map", () => {
     const edge = moveWithCollision(map, obstacles, { x: 745, y: map.height - 20 }, 0, 100);
     expect(edge.y).toBe(map.height - 20);

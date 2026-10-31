@@ -55,6 +55,8 @@ export {
   HERO_FOOT_RADIUS,
   HERO_WALK_SPEED,
   MIST_GATE_MAP,
+  STARRY_VOID_MAP,
+  THUNDER_SKY_MAP,
   VERDANT_FOREST_MAP,
   cameraOrigin,
   exploreMaps,

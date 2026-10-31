@@ -52,6 +52,12 @@ export interface ExploreMapSpec {
   readonly obstacles: readonly ExploreObstacle[];
   readonly props: readonly ExploreProp[];
   readonly spawns: readonly ExploreSpawn[];
+  /**
+   * For maps of islands in a void (clouds, sky): the only ground there is.
+   * The feet must lie wholly inside one of these outlines, so a bridge's
+   * outline should reach well into the islands it joins.
+   */
+  readonly walkable?: readonly (readonly (readonly [number, number])[])[];
 }
 
 /** Radius of the hero's feet for collisions. */
@@ -362,7 +368,139 @@ export const FROSTBOUND_GLACIER_MAP: ExploreMapSpec = {
   ],
 };
 
-export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP, CRIMSON_GROTTO_MAP, FROSTBOUND_GLACIER_MAP];
+const THUNDER_PROP_SIZES: Readonly<Record<string, ExplorePropSize>> = {
+  "pine-a": { width: 210, rx: 0.26, ry: 0.08, lift: 0.08 },
+  "pine-b": { width: 230, rx: 0.28, ry: 0.08, lift: 0.08 },
+  "dead-tree": { width: 200, rx: 0.24, ry: 0.08, lift: 0.08 },
+  stele: { width: 70, rx: 0.36, ry: 0.15, lift: 0.14 },
+  drum: { width: 140, rx: 0.4, ry: 0.16, lift: 0.16 },
+  crag: { width: 110, rx: 0.38, ry: 0.15, lift: 0.14 },
+  rock: { width: 75, rx: 0.4, ry: 0.16, lift: 0.16 },
+  pagoda: { width: 110, rx: 0.36, ry: 0.15, lift: 0.14 },
+};
+
+/**
+ * 雷鳴天海, on its painted map (1374 × 1145): four islands float on a sea of
+ * storm clouds. A rune path crosses the south island, a chained bridge leads
+ * up to the great central island, a hanging bridge climbs from there to the
+ * north island's thunder altar, and a narrow chain bridge reaches a hidden
+ * islet in the upper left. Only the islands and bridges can be walked. The
+ * thunder lynxes roam the islands; one guards the hidden islet and their king
+ * waits at the top of the hanging bridge, below the altar.
+ */
+export const THUNDER_SKY_MAP: ExploreMapSpec = {
+  regionIndex: 4,
+  width: 1374,
+  height: 1145,
+  ground: "/assets/explore/thunder/ground.webp",
+  propFolder: "/assets/explore/thunder",
+  propSizes: THUNDER_PROP_SIZES,
+  start: { x: 700, y: 1100 },
+  obstacles: [],
+  walkable: [
+    // The south island, where the path starts.
+    [[400, 880], [600, 852], [640, 832], [790, 832], [830, 852], [1050, 880], [1040, 950], [980, 1000], [1000, 1145], [450, 1145], [420, 1000], [380, 950]],
+    // The chained bridge up to the central island.
+    [[652, 650], [748, 650], [752, 880], [648, 880]],
+    // The central island.
+    [[80, 495], [300, 470], [420, 425], [560, 410], [780, 405], [900, 410], [960, 440], [1100, 475], [1290, 505], [1295, 575], [1150, 600], [1000, 640], [800, 660], [760, 690], [650, 690], [560, 660], [420, 640], [250, 610], [90, 560]],
+    // The narrow chain bridge to the hidden islet.
+    [[150, 240], [228, 240], [228, 318], [352, 470], [360, 525], [270, 530], [150, 330]],
+    // The hidden islet.
+    [[60, 190], [140, 175], [270, 185], [285, 230], [250, 262], [130, 266], [50, 235]],
+    // The hanging bridge up to the north island.
+    [[842, 225], [934, 225], [912, 445], [768, 445]],
+    // The north island, around the altar; only the altar's steps climb onto it.
+    [[480, 195], [560, 160], [740, 150], [760, 210], [850, 215], [855, 185], [935, 185], [940, 215], [1040, 210], [1060, 145], [1200, 150], [1265, 200], [1240, 262], [1080, 282], [940, 268], [840, 268], [700, 282], [560, 262], [485, 235]],
+  ],
+  props: [
+    { kind: "pagoda", x: 600, y: 250, scale: 1 },
+    { kind: "stele", x: 1150, y: 245, scale: 1 },
+    { kind: "rock", x: 720, y: 262, scale: 0.9 },
+    { kind: "drum", x: 470, y: 530, scale: 1 },
+    { kind: "dead-tree", x: 150, y: 545, scale: 1 },
+    { kind: "pine-a", x: 1200, y: 565, scale: 1 },
+    { kind: "rock", x: 590, y: 615, scale: 1, flip: true },
+    { kind: "pine-b", x: 990, y: 1010, scale: 1, flip: true },
+    { kind: "crag", x: 420, y: 1060, scale: 1 },
+  ],
+  spawns: [
+    { stage: 1, home: { x: 530, y: 950 }, roam: 35 },
+    { stage: 2, home: { x: 880, y: 930 }, roam: 35 },
+    { stage: 3, home: { x: 260, y: 540 }, roam: 45 },
+    { stage: 4, home: { x: 1000, y: 560 }, roam: 50 },
+    { stage: 5, home: { x: 170, y: 218 }, roam: 18 },
+    { stage: 6, home: { x: 893, y: 240 }, roam: 4 },
+  ],
+};
+
+const STAR_PROP_SIZES: Readonly<Record<string, ExplorePropSize>> = {
+  "tree-a": { width: 200, rx: 0.26, ry: 0.09, lift: 0.08 },
+  "tree-b": { width: 220, rx: 0.24, ry: 0.08, lift: 0.08 },
+  orb: { width: 90, rx: 0.36, ry: 0.15, lift: 0.14 },
+  armillary: { width: 130, rx: 0.4, ry: 0.16, lift: 0.16 },
+  "meteor-a": { width: 110, rx: 0.3, ry: 0.12, lift: 0.12 },
+  "meteor-b": { width: 60, rx: 0.3, ry: 0.12, lift: 0.12 },
+  arch: { width: 170, rx: 0.42, ry: 0.1, lift: 0.08 },
+  obelisk: { width: 70, rx: 0.36, ry: 0.15, lift: 0.14 },
+};
+
+/**
+ * 星河虛空, on its painted map (1374 × 1145): white jade platforms float in a
+ * starry void, joined by bridges of starlight. A winding bridge climbs from the
+ * hexagonal south platform to a great observatory plaza with a star chart on
+ * its floor; from there one bridge reaches a crescent platform on the left and
+ * another climbs to the moon gate on the north platform. Only the platforms and
+ * bridges can be walked. The star foxes roam the platforms, one keeps the
+ * crescent, and their king waits at the foot of the moon gate's steps.
+ */
+export const STARRY_VOID_MAP: ExploreMapSpec = {
+  regionIndex: 5,
+  width: 1374,
+  height: 1145,
+  ground: "/assets/explore/star/ground.webp",
+  propFolder: "/assets/explore/star",
+  propSizes: STAR_PROP_SIZES,
+  start: { x: 690, y: 1100 },
+  obstacles: [],
+  walkable: [
+    // The hexagonal south platform, where the path starts.
+    [[540, 912], [860, 912], [935, 1030], [925, 1145], [445, 1145], [440, 1040]],
+    // The winding starlight bridge up to the plaza.
+    [[640, 640], [650, 700], [700, 760], [700, 820], [680, 880], [680, 950], [775, 950], [780, 880], [830, 820], [835, 760], [770, 700], [748, 640]],
+    // The observatory plaza.
+    [[1030, 532], [1004, 591], [930, 642], [820, 675], [690, 687], [560, 675], [450, 642], [376, 591], [350, 532], [376, 473], [450, 422], [560, 389], [690, 377], [820, 389], [930, 422], [1004, 473]],
+    // The bridge to the crescent platform.
+    [[215, 378], [300, 398], [405, 448], [415, 515], [340, 482], [250, 448], [205, 442]],
+    // The crescent platform.
+    [[190, 280], [100, 300], [30, 340], [15, 385], [60, 425], [180, 440], [270, 432], [250, 395], [130, 385], [110, 345], [150, 305]],
+    // The bridge up to the north platform.
+    [[770, 420], [795, 350], [878, 312], [928, 245], [1005, 245], [992, 300], [905, 372], [880, 425]],
+    // The north platform around the moon gate; only its steps reach the gate.
+    [[720, 215], [780, 175], [900, 165], [910, 215], [1060, 222], [1150, 190], [1200, 165], [1270, 220], [1260, 280], [1150, 300], [1000, 302], [880, 306], [760, 265]],
+  ],
+  props: [
+    { kind: "armillary", x: 790, y: 245, scale: 1 },
+    { kind: "tree-a", x: 1200, y: 262, scale: 1 },
+    { kind: "arch", x: 560, y: 405, scale: 1 },
+    { kind: "orb", x: 690, y: 540, scale: 1 },
+    { kind: "tree-b", x: 980, y: 625, scale: 0.85, flip: true },
+    { kind: "obelisk", x: 478, y: 1085, scale: 1 },
+    { kind: "meteor-a", x: 1180, y: 780, scale: 1 },
+    { kind: "meteor-b", x: 250, y: 840, scale: 1, flip: true },
+    { kind: "meteor-b", x: 1250, y: 470, scale: 0.8 },
+  ],
+  spawns: [
+    { stage: 1, home: { x: 560, y: 1045 }, roam: 35 },
+    { stage: 2, home: { x: 830, y: 1045 }, roam: 35 },
+    { stage: 3, home: { x: 480, y: 570 }, roam: 45 },
+    { stage: 4, home: { x: 900, y: 520 }, roam: 45 },
+    { stage: 5, home: { x: 72, y: 385 }, roam: 10 },
+    { stage: 6, home: { x: 990, y: 268 }, roam: 4 },
+  ],
+};
+
+export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP, CRIMSON_GROTTO_MAP, FROSTBOUND_GLACIER_MAP, THUNDER_SKY_MAP, STARRY_VOID_MAP];
 
 export function getExploreMap(regionIndex: number): ExploreMapSpec | null {
   return exploreMaps.find(map => map.regionIndex === regionIndex) ?? null;
@@ -383,20 +521,9 @@ export function overlapsObstacle(point: ExplorePoint, radius: number, obstacle: 
     }
     case "circle":
       return (point.x - obstacle.x) ** 2 + (point.y - obstacle.y) ** 2 < (radius + obstacle.radius) ** 2;
-    case "polygon": {
-      const points = obstacle.points;
-      let inside = false;
-      for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
-        const [x1, y1] = points[index];
-        const [x2, y2] = points[previous];
-        if ((y1 > point.y) !== (y2 > point.y) && point.x < ((x2 - x1) * (point.y - y1)) / (y2 - y1) + x1) inside = !inside;
-        // Near an edge counts too: the feet are a circle, not a point.
-        const length = (x2 - x1) ** 2 + (y2 - y1) ** 2;
-        const along = length === 0 ? 0 : Math.max(0, Math.min(1, ((point.x - x1) * (x2 - x1) + (point.y - y1) * (y2 - y1)) / length));
-        if ((point.x - (x1 + along * (x2 - x1))) ** 2 + (point.y - (y1 + along * (y2 - y1))) ** 2 < radius ** 2) return true;
-      }
-      return inside;
-    }
+    case "polygon":
+      // Near an edge counts too: the feet are a circle, not a point.
+      return insidePolygon(obstacle.points, point) || distanceToOutline(obstacle.points, point) < radius;
     case "ellipse": {
       // Grow the ellipse by the radius: close enough for round feet against a pond or a rock.
       const dx = (point.x - obstacle.x) / (obstacle.rx + radius);
@@ -406,8 +533,31 @@ export function overlapsObstacle(point: ExplorePoint, radius: number, obstacle: 
   }
 }
 
+function insidePolygon(points: readonly (readonly [number, number])[], point: ExplorePoint): boolean {
+  let inside = false;
+  for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
+    const [x1, y1] = points[index];
+    const [x2, y2] = points[previous];
+    if ((y1 > point.y) !== (y2 > point.y) && point.x < ((x2 - x1) * (point.y - y1)) / (y2 - y1) + x1) inside = !inside;
+  }
+  return inside;
+}
+
+function distanceToOutline(points: readonly (readonly [number, number])[], point: ExplorePoint): number {
+  let nearest = Infinity;
+  for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
+    const [x1, y1] = points[index];
+    const [x2, y2] = points[previous];
+    const length = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+    const along = length === 0 ? 0 : Math.max(0, Math.min(1, ((point.x - x1) * (x2 - x1) + (point.y - y1) * (y2 - y1)) / length));
+    nearest = Math.min(nearest, Math.hypot(point.x - (x1 + along * (x2 - x1)), point.y - (y1 + along * (y2 - y1))));
+  }
+  return nearest;
+}
+
 export function isBlocked(map: ExploreMapSpec, obstacles: readonly ExploreObstacle[], point: ExplorePoint, radius = HERO_FOOT_RADIUS): boolean {
   if (point.x < radius || point.y < radius || point.x > map.width - radius || point.y > map.height - radius) return true;
+  if (map.walkable && !map.walkable.some(ground => insidePolygon(ground, point) && distanceToOutline(ground, point) >= radius)) return true;
   return obstacles.some(obstacle => overlapsObstacle(point, radius, obstacle));
 }
 
