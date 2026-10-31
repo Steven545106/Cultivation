@@ -23,7 +23,7 @@ import { AdventureMap } from "./AdventureMap";
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
-import { ChunhuaBlossoms, LeiyuLightning, LuoyingPetals, QianfengPeaks, QinghuiSnow, TaxueFeathers, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
+import { ChunhuaBlossoms, LeiyuLightning, LuoyingPetals, QianfengPeaks, QinghuiSnow, SwordStrike, TaxueFeathers, XingluoMeteors, XinyueCrescent, YuehuaMoonlight, ZhoutianStars } from "./AdventureEffects";
 import { castLength, castTimeAt, skillCasts, type HeroPlacement } from "./adventureCasts";
 
 interface FloatingNumber {
@@ -36,6 +36,8 @@ interface FloatingNumber {
 /** One pause per step of a turn, so a basic strike and the reply can be read apart. */
 const HIT_GAP_MS = 170;
 const ENEMY_REPLY_GAP_MS = 420;
+/** How long the hero's lunge takes before the first cut of a basic strike lands. */
+const STRIKE_LEAD_MS = 200;
 
 /**
  * The hurt flash for the nth hit. It alternates between two identical animations so each hit restarts it
@@ -98,6 +100,8 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
   const [casting, setCasting] = useState<{ readonly key: number; readonly skillId: AdventureSkillId } | null>(null);
   /** The skill effect playing on the enemy. */
   const [effect, setEffect] = useState<{ readonly key: number; readonly skillId: AdventureSkillId } | null>(null);
+  /** The sword qi of a basic strike: one cut per hit, keyed so the next strike replays it. */
+  const [strike, setStrike] = useState<{ readonly key: number; readonly slashes: readonly { readonly delay: number; readonly critical: boolean }[] } | null>(null);
   const [enemyHurt, setEnemyHurt] = useState(0);
   const [heroHurt, setHeroHurt] = useState(0);
   const [menu, setMenu] = useState<"main" | "skills">("main");
@@ -136,8 +140,9 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
     const poison = next.events.find(event => event.kind === "poison");
     const cast = action.kind === "skill" && !reducedMotion ? skillCasts[action.skillId] : null;
     // When each hit lands: on its frame of the cast, or one after another for a basic strike.
+    const striking = !cast && heroHits.length > 0 && !reducedMotion;
     const hitTimes = heroHits.map((_, index) => {
-      if (!cast) return index * HIT_GAP_MS;
+      if (!cast) return (striking ? STRIKE_LEAD_MS : 0) + index * HIT_GAP_MS;
       const frames = cast.hitFrames;
       const frame = frames[index] ?? frames[frames.length - 1] + (index - frames.length + 1) * 2;
       return castTimeAt(cast, frame);
@@ -150,6 +155,8 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
       setCasting({ key, skillId: action.skillId });
       later(castTimeAt(cast, cast.effectFrame), () => setEffect({ key, skillId: action.skillId }));
     }
+    // A basic strike: the hero lunges and each hit is a cut of sword qi, landing a little before its number.
+    if (striking) setStrike({ key: nextId.current++, slashes: heroHits.map((event, index) => ({ delay: Math.max(0, hitTimes[index] - 90), critical: event.kind === "hero-hit" && event.critical })) });
     heroHits.forEach((event, index) => {
       if (event.kind !== "hero-hit") return;
       later(hitTimes[index], () => { float("enemy", event.damage.toLocaleString("zh-TW"), event.critical ? "crit" : "normal"); setEnemyHurt(count => count + 1); });
@@ -181,7 +188,7 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
     }
     // A cast holds the turn until its animation has played out.
     later(cast ? Math.max(clock, castLength(cast)) : clock, () => {
-      setShown(next); setBattle(next); setBusy(false); setCasting(null); setEffect(null);
+      setShown(next); setBattle(next); setBusy(false); setCasting(null); setEffect(null); setStrike(null);
     });
   };
 
@@ -210,6 +217,7 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
     setFloats([]);
     setCasting(null);
     setEffect(null);
+    setStrike(null);
     setMenu("main");
     setVictory(null);
   };
@@ -244,6 +252,7 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
           </div>
           <div className={`adventure-figure${hurtClass(enemyHurt)}${view.status === "victory" ? " is-defeated" : ""}`}>
             {enemySprite ? <SpriteAnimation sprite={enemySprite} className="adventure-enemy" label={view.enemy.nameZh} /> : <span className="adventure-enemy-fallback">{view.enemy.nameZh}</span>}
+            {strike && <SwordStrike key={strike.key} slashes={strike.slashes} />}
             {effect && effectCast?.effect === "petals" && <LuoyingPetals key={effect.key} />}
             {effect && effectCast?.effect === "lightning" && (
               <LeiyuLightning
@@ -306,7 +315,7 @@ export function AdventureFight({ characterName, attack, critRate, weaponId, regi
             <Bar label="氣血" tone="hp" value={view.hero.hp} max={view.hero.maxHp} compact />
           </div>
           <div className={`adventure-figure${hurtClass(heroHurt)}`}>
-            <img key={stanceSkill} className={castNow ? "adventure-hero-stance is-casting" : "adventure-hero-stance"} src={stance.image} style={placementStyle(stance.placement)} alt={`${characterName}持劍應戰`} draggable={false} />
+            <img key={stanceSkill} className={castNow ? "adventure-hero-stance is-casting" : strike ? "adventure-hero-stance is-striking" : "adventure-hero-stance"} src={stance.image} style={placementStyle(stance.placement)} alt={`${characterName}持劍應戰`} draggable={false} />
             {casting && castNow && <SpriteAnimation key={casting.key} sprite={castNow.sprite} className={castNow.glowing ? "adventure-hero-skill is-glowing" : "adventure-hero-skill"} style={placementStyle(castNow.placement)} />}
             {floats.filter(entry => entry.side === "hero").map(entry => <b key={entry.id} className="adventure-float adventure-float--hero">{entry.text}</b>)}
           </div>

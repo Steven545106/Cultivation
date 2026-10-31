@@ -279,3 +279,34 @@ export function LuoyingPetals(): JSX.Element {
     </div>
   );
 }
+
+/** The angle of each slash of a basic strike in turn, so a run of hits criss-crosses. */
+const SLASH_ANGLES = [-28, 22, -62, 48];
+
+/**
+ * 劍擊: a crescent of sword qi cuts across the target at each slash's `delay`
+ * ms, with a spray of sparks where it bites; a critical cut is golden and
+ * larger, with a cross-shaped flash. Remounting it (a new `key`) replays it.
+ */
+export function SwordStrike({ slashes }: { readonly slashes: readonly { readonly delay: number; readonly critical: boolean }[] }): JSX.Element {
+  return (
+    <div className="adventure-strike" aria-hidden="true">
+      {slashes.map((slash, index) => (
+        <span
+          key={index}
+          className={slash.critical ? "adventure-strike__slash is-critical" : "adventure-strike__slash"}
+          style={{ "--angle": `${SLASH_ANGLES[index % SLASH_ANGLES.length]}deg`, "--delay": `${slash.delay}ms` } as CSSProperties}
+        >
+          <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+            <path className="adventure-strike__glow" d="M2,30 Q50,-8 98,22 Q50,8 2,30 Z" />
+            <path className="adventure-strike__blade" d="M4,29 Q50,-4 96,22 Q50,12 4,29 Z" />
+          </svg>
+          <i className="adventure-strike__flash" />
+          {Array.from({ length: 6 }, (_, spark) => (
+            <b key={spark} className="adventure-strike__spark" style={{ "--spark": `${spark * 60 + Math.round(hash(index, spark) * 40)}deg` } as CSSProperties} />
+          ))}
+        </span>
+      ))}
+    </div>
+  );
+}

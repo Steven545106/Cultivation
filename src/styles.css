@@ -727,6 +727,26 @@ canvas {
 /* The hero's stance and his cast share one sheet and one frame box, so the cast starts and ends in place. */
 .adventure-figure .adventure-hero-stance, .adventure-figure .adventure-hero-skill { position: absolute; left: 50%; bottom: 1%; width: 112%; height: auto; transform: translateX(-50%) scaleX(-1); filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.5)); pointer-events: none; }
 .adventure-figure .adventure-hero-stance.is-casting { visibility: hidden; }
+/* 劍擊: the hero lunges up and left at the enemy and springs back. */
+.adventure-figure .adventure-hero-stance.is-striking { animation: adventure-lunge 520ms cubic-bezier(0.3, 0.6, 0.3, 1); }
+@keyframes adventure-lunge { 0% { translate: 0 0; } 20% { translate: 6% 2%; } 45% { translate: -40% -26%; } 62% { translate: -38% -25%; } 100% { translate: 0 0; } }
+.adventure-strike { position: absolute; inset: -6%; z-index: 2; pointer-events: none; }
+.adventure-strike__slash { position: absolute; left: 50%; top: 50%; width: 96%; aspect-ratio: 2.5; transform: translate(-50%, -50%) rotate(var(--angle)); }
+.adventure-strike__slash svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; clip-path: inset(0 100% 0 0); opacity: 0; animation: adventure-strike-cut 380ms ease-out var(--delay) forwards; }
+.adventure-strike__glow { fill: rgba(40, 120, 255, 0.85); filter: blur(2px); }
+.adventure-strike__blade { fill: #e6f6ff; stroke: rgba(30, 90, 220, 0.9); stroke-width: 0.6; }
+.adventure-strike__slash.is-critical { width: 122%; }
+.adventure-strike__slash.is-critical .adventure-strike__glow { fill: rgba(255, 196, 80, 0.7); }
+.adventure-strike__slash.is-critical .adventure-strike__blade { fill: #fff6d6; stroke: rgba(210, 120, 20, 0.9); }
+.adventure-strike__slash svg { filter: drop-shadow(0 0 3px rgba(20, 80, 220, 1)) drop-shadow(0 0 8px rgba(90, 170, 255, 0.9)); }
+.adventure-strike__slash.is-critical svg { filter: drop-shadow(0 0 3px rgba(200, 110, 10, 1)) drop-shadow(0 0 9px rgba(255, 200, 90, 1)); }
+.adventure-strike__flash { position: absolute; left: 50%; top: 42%; width: 34%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff 0 12%, rgba(190, 228, 255, 0.85) 26%, transparent 62%); transform: translate(-50%, -50%) scale(0); opacity: 0; animation: adventure-strike-flash 300ms ease-out calc(var(--delay) + 120ms) forwards; }
+.adventure-strike__slash.is-critical .adventure-strike__flash { width: 60%; background: radial-gradient(circle, #fff 0 8%, rgba(255, 224, 140, 0.95) 18%, transparent 56%), linear-gradient(90deg, transparent 46%, rgba(255, 236, 180, 0.95) 50%, transparent 54%), linear-gradient(0deg, transparent 46%, rgba(255, 236, 180, 0.95) 50%, transparent 54%); border-radius: 0; clip-path: polygon(50% 0, 56% 44%, 100% 50%, 56% 56%, 50% 100%, 44% 56%, 0 50%, 44% 44%); }
+.adventure-strike__spark { position: absolute; left: 50%; top: 42%; width: 3px; height: 14%; border-radius: 2px; background: linear-gradient(#e6f6ff, rgba(50, 130, 255, 0)); box-shadow: 0 0 3px rgba(30, 100, 230, 0.9); transform-origin: 50% 0; transform: rotate(var(--spark)) translateY(0) scaleY(0); opacity: 0; animation: adventure-strike-spark 360ms ease-out calc(var(--delay) + 130ms) forwards; }
+.adventure-strike__slash.is-critical .adventure-strike__spark { background: linear-gradient(#fff6d0, rgba(255, 190, 70, 0)); height: 20%; }
+@keyframes adventure-strike-cut { 0% { opacity: 1; clip-path: inset(0 100% 0 0); } 45% { opacity: 1; clip-path: inset(0 0 0 0); } 100% { opacity: 0; clip-path: inset(0 0 0 60%); } }
+@keyframes adventure-strike-flash { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.2); } 40% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); } }
+@keyframes adventure-strike-spark { 0% { opacity: 1; transform: rotate(var(--spark)) translateY(0) scaleY(0.3); } 50% { opacity: 1; transform: rotate(var(--spark)) translateY(40%) scaleY(1); } 100% { opacity: 0; transform: rotate(var(--spark)) translateY(160%) scaleY(0.4); } }
 .adventure-figure .adventure-hero-skill.is-glowing { filter: drop-shadow(0 0 8px rgba(200, 225, 255, 0.35)); }
 .adventure-float--status { color: #d9a8ff; -webkit-text-stroke: 2px #2c0a4a; }
 .adventure-lightning { position: absolute; inset: -12% -8% 0; z-index: 2; pointer-events: none; }
