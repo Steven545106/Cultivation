@@ -121,7 +121,7 @@ export const heroCultivationSprite: CompanionSprite = {
   blendMs: 0,
 };
 
-/** The hero's solo loop and the companion's own solo loop (drawn in the same style) side by side; 32 frames at 156 ms: a five-second breath, slower than the solo loop (her 18 drawn frames are spread over them). */
+/** The hero's solo loop and the companion's own solo loop (drawn in the same style) side by side, her side scaled down to his size (tools/shrink_dual_partner.py); 32 frames at 156 ms: a five-second breath, slower than the solo loop (her 18 drawn frames are spread over them). */
 const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
   "lin-tingxue": {
     sheet: "/assets/companions/dual_lin_tingxue-sheet.webp",
@@ -131,7 +131,7 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cellHeight: 438,
     steps: range(32).map(cell => ({ cell, holdMs: 156 })),
     blendMs: 0,
-    peopleX: [27, 73],
+    peopleX: [27, 68],
   },
   "su-wanqing": {
     sheet: "/assets/companions/dual_su_wanqing-sheet.webp",
@@ -141,7 +141,7 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cellHeight: 424,
     steps: range(32).map(cell => ({ cell, holdMs: 156 })),
     blendMs: 0,
-    peopleX: [27, 69],
+    peopleX: [27, 65],
   },
   "gu-xinglan": {
     sheet: "/assets/companions/dual_gu_xinglan-sheet.webp",
@@ -151,7 +151,7 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cellHeight: 425,
     steps: range(32).map(cell => ({ cell, holdMs: 156 })),
     blendMs: 0,
-    peopleX: [27, 70],
+    peopleX: [27, 65],
   },
   "murong-wanyue": {
     sheet: "/assets/companions/dual_murong_wanyue-sheet.webp",
@@ -161,7 +161,7 @@ const dualCultivationSprites: Readonly<Record<string, CompanionSprite>> = {
     cellHeight: 423,
     steps: range(32).map(cell => ({ cell, holdMs: 156 })),
     blendMs: 0,
-    peopleX: [28, 70],
+    peopleX: [28, 65],
   },
 };
 
