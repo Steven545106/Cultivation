@@ -9,6 +9,7 @@ import {
   getAdventureEnemy,
   getAdventureReward,
   getClearedStages,
+  getExploreMap,
   getFrontierStage,
   getStageReferenceAttack,
   isBossStage,
@@ -30,6 +31,8 @@ interface AdventureMapProps {
   readonly skills: readonly AdventureSkillId[];
   readonly onSkillsChange: (skills: readonly AdventureSkillId[]) => void;
   readonly onChallenge: (regionIndex: number, stage: number) => void;
+  /** Walk the region's map instead (only regions that have one). */
+  readonly onExplore: (regionIndex: number) => void;
 }
 
 /**
@@ -37,7 +40,7 @@ interface AdventureMapProps {
  * stages each with the attack they are sized for and what they pay, and the
  * three skills to take into the fight.
  */
-export function AdventureMap({ progress, attack, weaponId, unlockedWeaponIds, skills, onSkillsChange, onChallenge }: AdventureMapProps): JSX.Element {
+export function AdventureMap({ progress, attack, weaponId, unlockedWeaponIds, skills, onSkillsChange, onChallenge, onExplore }: AdventureMapProps): JSX.Element {
   const [regionIndex, setRegionIndex] = useState(() => getFrontierStage(progress).regionIndex);
   const region = adventureRegions[regionIndex];
   const theme = towerThemes.find(entry => entry.id === region.themeId) ?? towerThemes[0];
@@ -71,6 +74,7 @@ export function AdventureMap({ progress, attack, weaponId, unlockedWeaponIds, sk
         <header>
           <h2>{region.nameZh}</h2>
           <p>打倒第 {ADVENTURE_STAGES_PER_REGION} 關的首領開放下一區。重複挑戰今天還能領 {repeatsLeft} 次獎勵（首次通關不限）。</p>
+          {getExploreMap(regionIndex) && <button type="button" className="adventure-map__explore" onClick={() => onExplore(regionIndex)}>進入探索（試玩）</button>}
         </header>
         <ol className="adventure-map__stages">
           {Array.from({ length: ADVENTURE_STAGES_PER_REGION }, (_, offset) => {

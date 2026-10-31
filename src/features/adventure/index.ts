@@ -48,3 +48,22 @@ export {
   type AdventureReward,
   type AdventureVictory,
 } from "./domain/AdventureStages";
+export {
+  ENCOUNTER_RADIUS,
+  HERO_FOOT_RADIUS,
+  HERO_WALK_SPEED,
+  MIST_GATE_MAP,
+  cameraOrigin,
+  exploreMaps,
+  getExploreMap,
+  getMapObstacles,
+  isBlocked,
+  moveWithCollision,
+  overlapsObstacle,
+  walkStep,
+  type ExploreMapSpec,
+  type ExploreObstacle,
+  type ExplorePoint,
+  type ExploreProp,
+  type ExploreSpawn,
+} from "./domain/ExploreMap";

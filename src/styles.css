@@ -962,3 +962,64 @@ canvas {
   /* The sword calibration tool is for desktop tuning; on a phone it only covers the stage buttons. */
   .calibration-panel { display: none; }
 }
+
+/*
+ * 探索: the region's map, walked with the direction keys. The world is laid out
+ * in world units and moved and scaled as one piece by the camera; every figure
+ * stands at its feet and is stacked by them, so the hero passes behind trees.
+ */
+.explore-stage { background: #2c4f4b; touch-action: none; user-select: none; -webkit-user-select: none; }
+.explore-world { position: absolute; left: 0; top: 0; z-index: 0; transform-origin: 0 0; will-change: transform; }
+.explore-ground { position: absolute; inset: 0; display: block; }
+.explore-flow { animation: explore-flow 1.6s linear infinite; }
+@keyframes explore-flow { to { stroke-dashoffset: -76; } }
+.explore-ripple { transform-origin: 390px 800px; animation: explore-ripple 4s ease-in-out infinite; }
+@keyframes explore-ripple { 0%, 100% { transform: scale(0.85); opacity: 0.2; } 50% { transform: scale(1.1); opacity: 0.55; } }
+.explore-prop { position: absolute; transform: translate(-50%, -100%) scale(var(--prop-scale, 1)); transform-origin: 50% 100%; pointer-events: none; }
+.explore-prop svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.explore-prop--pine { width: 130px; height: 190px; }
+.explore-prop--bamboo { width: 70px; height: 170px; }
+.explore-prop--rock { width: 110px; height: 70px; }
+.explore-prop--lantern { width: 34px; height: 70px; }
+.explore-prop--pavilion { width: 260px; height: 210px; }
+.explore-lantern-light { animation: explore-lantern 2.4s ease-in-out infinite; }
+@keyframes explore-lantern { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+.explore-shadow { position: absolute; left: 50%; bottom: -6px; width: 56px; height: 14px; border-radius: 50%; background: rgba(0, 0, 0, 0.28); transform: translateX(-50%); z-index: -1; }
+.explore-hero { position: absolute; width: var(--hero-height); height: var(--hero-height); transform: translate(-50%, -100%); pointer-events: none; }
+.explore-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); transform-origin: 50% 100%; }
+.explore-hero.is-facing-left img { transform: scaleX(-1); }
+.explore-hero.is-walking img { animation: explore-walk 360ms ease-in-out infinite; }
+.explore-hero.is-walking.is-facing-left img { animation-name: explore-walk-left; }
+@keyframes explore-walk { 0%, 100% { translate: 0 0; rotate: -2deg; } 50% { translate: 0 -7%; rotate: 2deg; } }
+@keyframes explore-walk-left { 0%, 100% { translate: 0 0; rotate: 2deg; } 50% { translate: 0 -7%; rotate: -2deg; } }
+.explore-creature { position: absolute; width: 130px; height: 130px; transform: translate(-50%, -100%); pointer-events: none; }
+.explore-creature.is-boss { width: 190px; height: 190px; }
+.explore-creature img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); animation: explore-hover 2.2s ease-in-out infinite; }
+.explore-creature.is-facing-left img { transform: none; }
+.explore-creature.is-sealed img { filter: grayscale(0.85) brightness(0.65); animation: none; }
+@keyframes explore-hover { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5%; } }
+.explore-creature__tag { position: absolute; left: 50%; top: -8px; transform: translateX(-50%); padding: 2px 9px; border: 1px solid rgba(246, 220, 150, 0.6); border-radius: 99px; background: rgba(8, 20, 34, 0.78); color: #ffe9ac; font-size: 14px; font-weight: 700; white-space: nowrap; }
+.explore-creature.is-boss .explore-creature__tag { border-color: #ff9b7a; color: #ffd1c0; }
+.explore-creature.is-sealed .explore-creature__tag { border-color: rgba(200, 210, 220, 0.5); color: #c3ccd4; }
+.explore-creature.is-cleared .explore-creature__tag::after { content: " ✓"; color: #9fe39a; }
+.explore-mist { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(60% 30% at 20% 30%, rgba(235, 245, 255, 0.22), transparent 70%), radial-gradient(50% 25% at 80% 70%, rgba(235, 245, 255, 0.18), transparent 70%); background-size: 200% 100%; animation: explore-mist 24s linear infinite; }
+@keyframes explore-mist { from { background-position: 0 0, 0 0; } to { background-position: 200% 0, -200% 0; } }
+.explore-stage .adventure-leave { left: auto; right: 2.5%; top: 3%; bottom: auto; }
+.explore-hint { position: absolute; left: 3%; bottom: 3%; z-index: 4; margin: 0; padding: 4px 10px; border-radius: 8px; background: rgba(8, 20, 34, 0.6); color: #d8e8f2; font-size: 12px; }
+.explore-notice { position: absolute; left: 50%; top: 14%; z-index: 4; margin: 0; padding: 6px 14px; border: 1px solid rgba(200, 210, 220, 0.6); border-radius: 99px; background: rgba(8, 20, 34, 0.85); color: #e8eef3; font-size: 14px; transform: translateX(-50%); white-space: nowrap; }
+.explore-pad { position: absolute; right: 3%; bottom: 3%; z-index: 4; display: grid; grid-template: repeat(3, 46px) / repeat(3, 46px); gap: 4px; opacity: 0.85; }
+.explore-pad button { border: 1px solid rgba(246, 220, 150, 0.55); border-radius: 10px; background: rgba(8, 20, 34, 0.6); color: #ffe9ac; font-size: 16px; cursor: pointer; touch-action: none; }
+.explore-pad button:active { background: rgba(246, 220, 150, 0.4); }
+.explore-pad__up { grid-area: 1 / 2; }
+.explore-pad__left { grid-area: 2 / 1; }
+.explore-pad__right { grid-area: 2 / 3; }
+.explore-pad__down { grid-area: 3 / 2; }
+@media (hover: hover) and (pointer: fine) { .explore-pad { opacity: 0.5; } }
+@media (max-width: 640px) {
+  .explore-pad { grid-template: repeat(3, 52px) / repeat(3, 52px); }
+  .explore-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .explore-hero.is-walking img, .explore-creature img, .explore-mist, .explore-flow, .explore-ripple { animation: none; }
+}
+.adventure-map__explore { margin-top: 8px; padding: 7px 16px; border: 1px solid rgba(246, 220, 150, 0.7); border-radius: 99px; background: linear-gradient(180deg, #ffe39a, #d99a3c); color: #3a2208; font: inherit; font-weight: 700; cursor: pointer; }

@@ -14,12 +14,14 @@ import {
   type AdventureSkillId,
   type AdventureVictory,
   ADVENTURE_STAGES_PER_REGION,
+  getExploreMap,
   resolveEquippedSkills,
 } from "../../features/adventure";
 import { PILL_CATALOG, QUALITY_NAMES } from "../../features/alchemy/Alchemy";
 import type { CompanionSprite } from "../../features/companion/domain/companionSprites";
 import type { AdventureProgress } from "../../features/adventure";
 import { AdventureMap } from "./AdventureMap";
+import { ExplorePage } from "./ExplorePage";
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
@@ -404,12 +406,23 @@ export function AdventurePage({ navigation, characterName, attack, critRate, wea
   useEffect(() => { setSkills(current => resolveEquippedSkills(current, unlockedWeaponIds)); }, [unlockedWeaponIds.join()]);
   const chooseSkills = (next: readonly AdventureSkillId[]): void => { setSkills(next); onSkillsChange(next); };
   const start = (regionIndex: number, stage: number): void => setFight({ key: nextKey.current++, regionIndex, stage });
+  /** The region whose map the hero is walking, if any. */
+  const [exploring, setExploring] = useState<number | null>(null);
+  const exploreMap = exploring === null ? null : getExploreMap(exploring);
 
+  if (exploreMap) {
+    return (
+      <main className="weapon-library adventure-page" aria-label="遊歷">
+        {navigation}
+        <ExplorePage map={exploreMap} characterName={characterName} attack={attack} critRate={critRate} weaponId={weaponId} skills={skills} progress={progress} onVictory={onVictory} onLeave={() => setExploring(null)} />
+      </main>
+    );
+  }
   if (!fight) {
     return (
       <main className="weapon-library adventure-page adventure-page--map" aria-label="遊歷">
         {navigation}
-        <AdventureMap progress={progress} attack={attack} weaponId={weaponId} unlockedWeaponIds={unlockedWeaponIds} skills={skills} onSkillsChange={chooseSkills} onChallenge={start} />
+        <AdventureMap progress={progress} attack={attack} weaponId={weaponId} unlockedWeaponIds={unlockedWeaponIds} skills={skills} onSkillsChange={chooseSkills} onChallenge={start} onExplore={setExploring} />
       </main>
     );
   }
