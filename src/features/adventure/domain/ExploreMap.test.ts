@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { ADVENTURE_STAGES_PER_REGION } from "./AdventureStages";
-import { ENCOUNTER_RADIUS, MIST_GATE_MAP, cameraOrigin, getMapObstacles, isBlocked, moveWithCollision, walkStep, type ExploreMapSpec } from "./ExploreMap";
+import { ENCOUNTER_RADIUS, MIST_GATE_MAP, cameraOrigin, exploreMaps, getMapObstacles, isBlocked, moveWithCollision, overlapsObstacle, walkStep, type ExploreMapSpec } from "./ExploreMap";
 
 const map = MIST_GATE_MAP;
 const obstacles = getMapObstacles(map);
 
 /** Every walkable point reachable from the start, on a coarse grid. */
-function reachable(spec: ExploreMapSpec, step = 20): Set<string> {
+function reachable(spec: ExploreMapSpec, step = 10): Set<string> {
+  const obstacles = getMapObstacles(spec);
   const seen = new Set<string>();
   const queue = [{ x: Math.round(spec.start.x / step) * step, y: Math.round(spec.start.y / step) * step }];
   while (queue.length) {
@@ -19,18 +20,33 @@ function reachable(spec: ExploreMapSpec, step = 20): Set<string> {
   return seen;
 }
 
-describe("雲霧山門 exploration map", () => {
+describe.each(exploreMaps.map(spec => [spec.ground, spec] as const))("exploration map %s", (_, spec) => {
+  const specObstacles = getMapObstacles(spec);
+
   it("starts the hero on open ground", () => {
-    expect(isBlocked(map, obstacles, map.start)).toBe(false);
+    expect(isBlocked(spec, specObstacles, spec.start)).toBe(false);
+  });
+
+  it("has a picture size for every prop", () => {
+    for (const prop of spec.props) expect(spec.propSizes[prop.kind], prop.kind).toBeDefined();
   });
 
   it("has one creature per stage, each standing where the hero can walk up to it", () => {
-    expect(map.spawns.map(spawn => spawn.stage)).toEqual(Array.from({ length: ADVENTURE_STAGES_PER_REGION }, (_, index) => index + 1));
-    const open = [...reachable(map)].map(key => key.split(",").map(Number));
-    for (const spawn of map.spawns) {
-      expect(isBlocked(map, obstacles, spawn.home), `stage ${spawn.stage} stands in an obstacle`).toBe(false);
+    expect(spec.spawns.map(spawn => spawn.stage)).toEqual(Array.from({ length: ADVENTURE_STAGES_PER_REGION }, (_, index) => index + 1));
+    const open = [...reachable(spec)].map(key => key.split(",").map(Number));
+    for (const spawn of spec.spawns) {
+      expect(isBlocked(spec, specObstacles, spawn.home), `stage ${spawn.stage} stands in an obstacle`).toBe(false);
       expect(open.some(([x, y]) => Math.hypot(x - spawn.home.x, y - spawn.home.y) < ENCOUNTER_RADIUS), `stage ${spawn.stage} cannot be reached`).toBe(true);
     }
+  });
+});
+
+describe("exploration movement", () => {
+  it("blocks feet inside a polygon or touching its edge, but not beside it", () => {
+    const square = { kind: "polygon", points: [[0, 0], [100, 0], [100, 100], [0, 100]] } as const;
+    expect(overlapsObstacle({ x: 50, y: 50 }, 10, square)).toBe(true);
+    expect(overlapsObstacle({ x: 105, y: 50 }, 10, square)).toBe(true);
+    expect(overlapsObstacle({ x: 120, y: 50 }, 10, square)).toBe(false);
   });
 
   it("stops the hero at a wall but lets him slide along it", () => {

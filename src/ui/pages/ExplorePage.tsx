@@ -22,7 +22,6 @@ import {
   type ExploreMapSpec,
   type ExplorePoint,
   type ExploreProp,
-  PROP_SIZES,
 } from "../../features/adventure";
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
@@ -327,7 +326,7 @@ function ExploreField({ map, hero, grace, progress, defeated, onEncounter, onLea
     <section ref={stageRef} className="adventure-stage explore-stage" aria-label={`探索・${region.nameZh}`}>
       <div ref={worldRef} className="explore-world" style={{ width: map.width, height: map.height }}>
         <img className="explore-ground" src={map.ground} alt="" draggable={false} />
-        {map.props.map((prop, index) => <PropFigure key={index} prop={prop} folder={map.propFolder} />)}
+        {map.props.map((prop, index) => <PropFigure key={index} prop={prop} map={map} />)}
         {present.map(creature => {
           const enemy = getAdventureEnemy(map.regionIndex, creature.stage);
           const boss = isBossStage(creature.stage);
@@ -368,14 +367,14 @@ function ExploreField({ map, hero, grace, progress, defeated, onEncounter, onLea
   );
 }
 
-function PropFigure({ prop, folder }: { readonly prop: ExploreProp; readonly folder: string }): JSX.Element {
+function PropFigure({ prop, map }: { readonly prop: ExploreProp; readonly map: ExploreMapSpec }): JSX.Element {
   return (
     <img
       className={prop.flip ? "explore-prop is-flipped" : "explore-prop"}
-      src={`${folder}/${prop.kind}.webp`}
+      src={`${map.propFolder}/${prop.kind}.webp`}
       alt=""
       draggable={false}
-      style={{ left: prop.x, top: prop.y, width: PROP_SIZES[prop.kind].width * prop.scale, zIndex: Math.round(prop.y) } as CSSProperties}
+      style={{ left: prop.x, top: prop.y, width: map.propSizes[prop.kind].width * prop.scale, zIndex: Math.round(prop.y) } as CSSProperties}
     />
   );
 }

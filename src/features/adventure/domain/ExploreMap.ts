@@ -16,14 +16,14 @@ export interface ExplorePoint {
 export type ExploreObstacle =
   | { readonly kind: "rect"; readonly x: number; readonly y: number; readonly width: number; readonly height: number }
   | { readonly kind: "circle"; readonly x: number; readonly y: number; readonly radius: number }
-  | { readonly kind: "ellipse"; readonly x: number; readonly y: number; readonly rx: number; readonly ry: number };
-
-/** The standing scenery pieces of a map, each its own picture. */
-export type ExplorePropKind = "pine-a" | "pine-b" | "pine-c" | "bamboo" | "crag" | "rock" | "lantern" | "pavilion";
+  | { readonly kind: "ellipse"; readonly x: number; readonly y: number; readonly rx: number; readonly ry: number }
+  /** Any outline, for a winding stream or river bank; its points go round it in order. */
+  | { readonly kind: "polygon"; readonly points: readonly (readonly [number, number])[] };
 
 /** A scenery piece drawn standing in the world, sorted by its feet so the hero can pass behind it. */
 export interface ExploreProp {
-  readonly kind: ExplorePropKind;
+  /** Which of the map's prop pictures (a key of its `propSizes`). */
+  readonly kind: string;
   readonly x: number;
   readonly y: number;
   /** Size relative to the prop's usual size. */
@@ -47,6 +47,7 @@ export interface ExploreMapSpec {
   readonly ground: string;
   /** The folder holding the map's prop pictures, one `<kind>.webp` each. */
   readonly propFolder: string;
+  readonly propSizes: Readonly<Record<string, ExplorePropSize>>;
   readonly start: ExplorePoint;
   readonly obstacles: readonly ExploreObstacle[];
   readonly props: readonly ExploreProp[];
@@ -61,10 +62,17 @@ export const HERO_WALK_SPEED = 200;
 export const ENCOUNTER_RADIUS = 42;
 
 /**
- * Each prop's width in world units at scale 1, and the patch of ground it
+ * A prop picture's width in world units at scale 1, and the patch of ground it
  * stands on (an ellipse, as fractions of that width, centred `lift` above its feet).
  */
-export const PROP_SIZES: Readonly<Record<ExplorePropKind, { readonly width: number; readonly rx: number; readonly ry: number; readonly lift: number }>> = {
+export interface ExplorePropSize {
+  readonly width: number;
+  readonly rx: number;
+  readonly ry: number;
+  readonly lift: number;
+}
+
+const MIST_PROP_SIZES: Readonly<Record<string, ExplorePropSize>> = {
   "pine-a": { width: 230, rx: 0.26, ry: 0.08, lift: 0.07 },
   "pine-b": { width: 140, rx: 0.34, ry: 0.12, lift: 0.1 },
   "pine-c": { width: 190, rx: 0.28, ry: 0.09, lift: 0.08 },
@@ -75,8 +83,8 @@ export const PROP_SIZES: Readonly<Record<ExplorePropKind, { readonly width: numb
   pavilion: { width: 250, rx: 0.4, ry: 0.16, lift: 0.2 },
 };
 
-function propFootprint(prop: ExploreProp): ExploreObstacle {
-  const size = PROP_SIZES[prop.kind];
+function propFootprint(map: ExploreMapSpec, prop: ExploreProp): ExploreObstacle {
+  const size = map.propSizes[prop.kind];
   const width = size.width * prop.scale;
   return { kind: "ellipse", x: prop.x, y: prop.y - size.lift * width, rx: size.rx * width, ry: size.ry * width };
 }
@@ -94,6 +102,7 @@ export const MIST_GATE_MAP: ExploreMapSpec = {
   height: 1145,
   ground: "/assets/explore/mist/ground.webp",
   propFolder: "/assets/explore/mist",
+  propSizes: MIST_PROP_SIZES,
   start: { x: 745, y: 1100 },
   obstacles: [
     // The cliffs and the gate along the top; only the steps climb into them, up to the gate's threshold.
@@ -142,7 +151,77 @@ export const MIST_GATE_MAP: ExploreMapSpec = {
   ],
 };
 
-export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP];
+const FOREST_PROP_SIZES: Readonly<Record<string, ExplorePropSize>> = {
+  "tree-a": { width: 230, rx: 0.24, ry: 0.08, lift: 0.07 },
+  "tree-b": { width: 270, rx: 0.22, ry: 0.07, lift: 0.07 },
+  "tree-c": { width: 215, rx: 0.22, ry: 0.08, lift: 0.08 },
+  stump: { width: 150, rx: 0.36, ry: 0.13, lift: 0.12 },
+  boulder: { width: 110, rx: 0.38, ry: 0.15, lift: 0.14 },
+  stone: { width: 70, rx: 0.4, ry: 0.17, lift: 0.16 },
+  lantern: { width: 50, rx: 0.3, ry: 0.16, lift: 0.18 },
+  shrine: { width: 150, rx: 0.42, ry: 0.17, lift: 0.2 },
+};
+
+/**
+ * 青翠靈林, on its painted map (1374 × 1145): a forest path climbs from the
+ * bottom, crosses a stream on a mossy stone bridge, and ends at the steps of an
+ * altar among the roots of a giant spirit tree (top). The stream falls from the
+ * upper right and runs out at the left edge; a fairy ring of glowing mushrooms
+ * lies in the lower right. The spirit deer roam the glades and their god waits
+ * at the altar steps.
+ */
+export const VERDANT_FOREST_MAP: ExploreMapSpec = {
+  regionIndex: 1,
+  width: 1374,
+  height: 1145,
+  ground: "/assets/explore/forest/ground.webp",
+  propFolder: "/assets/explore/forest",
+  propSizes: FOREST_PROP_SIZES,
+  start: { x: 690, y: 1100 },
+  obstacles: [
+    // The spirit tree and the forest along the top; only the altar steps climb into it.
+    { kind: "rect", x: 0, y: 0, width: 1374, height: 180 },
+    { kind: "rect", x: 0, y: 180, width: 645, height: 112 },
+    { kind: "rect", x: 750, y: 180, width: 624, height: 120 },
+    { kind: "rect", x: 645, y: 180, width: 105, height: 48 },
+    // The stream west of the bridge, from the bridge's arch out to the left edge.
+    { kind: "polygon", points: [[0, 530], [130, 500], [260, 465], [450, 465], [540, 420], [618, 400], [676, 545], [600, 572], [450, 615], [300, 645], [150, 655], [0, 655]] },
+    // The stream east of the bridge, up to the waterfall.
+    { kind: "polygon", points: [[728, 392], [900, 345], [1150, 300], [1374, 300], [1374, 470], [1250, 466], [1100, 480], [950, 505], [840, 512], [776, 538]] },
+    // The forest down the left edge and the roots along the bottom left.
+    { kind: "rect", x: 0, y: 292, width: 90, height: 240 },
+    { kind: "rect", x: 0, y: 655, width: 130, height: 490 },
+    { kind: "rect", x: 130, y: 830, width: 170, height: 315 },
+    { kind: "rect", x: 300, y: 945, width: 290, height: 200 },
+    // The forest down the right edge and the ferns along the bottom right.
+    { kind: "rect", x: 1262, y: 466, width: 112, height: 240 },
+    { kind: "rect", x: 1300, y: 706, width: 74, height: 170 },
+    { kind: "rect", x: 1150, y: 870, width: 224, height: 275 },
+    { kind: "rect", x: 850, y: 1010, width: 300, height: 135 },
+  ],
+  props: [
+    { kind: "tree-b", x: 420, y: 400, scale: 1 },
+    { kind: "tree-c", x: 130, y: 470, scale: 1, flip: true },
+    { kind: "tree-a", x: 220, y: 790, scale: 1 },
+    { kind: "stump", x: 420, y: 935, scale: 0.9 },
+    { kind: "boulder", x: 430, y: 700, scale: 1 },
+    { kind: "stone", x: 560, y: 880, scale: 1 },
+    { kind: "stone", x: 1230, y: 640, scale: 0.8, flip: true },
+    { kind: "shrine", x: 1100, y: 650, scale: 1 },
+    { kind: "lantern", x: 800, y: 590, scale: 1 },
+    { kind: "lantern", x: 585, y: 680, scale: 1 },
+  ],
+  spawns: [
+    { stage: 1, home: { x: 470, y: 820 }, roam: 50 },
+    { stage: 2, home: { x: 900, y: 680 }, roam: 60 },
+    { stage: 3, home: { x: 1070, y: 790 }, roam: 45 },
+    { stage: 4, home: { x: 230, y: 400 }, roam: 50 },
+    { stage: 5, home: { x: 860, y: 318 }, roam: 12 },
+    { stage: 6, home: { x: 697, y: 312 }, roam: 6 },
+  ],
+};
+
+export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP];
 
 export function getExploreMap(regionIndex: number): ExploreMapSpec | null {
   return exploreMaps.find(map => map.regionIndex === regionIndex) ?? null;
@@ -150,7 +229,7 @@ export function getExploreMap(regionIndex: number): ExploreMapSpec | null {
 
 /** Every obstacle of the map: its own, plus each prop's footprint. */
 export function getMapObstacles(map: ExploreMapSpec): readonly ExploreObstacle[] {
-  return [...map.obstacles, ...map.props.map(propFootprint)];
+  return [...map.obstacles, ...map.props.map(prop => propFootprint(map, prop))];
 }
 
 /** Whether a circle of `radius` at `point` overlaps the obstacle. */
@@ -163,6 +242,20 @@ export function overlapsObstacle(point: ExplorePoint, radius: number, obstacle: 
     }
     case "circle":
       return (point.x - obstacle.x) ** 2 + (point.y - obstacle.y) ** 2 < (radius + obstacle.radius) ** 2;
+    case "polygon": {
+      const points = obstacle.points;
+      let inside = false;
+      for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
+        const [x1, y1] = points[index];
+        const [x2, y2] = points[previous];
+        if ((y1 > point.y) !== (y2 > point.y) && point.x < ((x2 - x1) * (point.y - y1)) / (y2 - y1) + x1) inside = !inside;
+        // Near an edge counts too: the feet are a circle, not a point.
+        const length = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+        const along = length === 0 ? 0 : Math.max(0, Math.min(1, ((point.x - x1) * (x2 - x1) + (point.y - y1) * (y2 - y1)) / length));
+        if ((point.x - (x1 + along * (x2 - x1))) ** 2 + (point.y - (y1 + along * (y2 - y1))) ** 2 < radius ** 2) return true;
+      }
+      return inside;
+    }
     case "ellipse": {
       // Grow the ellipse by the radius: close enough for round feet against a pond or a rock.
       const dx = (point.x - obstacle.x) / (obstacle.rx + radius);

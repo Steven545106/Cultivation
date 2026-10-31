@@ -53,7 +53,7 @@ export {
   HERO_FOOT_RADIUS,
   HERO_WALK_SPEED,
   MIST_GATE_MAP,
-  PROP_SIZES,
+  VERDANT_FOREST_MAP,
   cameraOrigin,
   exploreMaps,
   getExploreMap,
@@ -66,6 +66,6 @@ export {
   type ExploreObstacle,
   type ExplorePoint,
   type ExploreProp,
-  type ExplorePropKind,
+  type ExplorePropSize,
   type ExploreSpawn,
 } from "./domain/ExploreMap";
