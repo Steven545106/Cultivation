@@ -57,6 +57,15 @@ describe("exploration movement", () => {
     expect(diagonal).toEqual({ x: 410, y: 320 });
   });
 
+  it("glances off a slanted edge instead of sticking to it", () => {
+    const slope = { kind: "polygon", points: [[0, 0], [100, 100], [0, 100]] } as const;
+    const spec = { ...map, obstacles: [slope], props: [] };
+    const beside = { x: 70, y: 50 };
+    const down = moveWithCollision(spec, [slope], beside, 0, 10);
+    expect(down.y).toBeGreaterThan(beside.y);
+    expect(down.x).toBeGreaterThan(beside.x);
+  });
+
   it("keeps the hero inside the map", () => {
     const edge = moveWithCollision(map, obstacles, { x: 745, y: map.height - 20 }, 0, 100);
     expect(edge.y).toBe(map.height - 20);

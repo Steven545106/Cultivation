@@ -291,7 +291,78 @@ export const CRIMSON_GROTTO_MAP: ExploreMapSpec = {
   ],
 };
 
-export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP, CRIMSON_GROTTO_MAP];
+const FROST_PROP_SIZES: Readonly<Record<string, ExplorePropSize>> = {
+  "pine-a": { width: 200, rx: 0.26, ry: 0.08, lift: 0.07 },
+  "pine-b": { width: 230, rx: 0.26, ry: 0.08, lift: 0.07 },
+  "frost-tree": { width: 220, rx: 0.22, ry: 0.08, lift: 0.07 },
+  crystals: { width: 120, rx: 0.36, ry: 0.14, lift: 0.14 },
+  boulder: { width: 120, rx: 0.38, ry: 0.15, lift: 0.14 },
+  stone: { width: 75, rx: 0.4, ry: 0.17, lift: 0.16 },
+  lantern: { width: 55, rx: 0.3, ry: 0.16, lift: 0.18 },
+  pavilion: { width: 170, rx: 0.42, ry: 0.17, lift: 0.2 },
+};
+
+/**
+ * 寒霜冰原, on its painted map (1374 × 1145): a frosted path climbs from the
+ * bottom, crosses a glowing glacial crevasse on an arch of ice, and ends at the
+ * steps of an ice palace under the frozen falls (top). The crevasse cuts the
+ * whole map; the frozen lake in the lower right is solid and can be walked on.
+ * The frost wolves roam the snowfield and their king waits at the palace steps.
+ */
+export const FROSTBOUND_GLACIER_MAP: ExploreMapSpec = {
+  regionIndex: 3,
+  width: 1374,
+  height: 1145,
+  ground: "/assets/explore/frost/ground.webp",
+  propFolder: "/assets/explore/frost",
+  propSizes: FROST_PROP_SIZES,
+  start: { x: 690, y: 1100 },
+  obstacles: [
+    // The glacier cliffs and the palace along the top; only its steps climb into them.
+    { kind: "rect", x: 0, y: 0, width: 1374, height: 215 },
+    { kind: "rect", x: 0, y: 215, width: 615, height: 85 },
+    { kind: "rect", x: 780, y: 215, width: 594, height: 85 },
+    { kind: "rect", x: 0, y: 300, width: 100, height: 100 },
+    { kind: "rect", x: 1150, y: 300, width: 224, height: 30 },
+    { kind: "rect", x: 1300, y: 330, width: 74, height: 90 },
+    // The crevasse west of the ice bridge, stepping down from the left edge.
+    { kind: "polygon", points: [[0, 400], [380, 410], [375, 470], [590, 470], [670, 600], [380, 600], [380, 540], [0, 540]] },
+    // The crevasse east of the bridge, out to the right edge.
+    { kind: "polygon", points: [[705, 455], [760, 490], [1374, 490], [1374, 610], [795, 600]] },
+    // The frozen cliffs down the left side and along the bottom left.
+    { kind: "rect", x: 0, y: 610, width: 130, height: 535 },
+    { kind: "rect", x: 130, y: 620, width: 70, height: 100 },
+    { kind: "rect", x: 130, y: 820, width: 140, height: 325 },
+    { kind: "rect", x: 270, y: 930, width: 310, height: 215 },
+    // The cliffs along the bottom right and up the right edge.
+    { kind: "rect", x: 920, y: 980, width: 454, height: 165 },
+    { kind: "rect", x: 1150, y: 950, width: 224, height: 30 },
+    { kind: "rect", x: 1310, y: 780, width: 64, height: 170 },
+  ],
+  props: [
+    { kind: "pine-a", x: 180, y: 395, scale: 1 },
+    { kind: "pavilion", x: 470, y: 400, scale: 1 },
+    { kind: "pine-b", x: 1180, y: 420, scale: 1 },
+    { kind: "frost-tree", x: 250, y: 720, scale: 1 },
+    { kind: "boulder", x: 520, y: 690, scale: 1 },
+    { kind: "crystals", x: 1280, y: 650, scale: 1 },
+    { kind: "crystals", x: 560, y: 960, scale: 0.8, flip: true },
+    { kind: "stone", x: 880, y: 990, scale: 1 },
+    { kind: "stone", x: 1230, y: 990, scale: 0.8, flip: true },
+    { kind: "lantern", x: 640, y: 640, scale: 1 },
+    { kind: "lantern", x: 820, y: 640, scale: 1 },
+  ],
+  spawns: [
+    { stage: 1, home: { x: 400, y: 760 }, roam: 60 },
+    { stage: 2, home: { x: 1010, y: 800 }, roam: 70 },
+    { stage: 3, home: { x: 430, y: 870 }, roam: 40 },
+    { stage: 4, home: { x: 280, y: 335 }, roam: 45 },
+    { stage: 5, home: { x: 980, y: 385 }, roam: 60 },
+    { stage: 6, home: { x: 697, y: 322 }, roam: 6 },
+  ],
+};
+
+export const exploreMaps: readonly ExploreMapSpec[] = [MIST_GATE_MAP, VERDANT_FOREST_MAP, CRIMSON_GROTTO_MAP, FROSTBOUND_GLACIER_MAP];
 
 export function getExploreMap(regionIndex: number): ExploreMapSpec | null {
   return exploreMaps.find(map => map.regionIndex === regionIndex) ?? null;
@@ -342,7 +413,8 @@ export function isBlocked(map: ExploreMapSpec, obstacles: readonly ExploreObstac
 
 /**
  * One step from `from` by (dx, dy): each axis moves on its own, so walking
- * diagonally into a wall slides along it instead of stopping dead.
+ * diagonally into a wall slides along it instead of stopping dead. Walking
+ * straight into a slanted edge (a bridge's railing) glances off it at 45°.
  */
 export function moveWithCollision(map: ExploreMapSpec, obstacles: readonly ExploreObstacle[], from: ExplorePoint, dx: number, dy: number, radius = HERO_FOOT_RADIUS): ExplorePoint {
   let next = from;
@@ -350,6 +422,13 @@ export function moveWithCollision(map: ExploreMapSpec, obstacles: readonly Explo
   if (dx !== 0 && !isBlocked(map, obstacles, alongX, radius)) next = alongX;
   const alongY = { x: next.x, y: next.y + dy };
   if (dy !== 0 && !isBlocked(map, obstacles, alongY, radius)) next = alongY;
+  if (next === from && (dx === 0) !== (dy === 0)) {
+    const step = Math.abs(dx + dy) * Math.SQRT1_2;
+    const glances = dx === 0
+      ? [{ x: from.x + step, y: from.y + Math.sign(dy) * step }, { x: from.x - step, y: from.y + Math.sign(dy) * step }]
+      : [{ x: from.x + Math.sign(dx) * step, y: from.y + step }, { x: from.x + Math.sign(dx) * step, y: from.y - step }];
+    return glances.find(point => !isBlocked(map, obstacles, point, radius)) ?? from;
+  }
   return next;
 }
 
