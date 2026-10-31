@@ -85,7 +85,15 @@ describe("adventure battle", () => {
   });
 
   it("the skill list holds every skill in order", () => {
-    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天", "清輝點雪", "踏雪無痕", "千峰凝雪"]);
+    expect(adventureSkills.map(skill => skill.nameZh)).toEqual(["落英繽紛", "雷獄崩天", "新月破空", "月華流照", "周天星轉", "星落九天", "清輝點雪", "踏雪無痕", "千峰凝雪", "春華滿城"]);
+  });
+
+  it("春華滿城 opens three blossoms, then a wave of petals strikes", () => {
+    const rich = { ...start(), hero: { ...start().hero, qi: 100 } };
+    const next = performPlayerAction(rich, { kind: "skill", skillId: "chunhua" }, fixed(0.5));
+    const damage = next.events.flatMap(event => (event.kind === "hero-hit" ? [event.damage] : []));
+    expect(damage).toEqual([30, 30, 30, 160]);
+    expect(next.hero.qi).toBe(100 - getAdventureSkill("chunhua").qiCost + ADVENTURE_BALANCE.turnQiRegen);
   });
 
   it("千峰凝雪 raises three ice peaks, then shatters them", () => {

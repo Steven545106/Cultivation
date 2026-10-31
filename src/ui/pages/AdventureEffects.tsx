@@ -215,6 +215,45 @@ export function QianfengPeaks({ peakDelays, shatterDelay }: { readonly peakDelay
   );
 }
 
+const BLOOMS = [
+  { left: 32, top: 58 },
+  { left: 66, top: 44 },
+  { left: 48, top: 30 },
+];
+const WAVE_PETALS = 26;
+/** Curling vines that climb from the ground up over the target (viewBox 0–100). */
+const VINES = [
+  "M30 100 C22 82 40 72 30 58 S22 36 34 26",
+  "M68 100 C78 84 60 74 70 60 S80 40 64 30",
+  "M50 100 C44 86 58 78 50 66 S42 50 52 42",
+];
+
+/**
+ * 春華滿城: vines climb the target, a flower blooms on it at each of
+ * `bloomDelays` ms, and at `waveDelay` ms a wave of petals rolls in from the
+ * hero's side (the right) and sweeps across it. Remounting it (a new `key`)
+ * replays it.
+ */
+export function ChunhuaBlossoms({ bloomDelays, waveDelay }: { readonly bloomDelays: readonly number[]; readonly waveDelay: number }): JSX.Element {
+  return (
+    <div className="adventure-blossoms" aria-hidden="true">
+      <svg className="adventure-blossoms__vines" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ animationDelay: `${waveDelay}ms` }}>
+        {VINES.map((path, index) => <path key={index} d={path} pathLength={100} style={{ animationDelay: `${index * 120}ms` }} />)}
+      </svg>
+      {BLOOMS.map((bloom, index) => (
+        <span key={index} className="adventure-blossoms__bloom" style={{ left: `${bloom.left}%`, top: `${bloom.top}%`, animationDelay: `${bloomDelays[index] ?? 0}ms, ${waveDelay}ms` }}>✿</span>
+      ))}
+      {Array.from({ length: WAVE_PETALS }, (_, index) => (
+        <i
+          key={index}
+          className="adventure-blossoms__petal"
+          style={{ animationDelay: `${waveDelay + Math.round(hash(index, 41) * 260)}ms`, top: `${18 + hash(index, 42) * 70}%`, "--size": `${10 + Math.round(hash(index, 43) * 14)}px`, "--rise": `${(hash(index, 44) - 0.5) * 60}%`, "--spin": `${180 + Math.round(hash(index, 45) * 360)}deg` } as CSSProperties}
+        />
+      ))}
+    </div>
+  );
+}
+
 /**
  * 落英繽紛: cherry blossom petals and frost motes whirl around the target and
  * drift down. Pure CSS; remounting it (a new `key`) replays the cast.

@@ -22,7 +22,7 @@ export interface SkillCast {
   readonly hitFrames: readonly number[];
   /** 1-based frame on which the effect on the enemy starts. */
   readonly effectFrame: number;
-  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow" | "feathers" | "peaks";
+  readonly effect: "petals" | "lightning" | "crescent" | "moonlight" | "stars" | "meteors" | "snow" | "feathers" | "peaks" | "blossoms";
   /** The cast is mostly pale see-through light (a moon, waves): it glows instead of casting the usual dark shadow, which would grey it. */
   readonly glowing?: boolean;
 }
@@ -106,6 +106,15 @@ export const skillCasts: Readonly<Record<AdventureSkillId, SkillCast>> = {
     hitFrames: [26, 28, 30, 33],
     effectFrame: 22,
     effect: "peaks",
+    glowing: true,
+  },
+  // 春華滿城 with the 碧蘿花靈劍: 48 frames at 90 ms. Vines grow on 6–16, the buds open on 22–24, the blossoms are full on 25, and the wave of petals rolls out on 31–34.
+  chunhua: {
+    sprite: { sheet: "/assets/player/spring-bloom-sheet.webp", poster: "/assets/player/spring-bloom-poster.webp", cols: 8, cellWidth: 506, cellHeight: 421, steps: sheetSteps(48, 90), blendMs: 0 },
+    placement: { width: 150, left: 34, bottom: -15 },
+    hitFrames: [22, 23, 24, 32],
+    effectFrame: 18,
+    effect: "blossoms",
     glowing: true,
   },
 };
