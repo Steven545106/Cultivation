@@ -13,6 +13,7 @@ import {
   type LabProfile,
   type LabResult,
 } from "../features/balance/statLab";
+import { adventureRegions } from "../features/adventure";
 import { beastCatalog, BEAST_STAGES, type BeastId } from "../features/beast";
 import { companionCatalog, INTIMACY_THRESHOLDS } from "../features/companion/companionCatalog";
 import { realmConfigs } from "../features/cultivation";
@@ -48,6 +49,7 @@ const COLUMNS: readonly Column[] = [
   { metric: "attackSpeed", label: "攻速", kind: "relative" },
   { metric: "teamDps", label: "隊伍 DPS", kind: "relative" },
   { metric: "towerReach", label: "通天塔", kind: "stages" },
+  { metric: "adventureReach", label: "遊歷", kind: "stages" },
   { metric: "cultivationPerSecond", label: "修為", kind: "relative" },
   { metric: "spiritStonesPerSecond", label: "靈石", kind: "relative" },
   { metric: "demonCoresPerSecond", label: "妖丹", kind: "relative" },
@@ -161,6 +163,7 @@ export function StatLabPage(): JSX.Element {
           <Card title="靈獸助攻" value={`+${pct(result.beastShare)}`} note={deployed.nameZh} />
           <Card title="隊伍 DPS" value={num(result.teamDps)} />
           <Card title="通天塔估計" value={floorOf(result.towerReach)} note={`境界上限 ${floorOf(result.towerCap)}`} />
+          <Card title="遊歷估計" value={result.adventureReach === 0 ? "第 1 關也偏難" : `${adventureRegions[Math.ceil(result.adventureReach / 6) - 1].nameZh}第 ${(result.adventureReach - 1) % 6 + 1} 關`} note="攻擊力達到該關建議值" />
           <Card title="修為" value={`${num(result.cultivationPerSecond, 1)} /秒`} note={breakdown(result.parts.cultivation)} />
           <Card title="靈石" value={`${num(result.spiritStonesPerSecond, 2)} /秒`} note={breakdown(result.parts.spiritStones)} />
           <Card title="妖丹" value={`${num(result.demonCoresPerSecond, 2)} /秒`} note={breakdown(result.parts.demonCores)} />
@@ -188,7 +191,7 @@ export function StatLabPage(): JSX.Element {
           <li>攻擊、暴擊、攻速、DPS 與遊戲裡顯示的完全相同（有單元測試比對）。</li>
           <li>通天塔是估計值：只看「隊伍 DPS 是否達到該關需要的 DPS」，沒有算連招節奏和靈獸攻擊的間隔。</li>
           <li>靈丹是「這個品質吃了幾顆」的累計效果；遊戲每天每種最多吃 10 顆。</li>
-          <li>遊歷的妖獸強度跟著主角攻擊力變，所以這些屬性不會讓遊歷變簡單，只有暴擊會。</li>
+          <li>遊歷估計只看攻擊力是否達到每關的建議值；實際還要看招式搭配和暴擊。</li>
           <li>靈獸的持有加成按每隻靈獸目前的境界計算；左邊只能調出戰那隻的境界，其他已解鎖的靈獸按初始境界算。</li>
         </ul>
       </section>

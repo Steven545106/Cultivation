@@ -1,16 +1,25 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   ADVENTURE_BALANCE,
-  adventureSkills,
+  OWN_SWORD_BONUS,
+  adventureRegions,
   canUseSkill,
+  getAdventureEnemy,
+  getAdventureSkill,
+  isBossStage,
   performPlayerAction,
-  pickAdventureEnemy,
   startAdventureBattle,
   type AdventureAction,
   type AdventureBattle,
   type AdventureSkillId,
+  type AdventureVictory,
+  ADVENTURE_STAGES_PER_REGION,
+  resolveEquippedSkills,
 } from "../../features/adventure";
+import { PILL_CATALOG, QUALITY_NAMES } from "../../features/alchemy/Alchemy";
 import type { CompanionSprite } from "../../features/companion/domain/companionSprites";
+import type { AdventureProgress } from "../../features/adventure";
+import { AdventureMap } from "./AdventureMap";
 import { towerThemes } from "../../features/tower";
 import { themedMonsters } from "../../game/monsters/themedMonsters";
 import { SpriteAnimation } from "../SpriteAnimation";
@@ -21,7 +30,7 @@ interface FloatingNumber {
   readonly id: number;
   readonly side: "enemy" | "hero";
   readonly text: string;
-  readonly tone: "normal" | "crit" | "status";
+  readonly tone: "normal" | "crit" | "status" | "heal" | "poison";
 }
 
 /** One pause per step of a turn, so a basic strike and the reply can be read apart. */
@@ -53,13 +62,22 @@ const monsterSprite = (themeId: string): CompanionSprite | null => {
 
 const percent = (value: number, max: number): string => `${Math.max(0, Math.min(100, (value / max) * 100))}%`;
 
-interface AdventurePageProps {
-  readonly navigation: JSX.Element;
+export interface AdventureFightProps {
   readonly characterName: string;
   /** Final attack and critical chance of the equipped sword. */
   readonly attack: number;
   readonly critRate: number;
-  readonly highestClearedStage: number;
+  /** The equipped sword: its own skill deals more. */
+  readonly weaponId: string;
+  readonly regionIndex: number;
+  readonly stage: number;
+  /** The skills taken into the fight. */
+  readonly skills: readonly AdventureSkillId[];
+  /** Records the win (once) and returns what it paid. */
+  readonly onVictory: () => AdventureVictory;
+  readonly onLeave: () => void;
+  /** Starts the next stage; null when there is none to go to. */
+  readonly onNext: (() => void) | null;
 }
 
 /**
@@ -69,8 +87,8 @@ interface AdventurePageProps {
  * The rules live in features/adventure; this page plays the result back one
  * hit at a time.
  */
-export function AdventurePage({ navigation, characterName, attack, critRate, highestClearedStage }: AdventurePageProps): JSX.Element {
-  const newBattle = (): AdventureBattle => startAdventureBattle({ attack, critRate }, pickAdventureEnemy(highestClearedStage, Math.random));
+export function AdventureFight({ characterName, attack, critRate, weaponId, regionIndex, stage, skills, onVictory, onLeave, onNext }: AdventureFightProps): JSX.Element {
+  const newBattle = (): AdventureBattle => startAdventureBattle({ attack, critRate, weaponId }, getAdventureEnemy(regionIndex, stage));
   const [battle, setBattle] = useState<AdventureBattle>(newBattle);
   /** What the screen shows while a turn plays back; equals `battle` when idle. */
   const [shown, setShown] = useState<AdventureBattle>(battle);
@@ -84,7 +102,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
   const [heroHurt, setHeroHurt] = useState(0);
   const [menu, setMenu] = useState<"main" | "skills">("main");
   /** The hero stands in the ready stance of the skill he cast last, so the next cast of it starts in place. */
-  const [stanceSkill, setStanceSkill] = useState<AdventureSkillId>(adventureSkills[0].id);
+  const [stanceSkill, setStanceSkill] = useState<AdventureSkillId>(skills[0] ?? "leiyu");
+  /** What the win paid, once it has been recorded. */
+  const [victory, setVictory] = useState<AdventureVictory | null>(null);
   const stanceCast = skillCasts[stanceSkill];
   /** Seconds left to choose this turn; null while a turn plays out or the fight is over. */
   const [secondsLeft, setSecondsLeft] = useState<number | null>(ADVENTURE_BALANCE.turnSeconds);
@@ -111,8 +131,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
     setMenu("main");
     setBusy(true);
     const heroHits = next.events.filter(event => event.kind === "hero-hit");
-    const enemyHit = next.events.find(event => event.kind === "enemy-hit");
-    const paralyzed = next.events.some(event => event.kind === "enemy-paralyzed");
+    const reply = next.events.find(event => event.kind === "enemy-hit" || event.kind === "enemy-paralyzed" || event.kind === "enemy-charge" || event.kind === "hero-evade");
+    const healed = next.events.find(event => event.kind === "hero-heal");
+    const poison = next.events.find(event => event.kind === "poison");
     const cast = action.kind === "skill" && !reducedMotion ? skillCasts[action.skillId] : null;
     // When each hit lands: on its frame of the cast, or one after another for a basic strike.
     const hitTimes = heroHits.map((_, index) => {
@@ -134,15 +155,28 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
       later(hitTimes[index], () => { float("enemy", event.damage.toLocaleString("zh-TW"), event.critical ? "crit" : "normal"); setEnemyHurt(count => count + 1); });
     });
     let clock = (hitTimes[hitTimes.length - 1] ?? 0) + HIT_GAP_MS;
-    // The enemy's HP and the hero's spirit power settle once the hero's hits have landed.
-    later(clock, () => setShown({ ...battle, hero: { ...next.hero, hp: battle.hero.hp }, enemy: next.enemy, log: next.log.slice(0, battle.log.length + 1) }));
+    const heroAfterHits = healed?.kind === "hero-heal" ? battle.hero.hp + healed.amount : battle.hero.hp;
+    // The enemy's HP and the hero's spirit power (and any healing) settle once the hero's hits have landed.
+    later(clock, () => {
+      if (healed?.kind === "hero-heal") float("hero", `+${healed.amount.toLocaleString("zh-TW")}`, "heal");
+      setShown({ ...battle, hero: { ...next.hero, hp: heroAfterHits }, enemy: { ...next.enemy, hp: next.enemy.hp + (poison?.kind === "poison" ? poison.damage : 0) }, log: next.log.slice(0, battle.log.length + 1) });
+    });
     clock += ENEMY_REPLY_GAP_MS;
-    if (paralyzed) {
-      later(clock, () => { float("enemy", "麻痺", "status"); setShown(next); });
+    if (reply) {
+      later(clock, () => {
+        if (reply.kind === "enemy-paralyzed") float("enemy", "麻痺", "status");
+        else if (reply.kind === "enemy-charge") float("enemy", "蓄力", "status");
+        else if (reply.kind === "hero-evade") float("hero", "閃避", "status");
+        else if (reply.kind === "enemy-hit") {
+          float("hero", `${reply.damage.toLocaleString("zh-TW")}${reply.blocked > 0 ? `（擋 ${reply.blocked.toLocaleString("zh-TW")}）` : ""}`, reply.heavy ? "crit" : "normal");
+          setHeroHurt(count => count + 1);
+        }
+        setShown({ ...next, enemy: { ...next.enemy, hp: next.enemy.hp + (poison?.kind === "poison" ? poison.damage : 0) } });
+      });
       clock += HIT_GAP_MS * 2;
-    } else if (enemyHit?.kind === "enemy-hit") {
-      const damage = enemyHit.damage;
-      later(clock, () => { float("hero", damage.toLocaleString("zh-TW"), "normal"); setHeroHurt(count => count + 1); setShown(next); });
+    }
+    if (poison?.kind === "poison") {
+      later(clock, () => { float("enemy", poison.damage.toLocaleString("zh-TW"), "poison"); setEnemyHurt(count => count + 1); setShown(next); });
       clock += HIT_GAP_MS * 2;
     }
     // A cast holds the turn until its animation has played out.
@@ -163,6 +197,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
   // Time ran out before a choice: the chance passes and the enemy strikes.
   useEffect(() => { if (choosing && secondsLeft === 0) act({ kind: "timeout" }); });
 
+  // Record a win once, as soon as it is decided, so leaving mid-playback still counts it.
+  useEffect(() => { if (battle.status === "victory" && !victory) setVictory(onVictory()); }, [battle.status]);
+
   const restart = (): void => {
     timers.current.forEach(window.clearTimeout);
     timers.current = [];
@@ -174,6 +211,7 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
     setCasting(null);
     setEffect(null);
     setMenu("main");
+    setVictory(null);
   };
 
   const finished = battle.status !== "playerTurn" && !busy;
@@ -190,12 +228,11 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
     "--adv-tint": theme.tint,
   } as CSSProperties;
   return (
-    <main className="weapon-library adventure-page" aria-label="遊歷">
-      {navigation}
       <section className="adventure-stage" style={stageStyle} aria-label="遊歷戰鬥">
         <div className="adventure-stage__bg" />
         <div className="adventure-stage__ring" />
-        <div className="adventure-place">{theme.nameZh}・第 {view.turn} 回合</div>
+        <div className="adventure-place">{adventureRegions[regionIndex].nameZh}・第 {stage} 關{isBossStage(stage) ? "（首領）" : ""}・第 {view.turn} 回合</div>
+        <button type="button" className="adventure-leave" onClick={onLeave} disabled={busy}>返回地圖</button>
         {secondsLeft !== null && (
           <div className={secondsLeft <= 5 ? "adventure-countdown is-urgent" : "adventure-countdown"} role="timer" aria-label={`剩餘 ${secondsLeft} 秒選擇招式`}>{secondsLeft}</div>
         )}
@@ -287,9 +324,9 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
         </nav>
         {menu === "skills" && canAct && (
           <div className="adventure-skills" role="menu" aria-label="招式">
-            {adventureSkills.map(skill => (
+            {skills.map(getAdventureSkill).map(skill => (
               <button key={skill.id} type="button" role="menuitem" disabled={!canUseSkill(battle, skill.id)} onClick={() => act({ kind: "skill", skillId: skill.id })}>
-                <strong>{skill.nameZh}</strong>
+                <strong>{skill.nameZh}<small className="adventure-skill-role">{skill.roleZh}</small>{skill.weaponId === weaponId && <small className="adventure-skill-own">本命劍 +{Math.round(OWN_SWORD_BONUS * 100)}%</small>}</strong>
                 <span>靈力 {skill.qiCost}・{skill.hitMultipliers.length} 連擊</span>
                 <em>{skill.description}</em>
               </button>
@@ -299,12 +336,28 @@ export function AdventurePage({ navigation, characterName, attack, critRate, hig
 
         {finished && (
           <div className={`adventure-result adventure-result--${battle.status}`} role="status">
-            <strong>{battle.status === "victory" ? "旗開得勝" : "力竭落敗"}</strong>
-            <button type="button" onClick={restart}>{battle.status === "victory" ? "再遇一隻妖獸" : "重整旗鼓再戰"}</button>
+            <strong>{battle.status === "victory" ? (victory?.firstClear ? "首次通關" : "旗開得勝") : "力竭落敗"}</strong>
+            {battle.status === "victory" && <RewardLine victory={victory} />}
+            <div className="adventure-result__actions">
+              {battle.status === "victory" && onNext && <button type="button" onClick={onNext}>下一關</button>}
+              <button type="button" onClick={restart}>{battle.status === "victory" ? "再打一次" : "重整旗鼓再戰"}</button>
+              <button type="button" onClick={onLeave}>返回地圖</button>
+            </div>
           </div>
         )}
       </section>
-    </main>
+  );
+}
+
+function RewardLine({ victory }: { readonly victory: AdventureVictory | null }): JSX.Element | null {
+  if (!victory) return null;
+  const reward = victory.reward;
+  if (!reward) return <p className="adventure-result__reward">今日重複挑戰的獎勵已領完</p>;
+  return (
+    <p className="adventure-result__reward">
+      靈石 +{reward.spiritStones.toLocaleString("zh-TW")}・妖丹 +{reward.demonCores.toLocaleString("zh-TW")}
+      {reward.pill && <>・{QUALITY_NAMES[reward.pill.quality]}{PILL_CATALOG.find(pill => pill.id === reward.pill!.id)?.name} ×1</>}
+    </p>
   );
 }
 
@@ -315,5 +368,59 @@ function Bar({ label, tone, value, max, compact = false }: { readonly label: str
       <i><b className={`adventure-bar__fill adventure-bar__fill--${tone}`} style={{ width: percent(value, max) }} /></i>
       <span className="adventure-bar__value">{Math.round(value).toLocaleString("zh-TW")} / {Math.round(max).toLocaleString("zh-TW")}</span>
     </div>
+  );
+}
+
+interface AdventurePageProps {
+  readonly navigation: JSX.Element;
+  readonly characterName: string;
+  readonly attack: number;
+  readonly critRate: number;
+  readonly weaponId: string;
+  readonly unlockedWeaponIds: readonly string[];
+  readonly progress: AdventureProgress;
+  readonly onSkillsChange: (skills: readonly AdventureSkillId[]) => void;
+  readonly onVictory: (regionIndex: number, stage: number) => AdventureVictory;
+}
+
+/**
+ * 遊歷: the map (region, stage and the three skills taken along), and the
+ * turn-based fight on the stage picked from it.
+ */
+export function AdventurePage({ navigation, characterName, attack, critRate, weaponId, unlockedWeaponIds, progress, onSkillsChange, onVictory }: AdventurePageProps): JSX.Element {
+  const [fight, setFight] = useState<{ readonly key: number; readonly regionIndex: number; readonly stage: number } | null>(null);
+  const [skills, setSkills] = useState<readonly AdventureSkillId[]>(() => resolveEquippedSkills(progress.skills, unlockedWeaponIds));
+  const nextKey = useRef(0);
+  // New swords unlock new skills: refill the empty slots with them.
+  useEffect(() => { setSkills(current => resolveEquippedSkills(current, unlockedWeaponIds)); }, [unlockedWeaponIds.join()]);
+  const chooseSkills = (next: readonly AdventureSkillId[]): void => { setSkills(next); onSkillsChange(next); };
+  const start = (regionIndex: number, stage: number): void => setFight({ key: nextKey.current++, regionIndex, stage });
+
+  if (!fight) {
+    return (
+      <main className="weapon-library adventure-page adventure-page--map" aria-label="遊歷">
+        {navigation}
+        <AdventureMap progress={progress} attack={attack} weaponId={weaponId} unlockedWeaponIds={unlockedWeaponIds} skills={skills} onSkillsChange={chooseSkills} onChallenge={start} />
+      </main>
+    );
+  }
+  const after = fight.stage < ADVENTURE_STAGES_PER_REGION ? { regionIndex: fight.regionIndex, stage: fight.stage + 1 } : fight.regionIndex + 1 < adventureRegions.length ? { regionIndex: fight.regionIndex + 1, stage: 1 } : null;
+  return (
+    <main className="weapon-library adventure-page" aria-label="遊歷">
+      {navigation}
+      <AdventureFight
+        key={fight.key}
+        characterName={characterName}
+        attack={attack}
+        critRate={critRate}
+        weaponId={weaponId}
+        regionIndex={fight.regionIndex}
+        stage={fight.stage}
+        skills={skills}
+        onVictory={() => onVictory(fight.regionIndex, fight.stage)}
+        onLeave={() => setFight(null)}
+        onNext={after ? () => start(after.regionIndex, after.stage) : null}
+      />
+    </main>
   );
 }

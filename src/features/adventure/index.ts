@@ -13,5 +13,38 @@ export {
   type AdventureStatus,
   type Roll,
 } from "./domain/AdventureBattle";
-export { getUnlockedThemeCount, pickAdventureEnemy } from "./domain/AdventureEnemies";
-export { adventureSkills, getAdventureSkill, type AdventureSkill, type AdventureSkillId } from "./domain/AdventureSkills";
+export { creatureNames } from "./domain/AdventureEnemies";
+export {
+  ADVENTURE_SKILL_SLOTS,
+  OWN_SWORD_BONUS,
+  adventureSkills,
+  getAdventureSkill,
+  getUnlockedAdventureSkills,
+  isAdventureSkillId,
+  resolveEquippedSkills,
+  type AdventureSkill,
+  type AdventureSkillId,
+} from "./domain/AdventureSkills";
+export {
+  ADVENTURE_DPS_PER_ATTACK,
+  ADVENTURE_STAGES_PER_REGION,
+  ADVENTURE_STAGE_BALANCE,
+  adventureRegions,
+  canChallengeStage,
+  createAdventureProgress,
+  getAdventureEnemy,
+  getAdventureReward,
+  getClearedStages,
+  getFrontierStage,
+  getStageReferenceAttack,
+  getStageTowerNumber,
+  isBossStage,
+  isRegionOpen,
+  normalizeAdventureProgress,
+  repeatsLeftToday,
+  settleAdventureVictory,
+  type AdventureProgress,
+  type AdventureRegion,
+  type AdventureReward,
+  type AdventureVictory,
+} from "./domain/AdventureStages";

@@ -1,3 +1,4 @@
+import { adventureRegions, ADVENTURE_STAGES_PER_REGION, getStageReferenceAttack } from "../adventure";
 import { PILL_CATALOG, type PillId } from "../alchemy/Alchemy";
 import {
   beastCatalog,
@@ -57,6 +58,8 @@ export interface LabResult {
   /** Highest tower stage whose monster dies within its time limit at `teamDps`, within the realm's cap. */
   readonly towerReach: number;
   readonly towerCap: number;
+  /** Adventure stages whose sizing attack the hero's attack reaches (0–60), the estimate of how far 遊歷 goes. */
+  readonly adventureReach: number;
   readonly cultivationPerSecond: number;
   readonly spiritStonesPerSecond: number;
   readonly demonCoresPerSecond: number;
@@ -156,9 +159,19 @@ export function evaluateLab(profile: LabProfile): LabResult {
     break;
   }
 
+  let adventureReach = 0;
+  for (const region of adventureRegions) {
+    for (let stage = 1; stage <= ADVENTURE_STAGES_PER_REGION; stage += 1) {
+      if (combat.attack < getStageReferenceAttack(region.index, stage)) break;
+      adventureReach = region.index * ADVENTURE_STAGES_PER_REGION + stage;
+    }
+    if (adventureReach < (region.index + 1) * ADVENTURE_STAGES_PER_REGION) break;
+  }
+
   return {
     combat,
     beastShare,
+    adventureReach,
     teamDps,
     towerReach,
     towerCap,
@@ -232,7 +245,7 @@ export const labSteps: readonly LabStep[] = [
   },
 ];
 
-export type LabMetric = "attack" | "critRate" | "attackSpeed" | "teamDps" | "towerReach" | "cultivationPerSecond" | "spiritStonesPerSecond" | "demonCoresPerSecond" | "breakthroughRate";
+export type LabMetric = "attack" | "critRate" | "attackSpeed" | "teamDps" | "towerReach" | "adventureReach" | "cultivationPerSecond" | "spiritStonesPerSecond" | "demonCoresPerSecond" | "breakthroughRate";
 
 export function labMetric(result: LabResult, metric: LabMetric): number {
   switch (metric) {

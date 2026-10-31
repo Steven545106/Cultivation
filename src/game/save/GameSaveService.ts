@@ -42,6 +42,7 @@ import { companionCatalog, getActiveCompanion, getCompanionUnlockBonus, getDualC
 import { settleIntimacy, INTIMACY_POINT_MS, migrateIntimacyRemainder } from "../../features/companion/intimacyTime";
 import { ALCHEMY_SUCCESS_RATE, ALCHEMY_DURATION_MS, PILL_CATALOG, alchemyCost, normalizeAlchemy, pillBonus, qualityFromRoll, consumePill, discardPill, completeAlchemy, type AlchemyState, type PillId } from "../../features/alchemy/Alchemy";
 import { getDualAlchemySuccessBonus } from "../../features/companion/companionCatalog";
+import { createAdventureProgress, normalizeAdventureProgress, settleAdventureVictory, type AdventureProgress, type AdventureSkillId, type AdventureVictory } from "../../features/adventure";
 
 const CACHE_KEY = "bai-xiaochun-game-save-v1";
 const SAVE_VERSION = 1;
@@ -102,6 +103,8 @@ export interface GameSaveData {
   readonly tower: TowerProgress;
   /** The beast fighting beside the hero (出戰) and every beast's realm; unlocks follow tower progress. */
   readonly beasts: BeastProgress;
+  /** 遊歷: stages cleared per region, the skills taken into fights, today's rewarded repeats. */
+  readonly adventure: AdventureProgress;
   /** 妖丹: fed to spirit beasts. Earned idle (with cultivation, offline included) and from tower first clears. */
   readonly demonCores: number;
   readonly demonCoreRemainderMicros: number;
@@ -173,6 +176,7 @@ function createDefaultSave(): GameSaveData {
     otherProgress: {},
     tower: createTowerProgress(),
     beasts: createBeastProgress(),
+    adventure: createAdventureProgress(),
     demonCores: 0,
     demonCoreRemainderMicros: 0,
     lastDemonCoreTimestamp: cultivation.lastCultivationTimestamp,
@@ -224,6 +228,7 @@ function normalizeSave(candidate: unknown): GameSaveData {
     otherProgress: isRecord(raw.otherProgress) ? raw.otherProgress : {},
     tower: normalizeTowerProgress(raw.tower),
     beasts: normalizeBeastProgress(raw.beasts),
+    adventure: normalizeAdventureProgress(raw.adventure),
     demonCores: safeCount(raw.demonCores),
     demonCoreRemainderMicros: safeCount(raw.demonCoreRemainderMicros, 999_999),
     // Saves from before 妖丹 start earning now, never retroactively.
@@ -496,6 +501,32 @@ export class GameSaveService {
   }
 
   /** Atomically records first-clear progress and its one-time tower rewards. */
+  /** The skills taken into 遊歷 fights (the page keeps only unlocked ones, at most three). */
+  public setAdventureSkills(skills: readonly AdventureSkillId[]): void {
+    this.patchSave({ adventure: { ...this.snapshot.save.adventure, skills: [...skills] } }, true);
+  }
+
+  /** A won 遊歷 stage: advances the region on a first clear and pays its spirit stones, demon cores and (a boss's first clear) pill. */
+  public completeAdventureStage(regionIndex: number, stage: number, now = Date.now()): AdventureVictory {
+    const save = this.snapshot.save;
+    const victory = settleAdventureVictory(save.adventure, regionIndex, stage, now);
+    const reward = victory.reward;
+    let alchemy = save.alchemy;
+    if (reward?.pill) {
+      const counts = [...(alchemy.inventory[reward.pill.id] ?? [])];
+      while (counts.length < 6) counts.push(0);
+      counts[reward.pill.quality] += 1;
+      alchemy = { ...alchemy, inventory: { ...alchemy.inventory, [reward.pill.id]: counts } };
+    }
+    this.patchSave({
+      adventure: victory.progress,
+      spiritStones: safeCount(save.spiritStones + (reward?.spiritStones ?? 0)),
+      demonCores: safeCount(save.demonCores + (reward?.demonCores ?? 0)),
+      alchemy,
+    }, true, true);
+    return victory;
+  }
+
   public completeTowerStage(stageNumber: number): { readonly awardedSpiritStones: number; readonly awardedCultivation: number; readonly awardedDemonCores: number; readonly repeat: boolean; readonly tower: TowerProgress } {
     const completion = resolveTowerCompletion(this.snapshot.save.tower, getTowerStage(stageNumber));
     const awardedSpiritStones = completion.reward?.spiritStones ?? 0;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { gameSaveCommands } from "../features/persistence";
+import { getWeaponUnlockStatus, weaponCatalog } from "../features/weapon";
 import { getBeastDamageShare, getBeastStageIndex, resolveDeployedBeast } from "../features/beast";
 import type { GameRuntime } from "../game/GameRuntime";
 import { useGameSave } from "./hooks/useGameSave";
@@ -98,7 +99,19 @@ function ActiveGameShell(): JSX.Element {
       case "alchemy":
         return <AlchemyPage navigation={navigation} save={gameSave.save} />;
       case "adventure":
-        return <AdventurePage navigation={navigation} characterName={gameSave.save.characterName} attack={selection.combatStats.attack} critRate={selection.combatStats.critRate} highestClearedStage={gameSave.save.tower.highestClearedStage} />;
+        return (
+          <AdventurePage
+            navigation={navigation}
+            characterName={gameSave.save.characterName}
+            attack={selection.combatStats.attack}
+            critRate={selection.combatStats.critRate}
+            weaponId={selection.equippedWeapon.weaponId}
+            unlockedWeaponIds={weaponCatalog.filter(weapon => getWeaponUnlockStatus(weapon, selection.weaponUnlockContext).unlocked).map(weapon => weapon.weaponId)}
+            progress={gameSave.save.adventure}
+            onSkillsChange={gameSaveCommands.setAdventureSkills}
+            onVictory={gameSaveCommands.completeAdventureStage}
+          />
+        );
       case "tower":
         return <TowerPage navigation={navigation} tower={gameSave.save.tower} dps={selection.combatStats.dps * (1 + getBeastDamageShare(deployedBeast, deployedBeastStage))} realmId={gameSave.save.cultivation.realmId} onChallenge={challengeSelectedStage} />;
       case "battle":
