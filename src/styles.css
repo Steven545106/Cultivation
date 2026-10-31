@@ -278,6 +278,12 @@ canvas {
 .qi-breath { display: block; width: 100%; height: 100%; }
 .cultivating-character { position: relative; width: 100%; aspect-ratio: 1; filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)); }
 .cultivating-character { display: block; height: auto; object-fit: contain; }
+/* The lotus seat of the high realms: a square picture whose seed pod (62% down) sits under his hips; the
+   front copy shows only the petals below the pod, laid over his legs. It breathes with a slight swell. */
+.realm-lotus { position: absolute; left: 50%; bottom: -32%; width: 128%; transform: translateX(-50%); transform-origin: 50% 62%; pointer-events: none; animation: realm-lotus-breathe 5s ease-in-out infinite; }
+.realm-lotus--front { clip-path: inset(68% 0 0 0); }
+@keyframes realm-lotus-breathe { 0%, 100% { scale: 1; filter: brightness(1); } 50% { scale: 1.025; filter: brightness(1.12); } }
+@media (prefers-reduced-motion: reduce) { .realm-lotus { animation: none; } }
 /* Choose between the hero alone and the shared scene with the dao companion. */
 .cultivating-view-toggle { display: flex; justify-content: center; gap: 0; margin-top: 10px; }
 .cultivating-view-toggle button { padding: 6px 14px; border: 1px solid rgba(255, 226, 164, 0.55); background: rgba(8, 28, 46, 0.72); color: #cfe8f6; font: inherit; font-size: 13px; cursor: pointer; }

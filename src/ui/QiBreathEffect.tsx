@@ -16,8 +16,6 @@ export interface QiBreathLook {
   readonly intensity?: number;
   /** The sign of the realm drawn over the breathing. */
   readonly signature?: QiSignature;
-  /** The lotus seat's style (1–4, finer with each step); from 天尊. */
-  readonly lotus?: number;
   /** The wings' style (1–5, grander with each step); from 半神. */
   readonly wings?: number;
   /**
@@ -34,24 +32,6 @@ export const SOLO_QI: QiBreathLook = { core: { x: 0.5, y: 0.62 }, halos: [{ x: 0
 /** The canvas reaches this share of the picture's size beyond each edge, so qi can stream in from outside it. */
 export const QI_BLEED = 0.16;
 const toBox = (fraction: number): number => (fraction + QI_BLEED) / (1 + 2 * QI_BLEED);
-
-interface LotusColours { readonly base: string; readonly body: string; readonly tip: string; readonly rim: string; readonly vein: string }
-
-/**
- * Lotus styles, from 天尊 up, each finer than the last: how many rings of petals and how many in each, their
- * colours, and an extra touch (lily pads, crystal glints, gold filigree and a turning halo of petals).
- */
-interface LotusStyle { readonly rings: number; readonly petals: number; readonly colours: LotusColours; readonly extra: "none" | "pads" | "crystal" | "golden" }
-const LOTUS_STYLES: readonly LotusStyle[] = [
-  // 天尊: a crimson lotus, one ring.
-  { rings: 1, petals: 9, colours: { base: "176, 34, 60", body: "236, 88, 104", tip: "255, 206, 196", rim: "255, 214, 190", vein: "150, 30, 50" }, extra: "none" },
-  // 太古: a white jade lotus on lily pads, two rings.
-  { rings: 2, petals: 10, colours: { base: "120, 190, 150", body: "226, 246, 232", tip: "255, 255, 255", rim: "236, 255, 244", vein: "110, 170, 140" }, extra: "pads" },
-  // 主宰: a sapphire crystal lotus that glints, two rings of narrow petals.
-  { rings: 2, petals: 13, colours: { base: "60, 80, 200", body: "130, 160, 255", tip: "232, 240, 255", rim: "220, 232, 255", vein: "200, 214, 255" }, extra: "crystal" },
-  // 永恆: a golden lotus of three rings with gilded veins and a halo of petals turning round it.
-  { rings: 3, petals: 12, colours: { base: "196, 120, 30", body: "255, 204, 100", tip: "255, 248, 214", rim: "255, 240, 180", vein: "255, 236, 160" }, extra: "golden" },
-];
 
 /**
  * Wing styles, from 半神 up, each grander than the last: pairs of wings (a second and third pair spread
@@ -343,46 +323,6 @@ export function QiBreathEffect({ look, periodMs }: { readonly look: QiBreathLook
     };
 
     /**
-     * One lotus petal from its base (x, y) to its tip: a teardrop that swells near the middle and ends in a
-     * fine point, shaded from a deep base to a pale tip, with a bright rim and a centre vein and two side veins.
-     * `veinAlpha` above 0.6 gilds the veins.
-     */
-    const lotusPetal = (x: number, y: number, tipX: number, tipY: number, width: number, colours: LotusColours, alpha: number, veinAlpha = 0.5): void => {
-      const dx = tipX - x;
-      const dy = tipY - y;
-      const length = Math.hypot(dx, dy) || 1;
-      const nx = (-dy / length) * width;
-      const ny = (dx / length) * width;
-      const at = (along: number, across: number): [number, number] => [x + dx * along + nx * across, y + dy * along + ny * across];
-      context.globalAlpha = Math.min(1, alpha);
-      context.beginPath();
-      context.moveTo(x, y);
-      context.bezierCurveTo(...at(0.2, 0.9), ...at(0.66, 1.05), tipX, tipY);
-      context.bezierCurveTo(...at(0.66, -1.05), ...at(0.2, -0.9), x, y);
-      context.closePath();
-      const shade = context.createLinearGradient(x, y, tipX, tipY);
-      shade.addColorStop(0, `rgb(${colours.base})`);
-      shade.addColorStop(0.5, `rgb(${colours.body})`);
-      shade.addColorStop(1, `rgb(${colours.tip})`);
-      context.fillStyle = shade;
-      context.fill();
-      context.strokeStyle = `rgba(${colours.rim}, 0.95)`;
-      context.lineWidth = 1.2;
-      context.stroke();
-      context.globalAlpha = Math.min(1, alpha * veinAlpha);
-      context.strokeStyle = `rgb(${colours.vein})`;
-      context.lineWidth = veinAlpha > 0.6 ? 1.1 : 0.8;
-      context.beginPath();
-      context.moveTo(...at(0.06, 0));
-      context.lineTo(...at(0.82, 0));
-      for (const side of [-1, 1]) {
-        context.moveTo(...at(0.1, side * 0.12));
-        context.quadraticCurveTo(...at(0.45, side * 0.62), ...at(0.74, side * 0.36));
-      }
-      context.stroke();
-    };
-
-    /**
      * A feather rooted at (x, y), pointing along `angle`. "light" is a slim glowing vane, "flame" a vane whose
      * tip licks like fire, "crystal" a faceted see-through shard, "feather" and "seraph" a full vane with a
      * quill (gold-rimmed for "seraph").
@@ -443,76 +383,10 @@ export function QiBreathEffect({ look, periodMs }: { readonly look: QiBreathLook
       }
     };
 
-    /** The lotus seat (from 天尊) and the wings on his back (from 半神), finer with each realm. */
+    /** The wings on his back (from 半神), grander with each realm. (The lotus seat is a picture, see CultivatingCharacter.) */
     const adornments = (phase: number, stage: ReturnType<typeof qiStage>, cx: number, reach: number, unit: number): void => {
       const groundY = height * toBox(0.93);
       const t = phase * Math.PI * 2;
-      const lotusTier = look.lotus ?? 0;
-      if (lotusTier > 0) {
-        // An open lotus seen a little from above: every petal grows from the heart of the flower beneath him and
-        // opens outward and upward, the inner rings more upright, so it reads as a flower rather than a tiered stand.
-        const style = LOTUS_STYLES[Math.min(LOTUS_STYLES.length, lotusTier) - 1];
-        const heartY = groundY - reach * 0.02;
-        const sway = Math.sin(t * 2) * 0.03;
-        // Ripples of light on the water under the flower.
-        for (let k = 0; k < 3; k += 1) {
-          const grow = (phase + k / 3) % 1;
-          ring(cx, groundY + reach * 0.02, reach * (0.45 + grow * 0.55), 0.2, style.colours.rim, (1 - grow) * 0.45, 1.5);
-        }
-        if (style.extra === "pads") {
-          // Lily pads either side, each with its notch.
-          for (const side of [-1, 1]) {
-            context.globalAlpha = 0.85;
-            context.fillStyle = "rgba(70, 150, 90, 0.9)";
-            context.strokeStyle = "rgba(170, 230, 170, 0.9)";
-            context.lineWidth = 1.2;
-            context.beginPath();
-            const px = cx + side * reach * 0.7;
-            context.ellipse(px, groundY + reach * 0.02, reach * 0.22, reach * 0.06, 0, side > 0 ? 0.35 : Math.PI + 0.35, side > 0 ? Math.PI * 2 + 0.05 : Math.PI * 3 + 0.05);
-            context.lineTo(px, groundY + reach * 0.02);
-            context.closePath();
-            context.fill();
-            context.stroke();
-          }
-        }
-        if (style.extra === "golden") {
-          // A halo of small golden petals turning round the flower.
-          for (let k = 0; k < 16; k += 1) {
-            const a = t * 0.4 + (k / 16) * Math.PI * 2;
-            const px = cx + Math.cos(a) * reach * 0.95;
-            const py = heartY - reach * 0.12 + Math.sin(a) * reach * 0.2;
-            lotusPetal(px, py, px + Math.cos(a) * reach * 0.1, py - reach * 0.08, reach * 0.035, style.colours, 0.75, 0.8);
-          }
-        }
-        for (let ringIndex = style.rings - 1; ringIndex >= 0; ringIndex -= 1) {
-          const count = style.petals + ringIndex * 2;
-          const length = reach * (0.82 - ringIndex * 0.12) * (0.97 + 0.03 * stage.breath);
-          const upright = 0.18 + ringIndex * 0.17;
-          const petalWidth = length * (style.extra === "crystal" ? 0.2 : 0.3);
-          const angles = Array.from({ length: count }, (_, k) => ((k + (ringIndex % 2) * 0.5) / count) * Math.PI * 2);
-          angles.sort((p, q) => Math.sin(p) - Math.sin(q));
-          for (const a of angles) {
-            const depth = Math.sin(a);
-            const bx = cx + Math.cos(a) * reach * 0.06;
-            const by = heartY + depth * reach * 0.02;
-            const out = 1 - upright;
-            const tipX = bx + Math.cos(a + sway) * length * out * 1.1;
-            const tipY = by + depth * length * out * 0.32 - length * (upright + (depth < 0 ? -depth * 0.15 : 0));
-            lotusPetal(bx, by, tipX, tipY, petalWidth, style.colours, depth > 0.4 ? 0.55 : 0.92, style.extra === "golden" ? 0.85 : 0.5);
-          }
-        }
-        // The glowing heart of the flower, and its stamens.
-        stamp(soft.gold, cx, heartY - reach * 0.06, reach * (0.55 + 0.1 * lotusTier), 0.45 + 0.25 * stage.breath);
-        if (style.extra === "crystal" || style.extra === "golden") {
-          for (let k = 0; k < 8; k += 1) {
-            const glint = (phase * 2.5 + hash01(k, 81)) % 1;
-            const a = Math.PI + hash01(k, 82) * Math.PI;
-            const r = reach * (0.3 + hash01(k, 83) * 0.4);
-            stamp(soft.accent, cx + Math.cos(a) * r, heartY + Math.sin(a) * r * 0.6, unit * 0.05, Math.sin(glint * Math.PI));
-          }
-        }
-      }
-
       if (wingPicture && look.wingImage) {
         // The drawn wings, rooted at his upper back; each half beats on its own hinge at the root.
         const size = reach * look.wingImage.width;
@@ -613,7 +487,7 @@ export function QiBreathEffect({ look, periodMs }: { readonly look: QiBreathLook
       stamp(soft.qi, cx, cy, reach * (1.7 + 0.4 * stage.breath), (0.2 + 0.2 * stage.breath + 0.28 * stage.peak) * Math.min(1.3, intensity));
       stamp(soft.accent, cx, cy, reach * (0.9 + 0.5 * stage.peak), (0.14 + 0.34 * stage.circulate + 0.4 * stage.peak) * Math.min(1, intensity + 0.2));
 
-      // The seat and wings are solid shapes, so they are drawn normally, under the additive light.
+      // The wings are solid shapes, so they are drawn normally, under the additive light.
       context.globalCompositeOperation = "source-over";
       adornments(phase, stage, cx, reach, unit);
       context.globalCompositeOperation = "lighter";

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { getDualCultivationSprite, heroCultivationSprite, spriteLoopMs } from "../features/companion/domain/companionSprites";
 import type { RealmId } from "../features/cultivation";
 import { QI_BLEED, QiBreathEffect, SOLO_QI } from "./QiBreathEffect";
-import { getRealmQiLook } from "./realmQi";
+import { getRealmLotus, getRealmQiLook } from "./realmQi";
 import { SpriteAnimation } from "./SpriteAnimation";
 
 /** One breath of the solo meditation: two passes of the 32-frame loop, slow enough to read. */
@@ -17,6 +17,7 @@ export function CultivatingCharacter({ characterName, companionId, companionName
   const dual = getDualCultivationSprite(companionId);
   // His qi shows his realm; a companion beside him keeps the plain look.
   const heroLook = useMemo(() => getRealmQiLook(realmId), [realmId]);
+  const lotus = getRealmLotus(realmId);
   const bleed = `${-QI_BLEED * 100}%`;
   return (
     <div className={dual ? "cultivating-stage cultivating-stage--dual" : "cultivating-stage"}>
@@ -33,7 +34,14 @@ export function CultivatingCharacter({ characterName, companionId, companionName
         )}
       {dual
         ? <SpriteAnimation sprite={dual} className="cultivating-character cultivating-character--dual" label={`${characterName}與${companionName ?? "道侶"}雙修，一同吐納靈氣`} />
-        : <SpriteAnimation sprite={heroCultivationSprite} className="cultivating-character" label={`${characterName}盤坐修練`} />}
+        : (
+          <>
+            {/* He sits on the lotus: its back half behind him, its front petals over his legs. */}
+            {lotus && <img className="realm-lotus" src={lotus} alt="" aria-hidden="true" draggable={false} />}
+            <SpriteAnimation sprite={heroCultivationSprite} className="cultivating-character" label={`${characterName}盤坐修練`} />
+            {lotus && <img className="realm-lotus realm-lotus--front" src={lotus} alt="" aria-hidden="true" draggable={false} />}
+          </>
+        )}
     </div>
   );
 }
