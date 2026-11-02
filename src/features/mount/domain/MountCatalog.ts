@@ -28,6 +28,8 @@ export interface MountConfig {
   readonly unlockStage: number;
   /** The idle animation; null while its art has not been drawn yet. */
   readonly sprite: MountSprite | null;
+  /** The animation travels in place (a run or a flight): the stage scrolls clouds and wind past it so it reads as moving forward. */
+  readonly travels?: boolean;
   readonly stat: MountStat;
   /** Bonus at level 1 and added per level after it. */
   readonly baseBonus: number;
@@ -56,7 +58,8 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "靈氣凝成的神鹿，鹿角化作翠綠靈焰，金飾碧珠，奔行時蹄下生雲。",
     unlockZh: "通關通天塔第 200 關",
     unlockStage: 200,
-    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 80, blendMs: 100 },
+    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 85, blendMs: 0 },
+    travels: true,
     stat: "spiritStoneSpeed",
     baseBonus: 0.04,
     bonusPerLevel: 0.003,

@@ -76,7 +76,8 @@ function MountShowcase({ mount, cleared, level, deployed, spiritStones }: { read
   const cost = getMountUpgradeCost(level);
   return (
     <section className="mount-showcase" aria-label={mount.nameZh}>
-      <div className="mount-showcase__stage">
+      <div className={mount.travels ? "mount-showcase__stage is-travelling" : "mount-showcase__stage"}>
+        {mount.travels && <span className="mount-showcase__scenery" aria-hidden="true" />}
         {mount.sprite
           ? <SpriteAnimation key={mount.id} sprite={toSprite(mount.sprite)} className="mount-showcase__sprite" label={`${mount.nameZh}待機動畫`} />
           : <span className="mount-showcase__placeholder">{mount.nameZh}・圖鑑繪製中</span>}
