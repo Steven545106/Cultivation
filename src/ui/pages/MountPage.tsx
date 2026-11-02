@@ -25,7 +25,7 @@ const toSprite = (sprite: MountSprite): CompanionSprite => ({
   cols: sprite.cols,
   cellWidth: sprite.cellWidth,
   cellHeight: sprite.cellHeight,
-  steps: Array.from({ length: sprite.frames }, (_, cell) => ({ cell, holdMs: sprite.frameMs })),
+  steps: Array.from({ length: sprite.frames }, (_, cell) => ({ cell, holdMs: cell === sprite.frames - 1 ? sprite.endHoldMs : sprite.frameMs })),
   blendMs: sprite.blendMs,
 });
 

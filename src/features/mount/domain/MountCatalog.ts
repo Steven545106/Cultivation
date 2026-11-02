@@ -14,6 +14,8 @@ export interface MountSprite {
   readonly frameMs: number;
   /** Then it cross-fades into the next one for this long, so a slow loop still flows instead of stepping. */
   readonly blendMs: number;
+  /** The last frame holds this long before the loop starts again, so the seam back to frame 1 does not read as a jump. */
+  readonly endHoldMs: number;
 }
 
 export interface MountConfig {
@@ -46,7 +48,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "金紋鏤空的飛行仙劍，御劍而行時藍色靈焰沿劍身奔流，銀綾隨風翻飛。",
     unlockZh: null,
     unlockStage: 0,
-    sprite: { sheet: "/assets/mounts/破涅-sheet.webp", poster: "/assets/mounts/破涅-poster.webp", cols: 6, cellWidth: 728, cellHeight: 478, frames: 24, frameMs: 110, blendMs: 130 },
+    sprite: { sheet: "/assets/mounts/破涅-sheet.webp", poster: "/assets/mounts/破涅-poster.webp", cols: 6, cellWidth: 728, cellHeight: 478, frames: 24, frameMs: 110, blendMs: 130, endHoldMs: 900 },
     stat: "cultivationSpeed",
     baseBonus: 0.03,
     bonusPerLevel: 0.0025,
@@ -58,7 +60,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "靈氣凝成的神鹿，鹿角化作翠綠靈焰，金飾碧珠，奔行時蹄下生雲。",
     unlockZh: "通關通天塔第 200 關",
     unlockStage: 200,
-    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 85, blendMs: 0 },
+    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 85, blendMs: 0, endHoldMs: 600 },
     travels: true,
     stat: "spiritStoneSpeed",
     baseBonus: 0.04,
