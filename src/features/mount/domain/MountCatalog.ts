@@ -38,7 +38,7 @@ export const mountCatalog: readonly MountConfig[] = [
     kindZh: "御劍飛行",
     description: "金紋鏤空的飛行仙劍，御劍而行時藍色靈焰沿劍身奔流，銀綾隨風翻飛。",
     unlockZh: null,
-    sprite: { sheet: "/assets/mounts/破涅-sheet.webp", poster: "/assets/mounts/破涅-poster.webp", cols: 2, cellWidth: 712, cellHeight: 444, frames: 4, frameMs: 160 },
+    sprite: { sheet: "/assets/mounts/破涅-sheet.webp", poster: "/assets/mounts/破涅-poster.webp", cols: 2, cellWidth: 711, cellHeight: 445, frames: 4, frameMs: 160 },
     stat: "cultivationSpeed",
     baseBonus: 0.03,
     bonusPerLevel: 0.0025,
