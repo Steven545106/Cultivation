@@ -7,9 +7,9 @@ export interface MountProgress {
   readonly levels: Readonly<Partial<Record<MountId, number>>>;
 }
 
-/** A mount is open once its art exists and it has no unlock condition left. */
-export function isMountUnlocked(mount: MountConfig): boolean {
-  return mount.sprite !== null && mount.unlockZh === null;
+/** A mount is obtained once its art exists and its tower stage has been cleared. */
+export function isMountUnlocked(mount: MountConfig, highestClearedStage: number): boolean {
+  return mount.sprite !== null && highestClearedStage >= mount.unlockStage;
 }
 
 export function createMountProgress(): MountProgress {
@@ -21,14 +21,14 @@ const clampLevel = (value: unknown): number => {
   return Math.min(MOUNT_MAX_LEVEL, Math.max(1, level));
 };
 
-/** Reads the progress out of `otherProgress`, mending anything missing or invalid. */
-export function readMountProgress(otherProgress: Readonly<Record<string, unknown>>): MountProgress {
+/** Reads the progress out of `otherProgress`, mending anything missing or invalid; mounts obtained since start at level 1. */
+export function readMountProgress(otherProgress: Readonly<Record<string, unknown>>, highestClearedStage: number): MountProgress {
   const raw = otherProgress.mounts;
   const record = typeof raw === "object" && raw !== null ? raw as Record<string, unknown> : {};
   const savedLevels = typeof record.levels === "object" && record.levels !== null ? record.levels as Record<string, unknown> : {};
   const levels: Partial<Record<MountId, number>> = {};
   for (const mount of mountCatalog) {
-    if (isMountUnlocked(mount)) levels[mount.id] = clampLevel(savedLevels[mount.id]);
+    if (isMountUnlocked(mount, highestClearedStage)) levels[mount.id] = clampLevel(savedLevels[mount.id]);
   }
   const deployed = isMountId(record.deployedMountId) && levels[record.deployedMountId] !== undefined ? record.deployedMountId : DEFAULT_MOUNT_ID;
   return { deployedMountId: deployed, levels };
@@ -52,7 +52,8 @@ export function getMountUpgradeCost(level: number): number | null {
 /** Only the deployed mount gives its bonus. */
 export function getDeployedMountBonuses(progress: MountProgress): Readonly<Record<MountStat, number>> {
   const mount = getMount(progress.deployedMountId);
-  return { cultivationSpeed: mount.stat === "cultivationSpeed" ? getMountBonus(mount, getMountLevel(progress, mount.id)) : 0 };
+  const bonus = getMountBonus(mount, getMountLevel(progress, mount.id));
+  return { cultivationSpeed: mount.stat === "cultivationSpeed" ? bonus : 0, spiritStoneSpeed: mount.stat === "spiritStoneSpeed" ? bonus : 0 };
 }
 
 export type MountUpgradeResult =

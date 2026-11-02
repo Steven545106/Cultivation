@@ -150,7 +150,8 @@ function defaultWeaponProgress(): Record<string, WeaponProgress> {
 /** Unlocked beasts' possession bonuses at the realm each has been fed to, as the beast page shows them, plus the deployed mount's. */
 export function beastIncomeBonuses(save: Pick<GameSaveData, "tower" | "beasts"> & Partial<Pick<GameSaveData, "otherProgress">>) {
   const beasts = getBeastPossessionBonuses(save.tower.highestClearedStage, beast => getBeastStageIndex(save.beasts, beast.beastId));
-  return { ...beasts, cultivationSpeed: beasts.cultivationSpeed + getDeployedMountBonuses(readMountProgress(save.otherProgress ?? {})).cultivationSpeed };
+  const mount = getDeployedMountBonuses(readMountProgress(save.otherProgress ?? {}, save.tower.highestClearedStage));
+  return { ...beasts, cultivationSpeed: beasts.cultivationSpeed + mount.cultivationSpeed, spiritStoneSpeed: beasts.spiritStoneSpeed + mount.spiritStoneSpeed };
 }
 
 function createDefaultSave(): GameSaveData {

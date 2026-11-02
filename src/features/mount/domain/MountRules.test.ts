@@ -4,17 +4,24 @@ import { createMountProgress, deployMount, getDeployedMountBonuses, getMountBonu
 
 describe("mounts", () => {
   it("starts with 破涅 owned at level 1 and deployed", () => {
-    const progress = readMountProgress({});
+    const progress = readMountProgress({}, 0);
     expect(progress).toEqual(createMountProgress());
     expect(getDeployedMountBonuses(progress).cultivationSpeed).toBeCloseTo(0.03);
   });
 
-  it("only mounts with art and no unlock condition are open", () => {
-    expect(mountCatalog.filter(isMountUnlocked).map(mount => mount.nameZh)).toEqual(["破涅"]);
+  it("opens a drawn mount once its tower stage is cleared", () => {
+    expect(mountCatalog.filter(mount => isMountUnlocked(mount, 0)).map(mount => mount.nameZh)).toEqual(["破涅"]);
+    expect(mountCatalog.filter(mount => isMountUnlocked(mount, 200)).map(mount => mount.nameZh)).toEqual(["破涅", "碧靈仙鹿"]);
+    expect(readMountProgress({}, 200).levels).toEqual({ ponie: 1, "biling-deer": 1 });
+  });
+
+  it("碧靈仙鹿 raises the spirit stone speed when deployed", () => {
+    const progress = { deployedMountId: "biling-deer" as const, levels: { ponie: 1, "biling-deer": 3 } };
+    expect(getDeployedMountBonuses(progress)).toEqual({ cultivationSpeed: 0, spiritStoneSpeed: expect.closeTo(0.046, 5) });
   });
 
   it("mends saved progress: clamps levels and drops unknown or locked mounts", () => {
-    const progress = readMountProgress({ mounts: { deployedMountId: "cangming-dragon", levels: { ponie: 99, "cangming-dragon": 5, nope: 3 } } });
+    const progress = readMountProgress({ mounts: { deployedMountId: "biling-deer", levels: { ponie: 99, "biling-deer": 5, "cangming-dragon": 5, nope: 3 } } }, 0);
     expect(progress.levels).toEqual({ ponie: MOUNT_MAX_LEVEL });
     expect(progress.deployedMountId).toBe("ponie");
   });
@@ -35,7 +42,7 @@ describe("mounts", () => {
     const maxed = { ...start, levels: { ponie: MOUNT_MAX_LEVEL } };
     expect(upgradeMount(maxed, "ponie", 1e12)).toEqual({ ok: false, reason: "max-level" });
     expect(getMountUpgradeCost(MOUNT_MAX_LEVEL)).toBeNull();
-    expect(upgradeMount(start, "xuepo-deer", 1e12)).toEqual({ ok: false, reason: "locked" });
+    expect(upgradeMount(start, "biling-deer", 1e12)).toEqual({ ok: false, reason: "locked" });
   });
 
   it("deploys only an owned mount", () => {

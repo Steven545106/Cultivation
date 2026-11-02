@@ -34,7 +34,8 @@ const toSprite = (sprite: MountSprite): CompanionSprite => ({
  * (出戰, only that one gives its bonus) and upgraded with spirit stones.
  */
 export function MountPage({ navigation, save }: { readonly navigation: JSX.Element; readonly save: GameSaveData }): JSX.Element {
-  const progress = readMountProgress(save.otherProgress);
+  const cleared = save.tower.highestClearedStage;
+  const progress = readMountProgress(save.otherProgress, cleared);
   const [viewedId, setViewedId] = useState<MountId>(progress.deployedMountId);
   const viewed = getMount(viewedId);
   return (
@@ -44,7 +45,7 @@ export function MountPage({ navigation, save }: { readonly navigation: JSX.Eleme
         <p className="eyebrow">{save.characterName}的御行坐騎</p>
         <h1>坐騎</h1>
         <p className="library-description">選一隻坐騎出戰，獲得牠的加成；用靈石升級可提升加成，最高 {MOUNT_MAX_LEVEL} 級。</p>
-        <MountShowcase mount={viewed} level={getMountLevel(progress, viewed.id)} deployed={progress.deployedMountId === viewed.id} spiritStones={save.spiritStones} />
+        <MountShowcase mount={viewed} cleared={cleared} level={getMountLevel(progress, viewed.id)} deployed={progress.deployedMountId === viewed.id} spiritStones={save.spiritStones} />
         <div className="mount-grid" role="list" aria-label="坐騎列表">
           {mountCatalog.map(mount => {
             const level = getMountLevel(progress, mount.id);
@@ -70,8 +71,8 @@ export function MountPage({ navigation, save }: { readonly navigation: JSX.Eleme
   );
 }
 
-function MountShowcase({ mount, level, deployed, spiritStones }: { readonly mount: MountConfig; readonly level: number; readonly deployed: boolean; readonly spiritStones: number }): JSX.Element {
-  const owned = level > 0 && isMountUnlocked(mount);
+function MountShowcase({ mount, cleared, level, deployed, spiritStones }: { readonly mount: MountConfig; readonly cleared: number; readonly level: number; readonly deployed: boolean; readonly spiritStones: number }): JSX.Element {
+  const owned = level > 0 && isMountUnlocked(mount, cleared);
   const cost = getMountUpgradeCost(level);
   return (
     <section className="mount-showcase" aria-label={mount.nameZh}>
@@ -85,7 +86,7 @@ function MountShowcase({ mount, level, deployed, spiritStones }: { readonly moun
         <p>{mount.description}</p>
         {owned ? (
           <>
-            <p className="mount-showcase__stat">等級 <strong>{level}</strong> / {MOUNT_MAX_LEVEL}・出戰加成：修為速度 <strong>+{pct(getMountBonus(mount, level))}</strong>{level < MOUNT_MAX_LEVEL ? `（下一級 +${pct(getMountBonus(mount, level + 1))}）` : ""}</p>
+            <p className="mount-showcase__stat">等級 <strong>{level}</strong> / {MOUNT_MAX_LEVEL}・出戰加成：{mount.stat === "spiritStoneSpeed" ? "靈石速度" : "修為速度"} <strong>+{pct(getMountBonus(mount, level))}</strong>{level < MOUNT_MAX_LEVEL ? `（下一級 +${pct(getMountBonus(mount, level + 1))}）` : ""}</p>
             <div className="mount-showcase__actions">
               <button type="button" className="mount-showcase__deploy" disabled={deployed} onClick={() => mountCommands.deploy(mount.id)}>{deployed ? "出戰中" : "出戰"}</button>
               <button type="button" className="mount-showcase__upgrade" disabled={cost === null || spiritStones < cost} onClick={() => mountCommands.upgrade(mount.id)}>

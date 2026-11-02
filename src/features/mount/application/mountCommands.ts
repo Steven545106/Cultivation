@@ -11,13 +11,13 @@ const write = (progress: MountProgress, spiritStones?: number): void => {
 export const mountCommands = {
   deploy: (id: MountId): void => {
     const save = gameSaveService.getSnapshot().save;
-    const current = readMountProgress(save.otherProgress);
+    const current = readMountProgress(save.otherProgress, save.tower.highestClearedStage);
     const next = deployMount(current, id);
     if (next !== current) write(next);
   },
   upgrade: (id: MountId): MountUpgradeResult => {
     const save = gameSaveService.getSnapshot().save;
-    const result = upgradeMount(readMountProgress(save.otherProgress), id, save.spiritStones);
+    const result = upgradeMount(readMountProgress(save.otherProgress, save.tower.highestClearedStage), id, save.spiritStones);
     if (result.ok) write(result.progress, save.spiritStones - result.cost);
     return result;
   },
