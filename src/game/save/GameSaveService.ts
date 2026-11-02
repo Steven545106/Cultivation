@@ -21,6 +21,7 @@ import {
   type TowerProgress,
 } from "../../features/tower";
 
+import { getDeployedMountBonuses, readMountProgress } from "../../features/mount";
 import {
   createBeastProgress,
   getBeastById,
@@ -146,9 +147,10 @@ function defaultWeaponProgress(): Record<string, WeaponProgress> {
   return Object.fromEntries(weaponCatalog.map(weapon => [weapon.weaponId, createWeaponProgress()]));
 }
 
-/** Unlocked beasts' possession bonuses at the realm each has been fed to, as the beast page shows them. */
-export function beastIncomeBonuses(save: Pick<GameSaveData, "tower" | "beasts">) {
-  return getBeastPossessionBonuses(save.tower.highestClearedStage, beast => getBeastStageIndex(save.beasts, beast.beastId));
+/** Unlocked beasts' possession bonuses at the realm each has been fed to, as the beast page shows them, plus the deployed mount's. */
+export function beastIncomeBonuses(save: Pick<GameSaveData, "tower" | "beasts"> & Partial<Pick<GameSaveData, "otherProgress">>) {
+  const beasts = getBeastPossessionBonuses(save.tower.highestClearedStage, beast => getBeastStageIndex(save.beasts, beast.beastId));
+  return { ...beasts, cultivationSpeed: beasts.cultivationSpeed + getDeployedMountBonuses(readMountProgress(save.otherProgress ?? {})).cultivationSpeed };
 }
 
 function createDefaultSave(): GameSaveData {

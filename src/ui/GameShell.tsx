@@ -9,6 +9,7 @@ import { useWeaponSelection } from "./hooks/useWeaponSelection";
 import { GlobalNavigation, type NavigationTarget } from "./navigation/GlobalNavigation";
 import { BattlePage } from "./pages/BattlePage";
 import { BeastPage } from "./pages/BeastPage";
+import { MountPage } from "./pages/MountPage";
 import { CultivatingPage } from "./pages/CultivatingPage";
 import { TowerPage } from "./pages/TowerPage";
 import { WeaponLibraryPage } from "./pages/WeaponLibraryPage";
@@ -19,7 +20,7 @@ import { AdventurePage } from "./pages/AdventurePage";
 import { ExploreScreen } from "./pages/ExplorePage";
 import { warmPostersWhenIdle } from "./warmPictures";
 
-type GamePage = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "explore" | "tower" | "battle";
+type GamePage = "cultivating" | "weapons" | "beasts" | "mounts" | "companions" | "alchemy" | "adventure" | "explore" | "tower" | "battle";
 
 /**
  * React owns the application shell: page routing only. Weapon selection and
@@ -96,6 +97,8 @@ function ActiveGameShell(): JSX.Element {
         return <WeaponLibraryPage navigation={navigation} selection={selection} spiritStones={gameSave.save.spiritStones} characterName={gameSave.save.characterName} />;
       case "beasts":
         return <BeastPage navigation={navigation} save={gameSave.save} heroDps={selection.combatStats.dps} />;
+      case "mounts":
+        return <MountPage navigation={navigation} save={gameSave.save} />;
       case "companions":
         return <CompanionPage navigation={navigation} save={gameSave.save} />;
       case "alchemy":

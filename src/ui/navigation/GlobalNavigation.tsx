@@ -3,7 +3,7 @@ import { beastCatalog } from "../../features/beast";
 import { weaponCatalog } from "../../features/weapon";
 import { RulesModal } from "../rules/RulesModal";
 
-export type NavigationTarget = "cultivating" | "weapons" | "beasts" | "companions" | "alchemy" | "adventure" | "explore" | "tower";
+export type NavigationTarget = "cultivating" | "weapons" | "beasts" | "mounts" | "companions" | "alchemy" | "adventure" | "explore" | "tower";
 
 interface GlobalNavigationProps {
   readonly activePage: NavigationTarget;
@@ -29,6 +29,10 @@ export function GlobalNavigation({ activePage, onNavigate, onShutdown }: GlobalN
       <button type="button" className={activePage === "beasts" ? "global-navigation__item is-active" : "global-navigation__item"} onClick={() => go("beasts")}>
         <span className="global-navigation__medallion global-navigation__medallion--beast"><img src={beastCatalog[0].assetPath} alt="" /></span>
         <span>靈獸</span>
+      </button>
+      <button type="button" className={activePage === "mounts" ? "global-navigation__item is-active" : "global-navigation__item"} onClick={() => go("mounts")}>
+        <span className="global-navigation__medallion global-navigation__medallion--mount"><img src="/assets/mounts/破涅-poster.webp" alt="" /></span>
+        <span>坐騎</span>
       </button>
       <button type="button" className={activePage === "companions" ? "global-navigation__item is-active" : "global-navigation__item"} onClick={() => go("companions")}>
         <span className="global-navigation__medallion global-navigation__medallion--companion">緣</span>
