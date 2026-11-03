@@ -1071,11 +1071,11 @@ canvas {
     radial-gradient(ellipse 14% 7% at 45% 55%, rgba(255, 255, 255, 0.6), transparent 70%),
     radial-gradient(ellipse 30% 9% at 85% 88%, rgba(255, 255, 255, 0.9), transparent 70%),
     radial-gradient(ellipse 26% 8% at 30% 92%, rgba(255, 255, 255, 0.85), transparent 70%);
-  background-size: 100% 100%; background-repeat: repeat-x; animation: mount-clouds 3.2s linear infinite; }
+  background-size: 100% 100%; background-repeat: repeat-x; animation: mount-clouds 5.5s linear infinite; }
 .mount-showcase__stage > .mount-showcase__scenery::after { content: ""; position: absolute; inset: 0;
   background: repeating-linear-gradient(180deg, transparent 0 22px, rgba(255, 255, 255, 0.55) 22px 24px, transparent 24px 61px);
   -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 90px, transparent 90px 260px); mask-image: repeating-linear-gradient(90deg, #000 0 90px, transparent 90px 260px);
-  animation: mount-wind 0.9s linear infinite; }
+  animation: mount-wind 1.6s linear infinite; }
 @keyframes mount-clouds { from { background-position: 0 0; } to { background-position: -100% 0; } }
 @keyframes mount-wind { from { -webkit-mask-position: 0 0; mask-position: 0 0; } to { -webkit-mask-position: -260px 0; mask-position: -260px 0; } }
 @media (prefers-reduced-motion: reduce) {
