@@ -13,6 +13,7 @@ describe("mounts", () => {
     expect(mountCatalog.filter(mount => isMountUnlocked(mount, 0)).map(mount => mount.nameZh)).toEqual(["破涅"]);
     expect(mountCatalog.filter(mount => isMountUnlocked(mount, 200)).map(mount => mount.nameZh)).toEqual(["破涅", "碧靈仙鹿"]);
     expect(mountCatalog.filter(mount => isMountUnlocked(mount, 400)).map(mount => mount.nameZh)).toEqual(["破涅", "碧靈仙鹿", "紫霄靈虎"]);
+    expect(mountCatalog.filter(mount => isMountUnlocked(mount, 600)).map(mount => mount.nameZh)).toEqual(["破涅", "碧靈仙鹿", "紫霄靈虎", "霜焰麒麟"]);
     expect(readMountProgress({}, 200).levels).toEqual({ ponie: 1, "biling-deer": 1 });
   });
 
@@ -48,7 +49,7 @@ describe("mounts", () => {
 
   it("deploys only an owned mount", () => {
     const start = createMountProgress();
-    expect(deployMount(start, "chiyan-qilin")).toBe(start);
+    expect(deployMount(start, "shuangyan-qilin")).toBe(start);
     expect(deployMount(start, "ponie").deployedMountId).toBe("ponie");
   });
 });

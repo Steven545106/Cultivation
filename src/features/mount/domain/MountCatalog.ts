@@ -1,4 +1,4 @@
-export type MountId = "ponie" | "biling-deer" | "zixiao-tiger" | "chiyan-qilin" | "cangming-dragon";
+export type MountId = "ponie" | "biling-deer" | "zixiao-tiger" | "shuangyan-qilin" | "cangming-dragon";
 
 /** What a deployed mount strengthens (all feed the idle income). */
 export type MountStat = "cultivationSpeed" | "spiritStoneSpeed" | "demonCoreYield";
@@ -80,7 +80,19 @@ export const mountCatalog: readonly MountConfig[] = [
     baseBonus: 0.05,
     bonusPerLevel: 0.0035,
   },
-  { id: "chiyan-qilin", nameZh: "赤焰麒麟", kindZh: "麒麟", description: "火紅鱗甲、金色鬃毛，四蹄踏火。", unlockZh: "即將降臨", unlockStage: Infinity, sprite: null, stat: "cultivationSpeed", baseBonus: 0, bonusPerLevel: 0 },
+  {
+    id: "shuangyan-qilin",
+    nameZh: "霜焰麒麟",
+    kindZh: "麒麟",
+    description: "雪白鬃毛的祥瑞麒麟，頭戴粉紫角飾、身披金鞍藍甲，四蹄踏著霜藍靈焰奔行。",
+    unlockZh: "通關通天塔第 600 關",
+    unlockStage: 600,
+    sprite: { sheet: "/assets/mounts/霜焰麒麟-sheet.webp?v=813d627b", poster: "/assets/mounts/霜焰麒麟-poster.webp?v=1c10d344", cols: 6, cellWidth: 720, cellHeight: 468, frames: 24, frameMs: 75, blendMs: 0, endHoldMs: 75 },
+    travels: true,
+    stat: "cultivationSpeed",
+    baseBonus: 0.05,
+    bonusPerLevel: 0.0035,
+  },
   { id: "cangming-dragon", nameZh: "滄溟蒼龍", kindZh: "蒼龍", description: "深藍鱗片、銀白龍鬚的東方長龍，身繞水霧與雷光。", unlockZh: "即將降臨", unlockStage: Infinity, sprite: null, stat: "cultivationSpeed", baseBonus: 0, bonusPerLevel: 0 },
 ];
 
