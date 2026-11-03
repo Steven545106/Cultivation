@@ -53,7 +53,7 @@ export function getMountUpgradeCost(level: number): number | null {
 export function getDeployedMountBonuses(progress: MountProgress): Readonly<Record<MountStat, number>> {
   const mount = getMount(progress.deployedMountId);
   const bonus = getMountBonus(mount, getMountLevel(progress, mount.id));
-  return { cultivationSpeed: mount.stat === "cultivationSpeed" ? bonus : 0, spiritStoneSpeed: mount.stat === "spiritStoneSpeed" ? bonus : 0 };
+  return { cultivationSpeed: mount.stat === "cultivationSpeed" ? bonus : 0, spiritStoneSpeed: mount.stat === "spiritStoneSpeed" ? bonus : 0, demonCoreYield: mount.stat === "demonCoreYield" ? bonus : 0 };
 }
 
 export type MountUpgradeResult =

@@ -12,12 +12,13 @@ describe("mounts", () => {
   it("opens a drawn mount once its tower stage is cleared", () => {
     expect(mountCatalog.filter(mount => isMountUnlocked(mount, 0)).map(mount => mount.nameZh)).toEqual(["破涅"]);
     expect(mountCatalog.filter(mount => isMountUnlocked(mount, 200)).map(mount => mount.nameZh)).toEqual(["破涅", "碧靈仙鹿"]);
+    expect(mountCatalog.filter(mount => isMountUnlocked(mount, 400)).map(mount => mount.nameZh)).toEqual(["破涅", "碧靈仙鹿", "紫霄靈虎"]);
     expect(readMountProgress({}, 200).levels).toEqual({ ponie: 1, "biling-deer": 1 });
   });
 
   it("碧靈仙鹿 raises the spirit stone speed when deployed", () => {
     const progress = { deployedMountId: "biling-deer" as const, levels: { ponie: 1, "biling-deer": 3 } };
-    expect(getDeployedMountBonuses(progress)).toEqual({ cultivationSpeed: 0, spiritStoneSpeed: expect.closeTo(0.046, 5) });
+    expect(getDeployedMountBonuses(progress)).toEqual({ cultivationSpeed: 0, spiritStoneSpeed: expect.closeTo(0.046, 5), demonCoreYield: 0 });
   });
 
   it("mends saved progress: clamps levels and drops unknown or locked mounts", () => {

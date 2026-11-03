@@ -17,6 +17,8 @@ import { mountCommands } from "../../features/mount/application/mountCommands";
 import type { GameSaveData } from "../../features/persistence";
 import { SpriteAnimation } from "../SpriteAnimation";
 
+const MOUNT_STAT_LABEL: Readonly<Record<MountConfig["stat"], string>> = { cultivationSpeed: "修為速度", spiritStoneSpeed: "靈石速度", demonCoreYield: "妖丹產量" };
+
 const pct = (value: number): string => `${Math.round(value * 10000) / 100}%`;
 
 const toSprite = (sprite: MountSprite): CompanionSprite => ({
@@ -87,7 +89,7 @@ function MountShowcase({ mount, cleared, level, deployed, spiritStones }: { read
         <p>{mount.description}</p>
         {owned ? (
           <>
-            <p className="mount-showcase__stat">等級 <strong>{level}</strong> / {MOUNT_MAX_LEVEL}・出戰加成：{mount.stat === "spiritStoneSpeed" ? "靈石速度" : "修為速度"} <strong>+{pct(getMountBonus(mount, level))}</strong>{level < MOUNT_MAX_LEVEL ? `（下一級 +${pct(getMountBonus(mount, level + 1))}）` : ""}</p>
+            <p className="mount-showcase__stat">等級 <strong>{level}</strong> / {MOUNT_MAX_LEVEL}・出戰加成：{MOUNT_STAT_LABEL[mount.stat]} <strong>+{pct(getMountBonus(mount, level))}</strong>{level < MOUNT_MAX_LEVEL ? `（下一級 +${pct(getMountBonus(mount, level + 1))}）` : ""}</p>
             <div className="mount-showcase__actions">
               <button type="button" className="mount-showcase__deploy" disabled={deployed} onClick={() => mountCommands.deploy(mount.id)}>{deployed ? "出戰中" : "出戰"}</button>
               <button type="button" className="mount-showcase__upgrade" disabled={cost === null || spiritStones < cost} onClick={() => mountCommands.upgrade(mount.id)}>

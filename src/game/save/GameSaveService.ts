@@ -151,7 +151,7 @@ function defaultWeaponProgress(): Record<string, WeaponProgress> {
 export function beastIncomeBonuses(save: Pick<GameSaveData, "tower" | "beasts"> & Partial<Pick<GameSaveData, "otherProgress">>) {
   const beasts = getBeastPossessionBonuses(save.tower.highestClearedStage, beast => getBeastStageIndex(save.beasts, beast.beastId));
   const mount = getDeployedMountBonuses(readMountProgress(save.otherProgress ?? {}, save.tower.highestClearedStage));
-  return { ...beasts, cultivationSpeed: beasts.cultivationSpeed + mount.cultivationSpeed, spiritStoneSpeed: beasts.spiritStoneSpeed + mount.spiritStoneSpeed };
+  return { cultivationSpeed: beasts.cultivationSpeed + mount.cultivationSpeed, spiritStoneSpeed: beasts.spiritStoneSpeed + mount.spiritStoneSpeed, demonCoreYield: beasts.demonCoreYield + mount.demonCoreYield };
 }
 
 function createDefaultSave(): GameSaveData {

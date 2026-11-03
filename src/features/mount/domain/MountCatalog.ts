@@ -1,7 +1,7 @@
-export type MountId = "ponie" | "biling-deer" | "xuanwen-tiger" | "chiyan-qilin" | "cangming-dragon";
+export type MountId = "ponie" | "biling-deer" | "zixiao-tiger" | "chiyan-qilin" | "cangming-dragon";
 
-/** What a deployed mount strengthens (both feed the idle income). */
-export type MountStat = "cultivationSpeed" | "spiritStoneSpeed";
+/** What a deployed mount strengthens (all feed the idle income). */
+export type MountStat = "cultivationSpeed" | "spiritStoneSpeed" | "demonCoreYield";
 
 export interface MountSprite {
   readonly sheet: string;
@@ -66,7 +66,19 @@ export const mountCatalog: readonly MountConfig[] = [
     baseBonus: 0.04,
     bonusPerLevel: 0.003,
   },
-  { id: "xuanwen-tiger", nameZh: "玄紋白虎", kindZh: "猛虎", description: "白底黑紋的猛虎，額頭金色「王」字紋，周身帶風。", unlockZh: "即將降臨", unlockStage: Infinity, sprite: null, stat: "cultivationSpeed", baseBonus: 0, bonusPerLevel: 0 },
+  {
+    id: "zixiao-tiger",
+    nameZh: "紫霄靈虎",
+    kindZh: "靈虎",
+    description: "身披紫霄銀金戰甲的白虎，尾燃藍色靈焰，奔走時四爪踏焰、勢如雷霆。",
+    unlockZh: "通關通天塔第 400 關",
+    unlockStage: 400,
+    sprite: { sheet: "/assets/mounts/紫霄靈虎-sheet.webp", poster: "/assets/mounts/紫霄靈虎-poster.webp", cols: 6, cellWidth: 812, cellHeight: 499, frames: 24, frameMs: 110, blendMs: 0, endHoldMs: 110 },
+    travels: true,
+    stat: "demonCoreYield",
+    baseBonus: 0.05,
+    bonusPerLevel: 0.0035,
+  },
   { id: "chiyan-qilin", nameZh: "赤焰麒麟", kindZh: "麒麟", description: "火紅鱗甲、金色鬃毛，四蹄踏火。", unlockZh: "即將降臨", unlockStage: Infinity, sprite: null, stat: "cultivationSpeed", baseBonus: 0, bonusPerLevel: 0 },
   { id: "cangming-dragon", nameZh: "滄溟蒼龍", kindZh: "蒼龍", description: "深藍鱗片、銀白龍鬚的東方長龍，身繞水霧與雷光。", unlockZh: "即將降臨", unlockStage: Infinity, sprite: null, stat: "cultivationSpeed", baseBonus: 0, bonusPerLevel: 0 },
 ];
