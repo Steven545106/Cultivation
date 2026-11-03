@@ -4,6 +4,7 @@ export type MountId = "ponie" | "biling-deer" | "zixiao-tiger" | "chiyan-qilin" 
 export type MountStat = "cultivationSpeed" | "spiritStoneSpeed" | "demonCoreYield";
 
 export interface MountSprite {
+  /** Ends in ?v=<content hash>: a redrawn sheet gets a new URL, so no browser keeps cutting an old sheet with the new layout. */
   readonly sheet: string;
   readonly poster: string;
   readonly cols: number;
@@ -48,7 +49,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "金紋鏤空的飛行仙劍，御劍而行時藍色靈焰沿劍身奔流，銀綾隨風翻飛。",
     unlockZh: null,
     unlockStage: 0,
-    sprite: { sheet: "/assets/mounts/破涅-sheet.webp", poster: "/assets/mounts/破涅-poster.webp", cols: 6, cellWidth: 728, cellHeight: 478, frames: 24, frameMs: 110, blendMs: 130, endHoldMs: 900 },
+    sprite: { sheet: "/assets/mounts/破涅-sheet.webp?v=faf50150", poster: "/assets/mounts/破涅-poster.webp?v=c2fc6d29", cols: 6, cellWidth: 728, cellHeight: 478, frames: 24, frameMs: 110, blendMs: 130, endHoldMs: 900 },
     stat: "cultivationSpeed",
     baseBonus: 0.03,
     bonusPerLevel: 0.0025,
@@ -60,7 +61,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "靈氣凝成的神鹿，鹿角化作翠綠靈焰，金飾碧珠，奔行時蹄下生雲。",
     unlockZh: "通關通天塔第 200 關",
     unlockStage: 200,
-    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 140, blendMs: 0, endHoldMs: 140 },
+    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp?v=fcd970ce", poster: "/assets/mounts/碧靈仙鹿-poster.webp?v=175ed46f", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 140, blendMs: 0, endHoldMs: 140 },
     travels: true,
     stat: "spiritStoneSpeed",
     baseBonus: 0.04,
@@ -73,7 +74,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "身披紫霄銀金戰甲的白虎，尾燃藍色靈焰，奔走時四爪踏焰、勢如雷霆。",
     unlockZh: "通關通天塔第 400 關",
     unlockStage: 400,
-    sprite: { sheet: "/assets/mounts/紫霄靈虎-sheet.webp", poster: "/assets/mounts/紫霄靈虎-poster.webp", cols: 5, cellWidth: 786, cellHeight: 504, frames: 20, frameMs: 90, blendMs: 40, endHoldMs: 90 },
+    sprite: { sheet: "/assets/mounts/紫霄靈虎-sheet.webp?v=0acfec8f", poster: "/assets/mounts/紫霄靈虎-poster.webp?v=2ccc1ee2", cols: 5, cellWidth: 786, cellHeight: 504, frames: 20, frameMs: 130, blendMs: 0, endHoldMs: 130 },
     travels: true,
     stat: "demonCoreYield",
     baseBonus: 0.05,
