@@ -60,7 +60,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "靈氣凝成的神鹿，鹿角化作翠綠靈焰，金飾碧珠，奔行時蹄下生雲。",
     unlockZh: "通關通天塔第 200 關",
     unlockStage: 200,
-    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 85, blendMs: 0, endHoldMs: 600 },
+    sprite: { sheet: "/assets/mounts/碧靈仙鹿-sheet.webp", poster: "/assets/mounts/碧靈仙鹿-poster.webp", cols: 6, cellWidth: 740, cellHeight: 484, frames: 24, frameMs: 85, blendMs: 0, endHoldMs: 85 },
     travels: true,
     stat: "spiritStoneSpeed",
     baseBonus: 0.04,
