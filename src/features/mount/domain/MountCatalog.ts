@@ -31,7 +31,7 @@ export interface MountConfig {
   readonly unlockStage: number;
   /** The idle animation; null while its art has not been drawn yet. */
   readonly sprite: MountSprite | null;
-  /** The animation travels in place (a run or a flight): the stage scrolls clouds and wind past it so it reads as moving forward. */
+  /** The animation travels in place (a run or a flight): the stage scrolls clouds past it so it reads as moving forward. */
   readonly travels?: boolean;
   readonly stat: MountStat;
   /** Bonus at level 1 and added per level after it. */
