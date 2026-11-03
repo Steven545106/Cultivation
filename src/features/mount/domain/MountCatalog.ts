@@ -73,7 +73,7 @@ export const mountCatalog: readonly MountConfig[] = [
     description: "身披紫霄銀金戰甲的白虎，尾燃藍色靈焰，奔走時四爪踏焰、勢如雷霆。",
     unlockZh: "通關通天塔第 400 關",
     unlockStage: 400,
-    sprite: { sheet: "/assets/mounts/紫霄靈虎-sheet.webp", poster: "/assets/mounts/紫霄靈虎-poster.webp", cols: 6, cellWidth: 786, cellHeight: 504, frames: 24, frameMs: 90, blendMs: 40, endHoldMs: 90 },
+    sprite: { sheet: "/assets/mounts/紫霄靈虎-sheet.webp", poster: "/assets/mounts/紫霄靈虎-poster.webp", cols: 5, cellWidth: 786, cellHeight: 504, frames: 20, frameMs: 90, blendMs: 40, endHoldMs: 90 },
     travels: true,
     stat: "demonCoreYield",
     baseBonus: 0.05,
