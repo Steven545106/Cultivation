@@ -21,15 +21,27 @@ const MOUNT_STAT_LABEL: Readonly<Record<MountConfig["stat"], string>> = { cultiv
 
 const pct = (value: number): string => `${Math.round(value * 10000) / 100}%`;
 
-const toSprite = (sprite: MountSprite): CompanionSprite => ({
-  sheet: sprite.sheet,
-  poster: sprite.poster,
-  cols: sprite.cols,
-  cellWidth: sprite.cellWidth,
-  cellHeight: sprite.cellHeight,
-  steps: Array.from({ length: sprite.frames }, (_, cell) => ({ cell, holdMs: cell === sprite.frames - 1 ? sprite.endHoldMs : sprite.frameMs })),
-  blendMs: sprite.blendMs,
-});
+/**
+ * One playback object per mount, kept for good: the page re-renders every time
+ * the save ticks (cultivation updates each second), and a fresh object would
+ * restart the animation from its first frame each time.
+ */
+const playbackCache = new WeakMap<MountSprite, CompanionSprite>();
+const toSprite = (sprite: MountSprite): CompanionSprite => {
+  const cached = playbackCache.get(sprite);
+  if (cached) return cached;
+  const playback: CompanionSprite = {
+    sheet: sprite.sheet,
+    poster: sprite.poster,
+    cols: sprite.cols,
+    cellWidth: sprite.cellWidth,
+    cellHeight: sprite.cellHeight,
+    steps: Array.from({ length: sprite.frames }, (_, cell) => ({ cell, holdMs: cell === sprite.frames - 1 ? sprite.endHoldMs : sprite.frameMs })),
+    blendMs: sprite.blendMs,
+  };
+  playbackCache.set(sprite, playback);
+  return playback;
+};
 
 /**
  * 坐騎: every mount with its idle animation. Owned mounts can be deployed
